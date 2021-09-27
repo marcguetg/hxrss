@@ -1,6 +1,6 @@
-# hxrss
+# Hard X-Ray Self-Seeding (HXRSS)
 
-## Crystal pitch angle model
+#### 1. Crystal pitch angle model
 A function generates a list of photon energy values for a supplied pitch angle range and roll angle value. All reflection lines in the range of [h, k, l]
 values [1, 1, 1] to [hmax, kmax, lmax] are generated.
 
