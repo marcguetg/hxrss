@@ -12,6 +12,8 @@ from HXRSS_Bragg_max_generator import HXRSS_Bragg_max_generator
 import matplotlib.pyplot as plt
 from itertools import cycle
 
+from types import SimpleNamespace
+
 import time
 
 # Function to hover on plot and see a curve's Bragg id
@@ -39,7 +41,9 @@ def on_plot_hover(event):
         end = time.time()
         print('execution time {}'.format(end-start))
 
-def on_pick(event):
+
+# expecting argument lp to be SimpleNamespace (to get infos about click out of callback function w/o global variables)
+def on_pick(event, lp):
     # returns tuple (x,y) in coordinate system of the plot data
     def xlat_me2plot(ax, me):
         # forward transformation: https://matplotlib.org/2.0.2/users/transforms_tutorial.html (section "The transformation pipeline", old docu but works)
@@ -57,12 +61,21 @@ def on_pick(event):
     ydata = obj.get_ydata()
     ind = event.ind # information about picked point (index into data set), this is not the exact point that was clicked
     print('got onpick event at (x={},y={}), data=(x={},y={},ind={}), gid={}'.format(me_data[0],me_data[1],xdata[ind],ydata[ind],ind, obj.get_gid()))
-    global line_pick
-    line_pick = obj.get_gid()
+    #
+    infotxt = obj.get_gid()
+    lp.info_txt = infotxt
+    lp.x = me_data[0]
+    lp.y = me_data[1]
+    lp.valid = True
+    print(str(lp))
+
+
+
 
 
 # store picked line here
-line_pick=None
+line_pick = SimpleNamespace()
+line_pick.valid = False
 
 # maximum h,k,l to scan (generator loops over -hmax .. hmax, etc.)
 hmax, kmax, lmax = 5, 5, 5
@@ -95,13 +108,14 @@ plt.ylim(5000, 20000) # just some reasonable limits (there are also traces outsi
 plt.ylabel('Photon Energy (eV)')
 plt.xlabel('Pitch angle (deg)')
 fig.canvas.mpl_connect('motion_notify_event', on_plot_hover)
-fig.canvas.mpl_connect('pick_event', on_pick)
+# fig.canvas.mpl_connect('pick_event', on_pick)
+fig.canvas.mpl_connect('pick_event', lambda event: on_pick(event,line_pick))
 
 plt.show()
 
 
 # once Figure is closed by user, display info on selected line
-if line_pick is not None:
-    print('you picked the line '+line_pick)
+if line_pick.valid==True:
+    print('you picked line {} at position ({},{})'.format(line_pick.info_txt,line_pick.x,line_pick.y))
 else:
     print('no line was picked')
