@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 import clscratch
 
 class ApplicationWindow(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, lpcb=None):
         super().__init__()
         self._main = QtWidgets.QWidget()
         self.setCentralWidget(self._main)
@@ -21,4 +21,5 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         layout.addWidget(static_canvas)
         self.addToolBar(NavigationToolbar(static_canvas, self))
         self._static_ax = static_canvas.figure.subplots()
-        clscratch.stuff2000_core(None,static_canvas,self._static_ax)
+        clscratch.stuff2000_core(None,static_canvas,self._static_ax, line_pick_cb=lpcb)
+

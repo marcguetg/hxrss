@@ -13,7 +13,10 @@ from itertools import cycle
 from types import SimpleNamespace
 import time
 
-def stuff2000_core(fig, canvas, ax, standalone=False):
+def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_cb=None):
+    '''
+    line_pick_cb: Caller-supplied callback function that is called whenever the user clicks on a trace, single argument to callback function is 'line_pick' data structure
+    '''
     # Function to hover on plot and see a curve's Bragg id
     def on_plot_hover(event):
         # Iterating over each data member plotted
@@ -66,14 +69,18 @@ def stuff2000_core(fig, canvas, ax, standalone=False):
         lp.y = me_data[1]
         lp.valid = True
         print(str(lp))
+        # time.sleep(10)
+        if line_pick_cb is not None:
+            line_pick_cb(line_pick)
 
 
 
 
 
     # store picked line here
-    line_pick = SimpleNamespace()
-    line_pick.valid = False
+    if line_pick is None:
+        line_pick = SimpleNamespace()
+        line_pick.valid = False
 
     # maximum h,k,l to scan (generator loops over -hmax .. hmax, etc.)
     hmax, kmax, lmax = 5, 5, 5
@@ -108,26 +115,41 @@ def stuff2000_core(fig, canvas, ax, standalone=False):
     ax.set_xlabel('Pitch angle (deg)')
 
     # still has some reference to plt, which is not working with PyQt5
-    # canvas.mpl_connect('motion_notify_event', on_plot_hover)
+    if standalone:
+        canvas.mpl_connect('motion_notify_event', on_plot_hover)
+    else:
+        print('HXRSS line plot: hover infos disabled because not in standalone mode')
     canvas.mpl_connect('pick_event', lambda event: on_pick(event,line_pick))
 
     if standalone:
         plt.show()
-
-        # once Figure is closed by user, display info on selected line
-        if line_pick.valid==True:
-            print('you picked line {} at position ({},{})'.format(line_pick.info_txt,line_pick.x,line_pick.y))
-        else:
-            print('no line was picked')
+    # if requested: drop the info object into call-supplied call-back function
+    if line_pick_cb is not None:
+        line_pick_cb(line_pick)
 
 # when working with PyQt5, call this function
-def stuff2000(standalone=False):
+def stuff2000(standalone=False, line_pick=None, line_pick_cb=None):
     fig,ax = plt.subplots(figsize=(12, 8))
     canvas = fig.canvas
-    stuff2000_core(None,canvas,ax, standalone)
+    stuff2000_core(None,canvas,ax, standalone, line_pick, line_pick_cb)
 
 
 # STAND-ALONE DEMO
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    stuff2000(standalone=True)
+
+    # TEST 1
+    lp = SimpleNamespace()
+    lp.valid = False
+    stuff2000(standalone=True, line_pick=lp)
+    # once Figure is closed by user, display info on selected line
+    if lp.valid==True:
+        print('you picked line {} at position ({},{})'.format(lp.info_txt,lp.x,lp.y))
+    else:
+        print('no line was picked')
+
+    # TEST 2: Callback function that is invoked whenevery a line is 'picked' (=clicked)
+    def cb(my_lp):
+        print('*** Entered Call-Back Function ***')
+        print(str(my_lp))
+    stuff2000(standalone=True, line_pick_cb=cb)
