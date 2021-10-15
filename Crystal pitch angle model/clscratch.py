@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+v3 Christoph Lechner (2021-10-15):
+    . Can now plot standalone (using Matplotlib.Pyplot) or integrated in PyQt5 program. In the PyQt5 case, the use of 'plt' is not possible.
+    . Implemented callback function that is called when user is clicking one line
 v2 Christoph Lechner (2021-10-14): added comments, code to pick line by clicking
 
 Created on Sun Sep 26 19:46:24 2021
@@ -88,6 +91,10 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     # scan over these pitch angles
     thplist = np.linspace(111, 113, 51)
 
+    # test code
+    # hmax, kmax, lmax = 1,1,1
+    # thplist = np.linspace(30, 40, 1001)
+
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
     dthp = -0.392      # pitch angle
     dthy = 1.17        # roll angle (American convention)
@@ -107,10 +114,12 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     # canvas = fig.canvas
 
     for r in range(len(p_angle_list)):
-        # ax.plot(p_angle_list[r], phen_list[r], color=next(linecolors), gid=gid_list[r])
-        ax.plot(p_angle_list[r], phen_list[r], color=next(linecolors), gid=gid_list[r], picker=True, pickradius=20)
+        my_color=next(linecolors)
+        ax.plot(p_angle_list[r], phen_list[r], color=my_color, gid=gid_list[r], picker=True, pickradius=20)
+        print(f'___ plotted gid={gid_list[r]} in color={my_color} ___')
 
     ax.set_ylim(5000, 20000) # just some reasonable limits (there are also traces outside of this range)
+    # ax.set_ylim(2900, 3100)
     ax.set_ylabel('Photon Energy (eV)')
     ax.set_xlabel('Pitch angle (deg)')
 

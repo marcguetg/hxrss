@@ -14,6 +14,9 @@ import time
 import logging
 
 
+import scipy.optimize
+
+
 def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha):
     p_angle_list = []
     phen_list = []
@@ -64,19 +67,65 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
         r3 = rotm3(thr, rollax3)
         return r3.dot(r2.dot(r1.dot(n0)))
 
+    # !!! here 'thp' is in radians !!!
     def phev(fact, n, h, k, l, a, thp, thy, thr, n0, pitchax, rollax, yawax):
         d = a/np.sqrt(h**2+k**2+l**2)
         return fact*np.sqrt(h**2+k**2+l**2)/(2*d*n*np.linalg.norm(kirot(thp, thy, thr, n0, pitchax, rollax, yawax).dot((h, k, l))))
 
+    # not working, yet (code structure needs to be improved first)
+    # Additional parameters dthy, alpha, and roll_angle are needed
+    # to replicate the coupling of pitch and yaw from main loop
+    # also during the optimization process.
+    def phev_min(fact, n, h, k, l, a, thp, thy_not_used, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle):
+        def nenner(fact, n, h, k, l, a, thp, thy, thr, n0, pitchax, rollax, yawax):
+            v = np.linalg.norm(kirot(thp, thy, thr, n0, pitchax, rollax, yawax).dot((h, k, l)))
+            return v
+
+        def obj(fact, n, h, k, l, a, my_thp, thy, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle):
+            # print('objective function: my_thp=' + repr(my_thp))
+            my_thp=my_thp[0] # unpack from numpy.array into number
+            # print('yyy {} {} {} {}'.format(dthy,my_thp, roll_angle,alpha))
+            # code block copied from main function (there thp is in degrees, so we need to convert)
+            DTHY = dthy+(alpha * my_thp*180/np.pi) # conversion of thp from rad to degrees needed
+            # AMERICAN YAW DEFINITION, our roll angle
+            my_thy = (-DTHY+roll_angle)/180*np.pi
+            #
+            v = nenner(fact, n, h, k, l, a, my_thp, my_thy, thr, n0, pitchax, rollax, yawax)
+            print('objective function: pitch angle={} (my_thy={}), value={}'.format(my_thp,my_thy,v))
+            return v
+            
+
+        f = lambda my_thp: -obj(fact, n, h, k, l, a, my_thp, thy_not_used, thr, n0, pitchax, rollax, yawax, dthy, alpha, roll_angle)
+        sol = scipy.optimize.minimize(f, [0], bounds=scipy.optimize.Bounds(0,2*np.pi), options={'ftol': 1e-15, 'disp': True}) # https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb
+        print(str(sol))
+        result = sol.x[0] * 180/np.pi + thp # final coordinate transformation as in 'plotene' (what is DTHP there is thp here)
+        print(f'*** h,k,l=({h},{k},{l}) => result={result} ***')
+        return 0
+
+    # !!! 'thplist' is in degrees !!!
     def plotene(thplist, fact, n, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax):
         count = 0
+        fout = open('stuff.txt','w')
         for thp, thy in zip(thplist/180*np.pi, thylist):
+            print(str( (thp,thy) ), file=fout)
             eevlist[count] = (phev(fact, 1, h, k, l, a, thp,
                                    thy, thr, n0, pitchax, rollax, yawax))
             count = count+1
         gid = [h, k, l]
         thplist_f = thplist+DTHP
+        fout.close()
         return thplist_f, eevlist, gid
+
+    # returns True is combination of (h,k,l) is allowed
+    def is_allowed_reflection(h,k,l):
+       allowed = False
+       if (h % 2 and k % 2 and l % 2) or (not(h % 2) and not(k % 2) and not(l % 2) and not((h+k+l) % 4)) and not(h == 0 and k == 0 and l == 0):
+           allowed = True
+           if h == 0 and k < 0:
+               allowed = False
+           if h == 0 and k == 0 and l < 0:
+               allowed = False
+       return allowed
 
 #User defined quantities
 ################ AMERICAN NAME CONVENTION --- OUR ROLL IS YAW HERE AND VICEVERSA!!!######################
@@ -103,28 +152,31 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     DTHP = dthp  # -0.6921-0.09
 
     for roll_angle in roll_angle_list:
+        # print('xxx {} {} {} {}'.format(dthy,thplist[1], roll_angle, alpha))
         DTHY = dthy+(alpha*thplist)  # 15#15#0#-0.15#-0.39#-0.15 #0.0885
         DTHR = dthr
         # AMERICAN YAW DEFINITION, our roll angle
         thylist = (-DTHY+roll_angle)/180*np.pi
         thr = (-DTHR)/180*np.pi  # AMERICAN ROLL DEFINITION
 
+
+        # !!! 'thplist' is in degrees !!!
         for h in range(0, hmax+1):
             for k in range(-kmax, kmax+1):
-               for l in range(-lmax, lmax+1):
-                   ref = h*np.array((1, 0, 0))+k * \
-                                    np.array((0, 1, 0))+l*np.array((0, 0, 1))
-                   allowed = 0
-                   if (h % 2 and k % 2 and l % 2) or (not(h % 2) and not(k % 2) and not(l % 2) and not((h+k+l) % 4)) and not(h == 0 and k == 0 and l == 0):
-                       allowed = 1
-                       if h == 0 and k < 0:
-                           allowed = 0
-                       if h == 0 and k == 0 and l < 0:
-                           allowed = 0
-                       if allowed == 1:
-                           p_angle, phen, gid = plotene(
-                               thplist, fact, nord, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax)
-                           phen_list.append(list(phen))
-                           p_angle_list.append(list(p_angle))
-                           gid_list.append(str(gid))
+                for l in range(-lmax, lmax+1):
+                    ref = h*np.array((1, 0, 0))+k * \
+                                     np.array((0, 1, 0))+l*np.array((0, 0, 1))
+                    if is_allowed_reflection(h,k,l):
+                          # (thplist, fact, n, h, k, l,   a, DTHP, thylist, thr, n0, pitchax, rollax, yawax):
+                        p_angle, phen, gid = plotene(
+                            thplist, fact, nord, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax)
+                        print('***')
+                        # phev_min(fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
+                        # #                                      ^ argument not used in function
+                        #     dthy, alpha, roll_angle)
+                        phen_list.append(list(phen))
+                        p_angle_list.append(list(p_angle))
+                        gid_list.append(str(gid))
+
+    print(f'after main loop: dthy={dthy}')
     return phen_list, p_angle_list, gid_list

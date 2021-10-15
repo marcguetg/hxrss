@@ -111,7 +111,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print(str(the_info))
         if the_info.valid:
             self.reflection_display.setText(the_info.info_txt)
-            self.photon_energy_edit.setText(str(the_info.y))
+            self.photon_energy_edit.setText('{:.2f}'.format(the_info.y))
 
 
     def on_apply_button(self):
