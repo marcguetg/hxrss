@@ -382,7 +382,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Resulting Set-point</string>
+      <string>resulting setpoint</string>
      </property>
     </widget>
     <widget class="QLabel" name="color1_sp_display">
@@ -499,7 +499,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Current Value</string>
+      <string>readback value</string>
      </property>
     </widget>
     <widget class="QLabel" name="color3_rb_display">

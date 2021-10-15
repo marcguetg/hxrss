@@ -90,6 +90,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     # scan over these pitch angles
     thplist = np.linspace(111, 113, 51)
+    thplist = np.linspace(0, 180, 301)
 
     # test code
     # hmax, kmax, lmax = 1,1,1

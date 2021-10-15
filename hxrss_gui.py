@@ -58,6 +58,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.color1_rb_display.setText(str(msg.color1_rb))
         self.color2_rb_display.setText(str(msg.color2_rb))
         self.color3_rb_display.setText(str(msg.color3_rb))
+        self.mono1_pitch_rb_display.setText(str(msg.mono1_pitch_rb))
+        self.mono1_pitch_sp_display.setText(str(msg.mono1_pitch_sp))
+        self.mono1_roll_rb_display.setText(str(msg.mono1_roll_rb))
+        self.mono1_roll_sp_display.setText(str(msg.mono1_roll_sp))
         self.mono2_pitch_rb_display.setText(str(msg.mono2_pitch_rb))
         self.mono2_pitch_sp_display.setText(str(msg.mono2_pitch_sp))
         self.mono2_roll_rb_display.setText(str(msg.mono2_roll_rb))
@@ -111,6 +115,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def on_apply_button(self):
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
+        cmd.setpoints = SimpleNamespace()
+        cmd.setpoints.mono2_pitch = 1
+        cmd.setpoints.mono2_roll  = 1.5
         self.q_to_io.put(cmd)
 
     def on_close(self):
