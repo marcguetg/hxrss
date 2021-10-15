@@ -104,6 +104,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         blah = do_crystal_plot.ApplicationWindow(lpcb=self.on_crystal_map_linepicked)
         blah.show()
         blah.activateWindow()
+        self.crystal_plot = blah # prevent issues with garbage collector (2021-Oct-15). On Ubuntu 20.04LTS plot was showing, on MacOS in BKR, the plot was not displayed, but there was also no crash or error msg displayed. Pointed out by Marc G.
         print('abc')
 
     def on_crystal_map_linepicked(self,the_info):
