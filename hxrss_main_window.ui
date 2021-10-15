@@ -68,45 +68,51 @@
      <rect>
       <x>270</x>
       <y>100</y>
-      <width>381</width>
-      <height>121</height>
+      <width>491</width>
+      <height>151</height>
      </rect>
     </property>
     <property name="title">
-     <string>computed crystal setpoints</string>
+     <string>Monochromator crystal essentials</string>
     </property>
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>270</x>
+       <x>310</x>
        <y>30</y>
-       <width>91</width>
-       <height>16</height>
+       <width>151</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
       <string>mono2</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
     </widget>
     <widget class="QLabel" name="label_4">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>130</x>
        <y>30</y>
-       <width>57</width>
-       <height>15</height>
+       <width>141</width>
+       <height>16</height>
       </rect>
      </property>
      <property name="text">
       <string>mono1</string>
      </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
     </widget>
-    <widget class="QLabel" name="mono2_pitch_display">
+    <widget class="QLabel" name="mono2_pitch_sp_display">
      <property name="geometry">
       <rect>
-       <x>270</x>
-       <y>60</y>
-       <width>91</width>
+       <x>300</x>
+       <y>80</y>
+       <width>81</width>
        <height>20</height>
       </rect>
      </property>
@@ -114,12 +120,12 @@
       <string>TextLabel</string>
      </property>
     </widget>
-    <widget class="QLabel" name="mono2_roll_display">
+    <widget class="QLabel" name="mono2_roll_sp_display">
      <property name="geometry">
       <rect>
-       <x>270</x>
-       <y>90</y>
-       <width>91</width>
+       <x>300</x>
+       <y>110</y>
+       <width>81</width>
        <height>20</height>
       </rect>
      </property>
@@ -131,7 +137,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>60</y>
+       <y>80</y>
        <width>91</width>
        <height>20</height>
       </rect>
@@ -144,7 +150,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>90</y>
+       <y>110</y>
        <width>91</width>
        <height>21</height>
       </rect>
@@ -153,12 +159,12 @@
       <string>roll angle</string>
      </property>
     </widget>
-    <widget class="QLabel" name="mono1_pitch_display">
+    <widget class="QLabel" name="mono1_pitch_sp_display">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>60</y>
-       <width>91</width>
+       <x>120</x>
+       <y>80</y>
+       <width>81</width>
        <height>20</height>
       </rect>
      </property>
@@ -166,17 +172,133 @@
       <string>TextLabel</string>
      </property>
     </widget>
-    <widget class="QLabel" name="mono1_roll_display">
+    <widget class="QLabel" name="mono1_roll_sp_display">
      <property name="geometry">
       <rect>
-       <x>170</x>
-       <y>90</y>
-       <width>91</width>
+       <x>120</x>
+       <y>110</y>
+       <width>81</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
       <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="mono2_pitch_rb_display">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>80</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="mono2_roll_rb_display">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>110</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="mono1_pitch_rb_display">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>80</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="mono1_roll_rb_display">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>110</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>50</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>setpoint</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>50</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>setpoint</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_13">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>50</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>readback</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_14">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>50</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>readback</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </widget>
@@ -215,9 +337,9 @@
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>280</y>
-      <width>451</width>
+      <x>270</x>
+      <y>260</y>
+      <width>491</width>
       <height>141</height>
      </rect>
     </property>
@@ -432,6 +554,119 @@
     <property name="text">
      <string>Apply</string>
     </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>410</y>
+      <width>491</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Machine I/O</string>
+    </property>
+    <widget class="QLabel" name="label_19">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>191</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>I/O processing time [ms]</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_17">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>191</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>last tag ID seen from thread</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="io_processingtime_display">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>50</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="io_msgtag_display">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>30</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="io_msgage_display">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>70</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>191</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>age of last msg [s]</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="io_threaddbg_checkbox">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>30</y>
+       <width>151</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>dbg I/O thread</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
