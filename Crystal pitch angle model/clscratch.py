@@ -89,7 +89,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     hmax, kmax, lmax = 5, 5, 5
 
     # scan over these pitch angles
-    thplist = np.linspace(111, 113, 51)
+    # thplist = np.linspace(111, 113, 51)
     thplist = np.linspace(0, 360, 601)
 
     # test code
@@ -112,16 +112,20 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     colors = ['r', 'b', 'g', 'c', 'y', 'k']
     linecolors = cycle(colors)
 
-
-    # fig,ax = plt.subplots(figsize=(12, 8))
-    # canvas = fig.canvas
-
     for r in range(len(p_angle_list)):
         my_color=next(linecolors)
         ax.plot(p_angle_list[r], phen_list[r], color=my_color, gid=gid_list[r], picker=True, pickradius=20)
         print(f'___ plotted gid={gid_list[r]} in color={my_color} ___')
 
+    # indicate minima using the information returned by Bragg max gen
     ax.plot(min_pitch, min_photenergy, 'kx')
+
+    # stt = "single trace test"
+    stt_thplist = np.linspace(65, 160, 1001)
+    stt_phen_list,stt_p_angle_list,stt_gid_list,_,_ = HXRSS_Bragg_max_generator(
+        stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
+        specific_hkl=[(1,1,-1)]) # <===
+    ax.plot(stt_p_angle_list[0], np.array(stt_phen_list[0]), 'k+')
 
     ax.set_ylim(5000, 20000) # just some reasonable limits (there are also traces outside of this range)
     ax.set_ylim(2000, 20000)
@@ -136,10 +140,11 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     canvas.mpl_connect('pick_event', lambda event: on_pick(event,line_pick))
 
     if standalone:
-        plt.show()
-    # if requested: drop the info object into call-supplied call-back function
-    if line_pick_cb is not None:
-        line_pick_cb(line_pick)
+        plt.show() # wait for user (not possible with PyQt5-based program)
+        # if requested: drop the info object into call-supplied call-back function
+        if line_pick_cb is not None:
+            line_pick_cb(line_pick)
+
 
 # when working with PyQt5, call this function
 def stuff2000(standalone=False, line_pick=None, line_pick_cb=None):
@@ -148,11 +153,14 @@ def stuff2000(standalone=False, line_pick=None, line_pick_cb=None):
     stuff2000_core(None,canvas,ax, standalone, line_pick, line_pick_cb)
 
 
-# STAND-ALONE DEMO
+
+
+
+### STAND-ALONE DEMO ###
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    # TEST 1
+    # TEST 1: Information on picked line is retrieved via passed data obj
     lp = SimpleNamespace()
     lp.valid = False
     stuff2000(standalone=True, line_pick=lp)

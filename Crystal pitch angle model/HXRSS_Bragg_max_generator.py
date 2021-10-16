@@ -3,6 +3,7 @@ Created on Mon Nov 11 14:12:59 2019
 
 @author: ggeloni
 Edited to function by cgrech (Jul 6, 21)
+Further modifications by Christoph Lechner (Oct 21)
 """
 
 # from sympy.utilities.iterables import multiset_permutations
@@ -16,8 +17,12 @@ import itertools
 
 import scipy.optimize
 
-
-def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha):
+# CL, 2021-Oct-16: added specific_hkl argument
+# If this argument is *not* provided by caller, function behavior
+# remains unchanged.
+# If the caller provided specific hkl values, they take precedence
+# over looping the cartestian product of possible h,k,l values.
+def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, specific_hkl=None):
     p_angle_list = []
     phen_list = []
     label_list = []
@@ -193,10 +198,18 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
 
 
         # !!! 'thplist' is in degrees !!!
-        hrange=range(0, hmax+1)
-        krange=range(-kmax, kmax+1)
-        lrange=range(-lmax, lmax+1)
-        hkl_list = list(itertools.product(hrange,krange,lrange))
+
+        # Prepare hkl combinations to examine
+        # If the caller provided specific hkl values, they take precedence
+        # over looping the cartestian product of possible h,k,l values.
+        if specific_hkl is not None:
+            hkl_list=specific_hkl
+        else:
+            hrange=range(0, hmax+1)
+            krange=range(-kmax, kmax+1)
+            lrange=range(-lmax, lmax+1)
+            hkl_list = list(itertools.product(hrange,krange,lrange))
+        print(str(hkl_list))
         for hkl in hkl_list:
             h,k,l=hkl  # unpack to interface with existing code
             if is_allowed_reflection(h,k,l):
@@ -216,16 +229,5 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
             else:
                 print(f'hkl=({h},{k},{l}): not allowed')
 
-        # old nested loops to iterate over cartesian product of interesting h,k,l
-        '''
-        for h in range(0, hmax+1):
-            for k in range(-kmax, kmax+1):
-                for l in range(-lmax, lmax+1):
-                    ref = h*np.array((1, 0, 0))+k * \
-                                     np.array((0, 1, 0))+l*np.array((0, 0, 1))
-        '''
-                        
-
-    # print(f'after main loop: dthy={dthy}')
     # return phen_list, p_angle_list, gid_list
     return phen_list, p_angle_list, gid_list, min_pitch_list, min_photonenergy_list
