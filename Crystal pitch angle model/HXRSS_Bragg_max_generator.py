@@ -14,6 +14,7 @@ import numpy as np
 import time
 # import logging
 import itertools
+from types import SimpleNamespace
 
 import scipy.optimize
 
@@ -22,7 +23,7 @@ import scipy.optimize
 # remains unchanged.
 # If the caller provided specific hkl values, they take precedence
 # over looping the cartestian product of possible h,k,l values.
-def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, specific_hkl=None):
+def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, specific_hkl=None, return_obj=False):
     p_angle_list = []
     phen_list = []
     label_list = []
@@ -248,5 +249,16 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
             else:
                 print(f'hkl=({h},{k},{l}): not allowed')
 
-    # return phen_list, p_angle_list, gid_list
-    return phen_list, p_angle_list, gid_list, min_pitch_list, min_photonenergy_list
+
+
+    if return_obj==False:
+        return phen_list, p_angle_list, gid_list
+
+    # new style, flexibility when adding new information to return
+    r = SimpleNamespace()
+    r.phen_list = phen_list
+    r.p_angle_list = p_angle_list
+    r.gid_list = gid_list
+    r.min_pitch_list = min_pitch_list
+    r.min_photonenergy_list = min_photonenergy_list
+    return r

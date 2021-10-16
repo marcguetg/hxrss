@@ -133,9 +133,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
             roll_list = [1.58]
             stt_thplist = np.linspace(133, 200, 1001) # cyan curve
-            stt_phen_list,stt_pangle_list,_,_,_ = HXRSS_Bragg_max_generator(
+            stt_r = HXRSS_Bragg_max_generator(
                 stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
-                specific_hkl=[(1,1,1)]) # <===
+                specific_hkl=[(1,1,1)], return_obj=True) # <===
+            stt_phen_list = stt_r.phen_list
+            stt_pangle_list = stt_r.p_angle_list
+            stt_gid_list = stt_r.gid_list
 
             # !!! there is an angle offset between input pitch angles and
             #     angles returned as second return argument !!!

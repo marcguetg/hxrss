@@ -107,8 +107,12 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     #phen_list, p_angle_list, gid_list = HXRSS_Bragg_max_generator(
     #            thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha)
-    phen_list, p_angle_list, gid_list, min_pitch, min_photenergy = HXRSS_Bragg_max_generator(
-                thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha)
+    r = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, return_obj=True)
+    phen_list = r.phen_list
+    p_angle_list = r.p_angle_list
+    gid_list = r.gid_list
+    min_pitch = r.min_pitch_list
+    min_photenergy = r.min_photonenergy_list
 
     colors = ['r', 'b', 'g', 'c', 'y', 'k']
     linecolors = cycle(colors)
@@ -123,9 +127,12 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     # stt = "single trace test"
     stt_thplist = np.linspace(65, 160, 1001)
-    stt_phen_list,stt_p_angle_list,stt_gid_list,_,_ = HXRSS_Bragg_max_generator(
+    stt_r = HXRSS_Bragg_max_generator(
         stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
-        specific_hkl=[(1,1,-1)]) # <===
+        specific_hkl=[(1,1,-1)], return_obj=True) # <===
+    stt_phen_list = stt_r.phen_list
+    stt_p_angle_list = stt_r.p_angle_list
+    stt_gid_list = stt_r.gid_list
     ax.plot(stt_p_angle_list[0], np.array(stt_phen_list[0]), 'k+')
 
     ax.set_ylim(5000, 20000) # just some reasonable limits (there are also traces outside of this range)
