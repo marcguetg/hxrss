@@ -15,6 +15,12 @@ from hxrss_io import thread_ioworker, IO_Cmd, get_initial_photon_energy_value
 # from clscratch import stuff2000
 import do_crystal_plot
 
+# for development of crystal control code
+from scipy import interpolate
+import scipy
+import numpy as np
+from HXRSS_Bragg_max_generator import HXRSS_Bragg_max_generator
+
 class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,9 +29,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # self.close.connect(self.on_close)
         self.display_map_button.clicked.connect(self.on_show_map_button)
         self.apply_button.clicked.connect(self.on_apply_button)
+        self.photon_energy_edit.returnPressed.connect(self.on_photon_energy_enter)
 
         self.photon_energy_edit.setText('{:.2f}'.format(get_initial_photon_energy_value()))
 
+        self.mono2 = SimpleNamespace()
+        self.mono2.infotxt = 'Crystal 2'
+
+        ### THREAD FOR MACHINE I/O ###
         # thread for communication with machine: display dbg messages?
         self.io_thread_dbg=False
         # queue for communication to machine
@@ -95,9 +106,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             if got_something==False:
                 if dbg: print('GUI timer: there was nothing in queue')
 
+################################
+### CRYSTAL-MAP RELATED CODE ###
+################################
     def on_show_map_button(self):
-        x = self.photon_energy_edit.text()
-        print('value='+x)
         blah = do_crystal_plot.ApplicationWindow(lpcb=self.on_crystal_map_linepicked)
         blah.show()
         blah.activateWindow()
@@ -111,6 +123,98 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.reflection_display.setText(the_info.info_txt)
             self.photon_energy_edit.setText('{:.2f}'.format(the_info.y))
 
+            ### store detailed curve data for interpolation of setpoints ###
+            hmax, kmax, lmax = 1,1,1 # has no effect because specific_hkl parameters overrides these
+            # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
+            dthp = -0.392      # pitch angle
+            dthy = 1.17        # roll angle (American convention)
+            dthr = 0.1675      # yaw angle (American convention)
+            alpha = 0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
+
+            roll_list = [1.58]
+            stt_thplist = np.linspace(133, 200, 1001) # cyan curve
+            stt_phen_list,stt_pangle_list,_,_,_ = HXRSS_Bragg_max_generator(
+                stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
+                specific_hkl=[(1,1,1)]) # <===
+
+            # !!! there is an angle offset between input pitch angles and
+            #     angles returned as second return argument !!!
+            # for current test params, the offset is 0.392 deg.
+            # function returns list containing lists, but they should only have single element
+            stt_phen_list = stt_phen_list[0]
+            stt_pangle_list = stt_pangle_list[0]
+
+            # dbg: pitch angle offset between input array and output array
+            # print(str(stt_pangle_list[0]))
+            # print(str(stt_thplist[0]))
+
+            self.mono2.curvedata = SimpleNamespace()
+            self.mono2.curvedata.pitch = stt_pangle_list
+            # TODO: store roll angle data as well
+            self.mono2.curvedata.phen = stt_phen_list
+            self.mono2.curvedata.valid = True
+
+################################
+
+    def determine_setpoints(self,sp_phen):
+        self.determine_mono_setpoints(self.mono2,sp_phen)
+
+    def determine_mono_setpoints(self,mono,sp_phen):
+        if not hasattr(mono,'curvedata'):
+            print(mono.infotxt+': no curvedata available')
+            return False
+        cd = mono.curvedata
+        if cd.valid!=True:
+            print(mono.infotxt+': curvedata is not valid')
+            return False
+
+        # verify that the desired photon energy is possible
+        phen_max = np.amax(np.array(cd.phen))
+        phen_min = np.amin(np.array(cd.phen))
+        if ((phen_min<=sp_phen) and (sp_phen<=phen_max)):
+            pass # ok
+        else:
+            print(mono.infotxt+f': requested photon energy is outside of possible range {phen_min}..{phen_max}')
+            return False
+
+        # setup INTERPOLATION of stored crystal curve
+        # Curve continues with extrapolation outside known pitch range
+        # This is needed to force the search algorithm back into the known region
+        # In the end, it is verified that the search converged to a value inside
+        # the interpolation region.
+        # The curve is assumed to be monotonic because it is from a photon energy
+        # minimum to a maximum or vice versa.
+        #f_interp_phen = interpolate.interp1d(cd.pitch, cd.phen,
+        #    fill_value=(cd.phen[0],cd.phen[-1]), bounds_error=False)
+        f_interp_phen = interpolate.interp1d(cd.pitch, cd.phen,
+            fill_value='extrapolate', bounds_error=False)
+
+        # find the pitch angle corresponding to the desired photon energy
+        f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
+        # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
+        pitch0 = (cd.pitch[0]+cd.pitch[-1])/2 # start value in the center of range
+        solroot = scipy.optimize.root(f, [pitch0]) # root finding does not support specification of bounds
+        if not solroot.success:
+            print(mono.infotxt+': issue with finding the pitch angle, scipy.optimize.root status:')
+            print(str(solroot))
+            return False
+
+        setpoint_pitch = solroot.x[0]
+        # TODO: check that determined setpoint is from interpolation (= point lies in the scanned pitch range)
+
+        print(mono.infotxt+': setpoint pitch='+str(setpoint_pitch))
+        return True
+
+    def on_photon_energy_enter(self):
+        print('photon energy edit: [enter] detected')
+        phen_str = self.photon_energy_edit.text()
+        # convert string to number, continue only if this works
+        try:
+            phen = float(phen_str)
+        except ValueError:
+            print(f'photon energy cannot convert "{phen_str}" into number')
+            return
+        self.determine_setpoints(phen)
 
     def on_apply_button(self):
         cmd = SimpleNamespace()
@@ -123,9 +227,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def on_close(self):
         print('CLOSE')
 
-app = qtw.QApplication([])
 
-w = MainWindow()
-w.show()
 
-app.exec_()
+if __name__ == "__main__":
+    app = qtw.QApplication([])
+
+    w = MainWindow()
+    w.show()
+
+    app.exec_()
