@@ -89,12 +89,11 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     hmax, kmax, lmax = 5, 5, 5
 
     # scan over these pitch angles
-    # thplist = np.linspace(111, 113, 51)
-    thplist = np.linspace(0, 360, 601)
+    thplist = np.linspace(111, 113, 51)
 
     # test code
     hmax, kmax, lmax = 1,1,1
-    # thplist = np.linspace(30, 40, 1001)
+    thplist = np.linspace(0, 360, 601)
 
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
     dthp = -0.392      # pitch angle
