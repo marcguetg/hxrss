@@ -5,14 +5,14 @@ Created on Mon Nov 11 14:12:59 2019
 Edited to function by cgrech (Jul 6, 21)
 """
 
-from sympy.utilities.iterables import multiset_permutations
-import sys
-import os
-import matplotlib.pyplot as plt
+# from sympy.utilities.iterables import multiset_permutations
+# import sys
+# import os
+# import matplotlib.pyplot as plt
 import numpy as np
 import time
-import logging
-
+# import logging
+import itertools
 
 import scipy.optimize
 
@@ -193,25 +193,38 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
 
 
         # !!! 'thplist' is in degrees !!!
+        hrange=range(0, hmax+1)
+        krange=range(-kmax, kmax+1)
+        lrange=range(-lmax, lmax+1)
+        hkl_list = list(itertools.product(hrange,krange,lrange))
+        for hkl in hkl_list:
+            h,k,l=hkl  # unpack to interface with existing code
+            if is_allowed_reflection(h,k,l):
+                p_angle, phen, gid = plotene(
+                    thplist, fact, nord, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax)
+                print('***')
+                min_pitch,min_photonenergy = phev_min(
+                    fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
+                #                                 ^ argument not used in function
+                    dthy, alpha, roll_angle)
+                phen_list.append(list(phen))
+                p_angle_list.append(list(p_angle))
+                gid_list.append(str(gid))
+                min_pitch_list.append(min_pitch)
+                min_photonenergy_list.append(min_photonenergy)
+                print(f'hkl=({h},{k},{l}): done')
+            else:
+                print(f'hkl=({h},{k},{l}): not allowed')
+
+        # old nested loops to iterate over cartesian product of interesting h,k,l
+        '''
         for h in range(0, hmax+1):
             for k in range(-kmax, kmax+1):
                 for l in range(-lmax, lmax+1):
                     ref = h*np.array((1, 0, 0))+k * \
                                      np.array((0, 1, 0))+l*np.array((0, 0, 1))
-                    if is_allowed_reflection(h,k,l):
-                          # (thplist, fact, n, h, k, l,   a, DTHP, thylist, thr, n0, pitchax, rollax, yawax):
-                        p_angle, phen, gid = plotene(
-                            thplist, fact, nord, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax)
-                        print('***')
-                        min_pitch,min_photonenergy = phev_min(
-                            fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
-                        #                                 ^ argument not used in function
-                            dthy, alpha, roll_angle)
-                        phen_list.append(list(phen))
-                        p_angle_list.append(list(p_angle))
-                        gid_list.append(str(gid))
-                        min_pitch_list.append(min_pitch)
-                        min_photonenergy_list.append(min_photonenergy)
+        '''
+                        
 
     # print(f'after main loop: dthy={dthy}')
     # return phen_list, p_angle_list, gid_list
