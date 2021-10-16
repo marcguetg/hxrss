@@ -20,6 +20,7 @@ def set_mono(sp):
     print('set_mono function is disabled, it was called with setpoint: '+str(sp))
     return
 
+    '''
     motor_speed = 80  # percent
     original_speed_pitch = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/SPEED.SET')
     original_speed_roll  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/SPEED.SET')
@@ -37,6 +38,7 @@ def set_mono(sp):
     pydoocs.write('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/SPEED.SET', original_speed_pitch)
     pydoocs.write('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/SPEED.SET', original_speed_roll)
     return
+    '''
 
 
 def thread_ioworker(qin, qout, dbg=False):

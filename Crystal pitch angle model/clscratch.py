@@ -90,10 +90,10 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     # scan over these pitch angles
     thplist = np.linspace(111, 113, 51)
-    thplist = np.linspace(0, 180, 301)
+    thplist = np.linspace(0, 360, 601)
 
     # test code
-    # hmax, kmax, lmax = 1,1,1
+    hmax, kmax, lmax = 1,1,1
     # thplist = np.linspace(30, 40, 1001)
 
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
@@ -104,7 +104,9 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     roll_list = [1.58]
 
-    phen_list, p_angle_list, gid_list = HXRSS_Bragg_max_generator(
+    #phen_list, p_angle_list, gid_list = HXRSS_Bragg_max_generator(
+    #            thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha)
+    phen_list, p_angle_list, gid_list, min_pitch, min_photenergy = HXRSS_Bragg_max_generator(
                 thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha)
 
     colors = ['r', 'b', 'g', 'c', 'y', 'k']
@@ -119,8 +121,10 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
         ax.plot(p_angle_list[r], phen_list[r], color=my_color, gid=gid_list[r], picker=True, pickradius=20)
         print(f'___ plotted gid={gid_list[r]} in color={my_color} ___')
 
+    ax.plot(min_pitch, min_photenergy, 'kx')
+
     ax.set_ylim(5000, 20000) # just some reasonable limits (there are also traces outside of this range)
-    # ax.set_ylim(2900, 3100)
+    ax.set_ylim(2000, 20000)
     ax.set_ylabel('Photon Energy (eV)')
     ax.set_xlabel('Pitch angle (deg)')
 

@@ -25,6 +25,8 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     gid_list = []
     color_list = []
     roll_list = []
+    min_pitch_list = []
+    min_photonenergy_list = []
 
     #annotaz = plot.annotate(" ", (0,0), (-60, 650), xycoords='axes fraction', textcoords='offset points', va='top')
 
@@ -72,17 +74,23 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
         d = a/np.sqrt(h**2+k**2+l**2)
         return fact*np.sqrt(h**2+k**2+l**2)/(2*d*n*np.linalg.norm(kirot(thp, thy, thr, n0, pitchax, rollax, yawax).dot((h, k, l))))
 
-    # not working, yet (code structure needs to be improved first)
+#####
+    # Determine pitch angle of minimum photon energy (in degrees!)
+    # To be checked: It might be that this finds only a local minimum.
+    #
     # Additional parameters dthy, alpha, and roll_angle are needed
     # to replicate the coupling of pitch and yaw from main loop
     # also during the optimization process.
+    #
+    # To find minimum photon energy supported by given (h,k,l):
+    #    minimum photon energy <=> maximum value of denominator
     def phev_min(fact, n, h, k, l, a, thp, thy_not_used, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle):
-        def nenner(fact, n, h, k, l, a, thp, thy, thr, n0, pitchax, rollax, yawax):
+        def denom(fact, n, h, k, l, a, thp, thy, thr, n0, pitchax, rollax, yawax):
             v = np.linalg.norm(kirot(thp, thy, thr, n0, pitchax, rollax, yawax).dot((h, k, l)))
             return v
 
         def obj(fact, n, h, k, l, a, my_thp, thy, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle):
-            # print('objective function: my_thp=' + repr(my_thp))
+            print('objective function: my_thp=' + repr(my_thp))
             my_thp=my_thp[0] # unpack from numpy.array into number
             # print('yyy {} {} {} {}'.format(dthy,my_thp, roll_angle,alpha))
             # code block copied from main function (there thp is in degrees, so we need to convert)
@@ -90,18 +98,42 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
             # AMERICAN YAW DEFINITION, our roll angle
             my_thy = (-DTHY+roll_angle)/180*np.pi
             #
-            v = nenner(fact, n, h, k, l, a, my_thp, my_thy, thr, n0, pitchax, rollax, yawax)
+            v = denom(fact, n, h, k, l, a, my_thp, my_thy, thr, n0, pitchax, rollax, yawax)
             print('objective function: pitch angle={} (my_thy={}), value={}'.format(my_thp,my_thy,v))
             return v
-            
 
+
+        # remark: expected argument type is single-element array
         f = lambda my_thp: -obj(fact, n, h, k, l, a, my_thp, thy_not_used, thr, n0, pitchax, rollax, yawax, dthy, alpha, roll_angle)
-        sol = scipy.optimize.minimize(f, [0], bounds=scipy.optimize.Bounds(0,2*np.pi), options={'ftol': 1e-15, 'disp': True}) # https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb
-        print(str(sol))
-        result = sol.x[0] * 180/np.pi + thp # final coordinate transformation as in 'plotene' (what is DTHP there is thp here)
-        print(f'*** h,k,l=({h},{k},{l}) => result={result} ***')
-        return 0
 
+        # to prevent the iteration procedure from aborting because of small gradients, etc., let's do a quick scan of the parameter range of interest
+        sp_p = np.linspace(0, 2*np.pi, 41)
+        sp_best_value = f([sp_p[0]])
+        sp_best = sp_p[0]
+        for qqq in sp_p:
+            curr_value = f([qqq])
+            if curr_value<sp_best_value:
+                sp_best_value = curr_value
+                sp_best = qqq
+        print(f'starting point for minimization process is: {sp_best}')
+
+        sol = scipy.optimize.minimize(f, [sp_best], bounds=scipy.optimize.Bounds(0,2*np.pi), options={'ftol':1e-15, 'gtol':1e-9, 'disp':True}) # https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb
+
+
+        print(str(sol))
+        pitch_min = sol.x[0] * 180/np.pi + thp # final coordinate transformation as in 'plotene' (what is DTHP there is thp here) ==> result is in degrees
+
+        # again the code block copied from main function (there thp is in degrees, so we need to convert)
+        DTHY = dthy+(alpha * pitch_min) # pitch angle here in degrees, so no conversion needed
+        # AMERICAN YAW DEFINITION, our roll angle
+        my_thy = (-DTHY+roll_angle)/180*np.pi
+        print(f'xyz pitch_min={pitch_min}, my_thy={my_thy} xyz')
+        phot_energy_min = phev(fact, n, h, k, l, a, pitch_min/180*np.pi, my_thy, thr, n0, pitchax, rollax, yawax)
+        print(f'*** h,k,l=({h},{k},{l}) => min=(pitch={pitch_min}, phot_energy={phot_energy_min}) ***')
+        return pitch_min,phot_energy_min
+
+
+#####
     # !!! 'thplist' is in degrees !!!
     def plotene(thplist, fact, n, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax):
         count = 0
@@ -171,12 +203,16 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
                         p_angle, phen, gid = plotene(
                             thplist, fact, nord, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax)
                         print('***')
-                        # phev_min(fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
-                        # #                                      ^ argument not used in function
-                        #     dthy, alpha, roll_angle)
+                        min_pitch,min_photonenergy = phev_min(
+                            fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
+                        #                                 ^ argument not used in function
+                            dthy, alpha, roll_angle)
                         phen_list.append(list(phen))
                         p_angle_list.append(list(p_angle))
                         gid_list.append(str(gid))
+                        min_pitch_list.append(min_pitch)
+                        min_photonenergy_list.append(min_photonenergy)
 
-    print(f'after main loop: dthy={dthy}')
-    return phen_list, p_angle_list, gid_list
+    # print(f'after main loop: dthy={dthy}')
+    # return phen_list, p_angle_list, gid_list
+    return phen_list, p_angle_list, gid_list, min_pitch_list, min_photonenergy_list
