@@ -17,14 +17,16 @@ from itertools import cycle
 from types import SimpleNamespace
 import time
 
-def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_cb=None):
+# 'test_mode' flag limits h,k,l to enable quick preparation of plot
+#     to enable quick test iterations
+def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_cb=None, test_mode=False):
     '''
     line_pick_cb: Caller-supplied callback function that is called whenever the user clicks on a trace, single argument to callback function is 'line_pick' data structure
     '''
 
     ### TEST OPTIONS ###
     do_indicate_features=False
-    do_indicate_features=True
+    do_indicate_features=False
     do_stt=False
     ### end of TEST OPTIONS ###
 
@@ -101,16 +103,16 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
         line_pick.valid = False
 
     # maximum h,k,l to scan (generator loops over -hmax .. hmax, etc.)
-    hmax, kmax, lmax = 5, 5, 5
+    hmax,kmax,lmax = 5,5,5
+    hmax,kmax,lmax = 3,3,3
 
     # scan over these pitch angles
-    thplist = np.linspace(111, 113, 51)
+    thplist = np.linspace(0, 360, 3601)
 
-    # test code
-    hmax, kmax, lmax = 3,3,3
-    hmax, kmax, lmax = 1,1,1
-
-    thplist = np.linspace(0, 360, 6001)
+    # test mode
+    if test_mode:
+        hmax,kmax,lmax = 3,3,3
+        thplist = np.linspace(0, 360, 6001)
 
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
     dthp = -0.392      # pitch angle
@@ -190,7 +192,7 @@ if __name__ == "__main__":
     # TEST 1: Information on picked line is retrieved via passed data obj
     lp = SimpleNamespace()
     lp.valid = False
-    stuff2000(standalone=True, line_pick=lp)
+    stuff2000(standalone=True, line_pick=lp, test_mode=True)
     # once Figure is closed by user, display info on selected line
     if lp.valid==True:
         print('you picked line {} at position ({},{})'.format(lp.info_txt,lp.x,lp.y))
@@ -201,4 +203,4 @@ if __name__ == "__main__":
     def cb(my_lp):
         print('*** Entered Call-Back Function ***')
         print(str(my_lp))
-    stuff2000(standalone=True, line_pick_cb=cb)
+    stuff2000(standalone=True, line_pick_cb=cb, test_mode=True)
