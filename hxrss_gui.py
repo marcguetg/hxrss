@@ -48,6 +48,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
         self.mono2 = SimpleNamespace()
         self.mono2.infotxt = 'Crystal 2'
+        self.mono2.setpoint = SimpleNamespace()
+        self.mono2.valid = False
+        self.mono2.setpoint.pitch = 100
+        print('assuming roll=1.58')
+        self.mono2.setpoint.roll = 1.58
         self.mono2.pitch_min = 29.88  # [deg], min/max values from mono control panel
         self.mono2.pitch_max = 120.06
         self.mono2.pitch_minmax_safetymargin = 1 # don't go to the limits
@@ -366,6 +371,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # NOTE: currently not using this setpoint as additional considerations are needed
 
         print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={setpoint_roll}')
+
+        ### Store the setpoint in the internal structure ###
+        mono.setpoint.pitch = setpoint_pitch
+        print('assuming roll=1.58')
+        mono.setpoint.roll = 1.58 # FIXME
+        mono.setpoint.valid = True
         return True
 
     def on_photon_energy_enter(self):
@@ -385,9 +396,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
-        cmd.setpoints.mono2 = SimpleNameSpace()
-        cmd.setpoints.mono2.pitch = 1
-        cmd.setpoints.mono2.roll  = 1.5
+        cmd.setpoints.mono2 = SimpleNamespace()
+        cmd.setpoints.mono2.pitch = self.mono2.setpoint.pitch
+        print('assuming roll=1.58')
+        cmd.setpoints.mono2.roll  = 1.58 # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
+        cmd.setpoints.mono2.valid = True
         self.q_to_write.put(cmd)
 
     def on_mono2_crystal_insert_button(self):
