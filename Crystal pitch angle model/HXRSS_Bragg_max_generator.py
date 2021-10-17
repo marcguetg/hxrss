@@ -281,7 +281,7 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
             krange=range(-kmax, kmax+1)
             lrange=range(-lmax, lmax+1)
             hkl_list = list(itertools.product(hrange,krange,lrange))
-        print(str(hkl_list))
+        # print(str(hkl_list))
         for hkl in hkl_list:
             h,k,l=hkl  # unpack to interface with existing code
             if is_allowed_reflection(h,k,l):

@@ -16,9 +16,9 @@ from PyQt5.QtCore import QTimer
 import threading,queue
 import time
 from types import SimpleNamespace
-from copy import deepcopy
+# from copy import deepcopy
 
-from hxrss_io import thread_ioworker, IO_Cmd, get_initial_photon_energy_value
+from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, IO_Cmd
 
 # from clscratch import stuff2000
 import do_crystal_plot
@@ -56,11 +56,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # thread for communication with machine: display dbg messages?
         self.io_thread_dbg=False
         # queue for communication to machine
-        self.q_to_io = queue.Queue(maxsize=1000)
-        self.q_from_io = queue.Queue(maxsize=1000)
-        # start machine communication thread (specify daemon=True when the thread should automatically be terminated)
-        # threading.Thread(target=thread_ioworker, args=(self.q_to_io,self.q_from_io), daemon=True).start()
-        threading.Thread(target=thread_ioworker, args=(self.q_to_io,self.q_from_io,self.io_thread_dbg)).start()
+        self.q_to_read = queue.Queue(maxsize=1000)
+        self.q_from_read = queue.Queue(maxsize=1000)
+        self.q_to_write = queue.Queue(maxsize=1000)
+        self.q_from_write = queue.Queue(maxsize=1000)
+        # start machine communication threads (specify daemon=True when the thread should automatically be terminated -> we don't do that)
+        threading.Thread(target=thread_read_worker, args=(self.q_to_read,self.q_from_read,self.io_thread_dbg), name='read thread').start()
+        threading.Thread(target=thread_write_worker, args=(self.q_to_write,self.q_from_write,self.io_thread_dbg), name='write thread').start()
         # setup Qt timer for machine IO (for updating current status)
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.timeout)
@@ -70,10 +72,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         print('got close event, stopping IO thread')
 
-        # send to IO thread
+        # send to IO threads
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_QUIT
-        self.q_to_io.put(cmd)
+        self.q_to_read.put(cmd)
+        self.q_to_write.put(cmd)
 
         event.accept()
         # to ignore this event: event.ignore()
@@ -100,20 +103,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def timeout(self):
         self.io_thread_dbg = self.io_threaddbg_checkbox.checkState()
         dbg = self.io_thread_dbg
-
-        # send to IO thread
-        cmd = SimpleNamespace()
-        cmd.cmd = IO_Cmd.IO_JUSTREAD
-        cmd.io_dbg = dbg
-        self.q_to_io.put(cmd)
+        rt_request_update(self.q_to_read, dbg)
 
         got_something=False
         try:
             # there may be multiple objects waiting in the queue.
             # queue get operation will drop exception if queue is empty.
             while True:
-                msg = deepcopy( self.q_from_io.get(block=False) )
-                self.q_from_io.task_done() # to be sure, data was copied (TODO: determine if needed)
+                msg = rt_get_msg(self.q_from_read,block=False)
                 msg.age = time.time()-msg.timestamp
                 got_something=True
                 if dbg: print('GUI timer: got event ID={}, age={}s'.format(msg.tag, msg.age))
@@ -284,9 +281,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
-        cmd.setpoints.mono2_pitch = 1
-        cmd.setpoints.mono2_roll  = 1.5
-        self.q_to_io.put(cmd)
+        cmd.setpoints.mono2 = SimpleNameSpace()
+        cmd.setpoints.mono2.pitch = 1
+        cmd.setpoints.mono2.roll  = 1.5
+        self.q_to_write.put(cmd)
 
     def on_mono2_crystal_insert_button(self):
         print('crystal2 insert button')

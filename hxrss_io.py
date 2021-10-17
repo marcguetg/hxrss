@@ -15,6 +15,8 @@ def simple_doocs_read(addr):
     v = x['data']
     return v
 
+def insert_mono(sp):
+    print('insert_mono function is disabled')
 
 def set_mono(sp):
     print('set_mono function is disabled, it was called with setpoint: '+str(sp))
@@ -31,7 +33,7 @@ def set_mono(sp):
     pydoocs.write('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/SPEED.SET', motor_speed)
 
     time.sleep(10)
-    print('==> implement code move mono2 to setpoint: pitch='+str(sp.mono2_pitch)+' roll='+str(sp.mono2_roll))
+    print('==> implement code move mono2 to setpoint: pitch='+str(sp.pitch)+' roll='+str(sp.roll))
 
     # recover original motor speed settings
     print('reverting to original motor speed values')
@@ -40,23 +42,58 @@ def set_mono(sp):
     return
     '''
 
+def thread_write_worker(qin, qout, dbg=False):
+    processing_time_warn=30 # seconds
+    message_counter=0
+    while True:
+        item = qin.get()
+        if hasattr(item, 'io_dbg'):
+            dbg=item.io_dbg
+        if dbg: print('write thread: got task from queue')
+        if item.cmd==IO_Cmd.IO_QUIT:
+            print('write thread: got QUIT cmd ==> leaving')
+            break
+        tstart = time.time()
+        # do work
+        if item.cmd!=IO_Cmd.IO_SET:
+            print('ERROR: write thread: got unsupported command')
+            continue
 
-def thread_ioworker(qin, qout, dbg=False):
+        r = SimpleNamespace()
+        r.tag = message_counter
+        r.timestamp = time.time() # timestamp to recognise 'old' msgs
+
+        set_mono(item.setpoints.mono2)
+
+        tend = time.time()
+        dt = tend-tstart
+        r.processing_time = dt
+        if dbg:
+            print('write thread: finishing item, processing time: {}'.format(dt))
+        else:
+            if dt>processing_time_warn:
+                print('write thread: finishing item, excessive processing time was: {}'.format(dt))
+        qin.task_done()
+        qout.put(r)
+        message_counter+=1
+    print('write thread is finishing')
+
+def thread_read_worker(qin, qout, dbg=False):
     processing_time_warn=1 # seconds
     message_counter=0
     while True:
         item = qin.get()
         if hasattr(item, 'io_dbg'):
             dbg=item.io_dbg
-        if dbg: print('io thread: got task from queue')
+        if dbg: print('read thread: got task from queue')
         if item.cmd==IO_Cmd.IO_QUIT:
-            print('io thread: got QUIT cmd ==> leaving')
+            print('read thread: got QUIT cmd ==> leaving')
             break
         tstart = time.time()
         # do work
-        if item.cmd==IO_Cmd.IO_SET:
-            print('io thread: got set command')
-            set_mono(item.setpoints)
+        if item.cmd!=IO_Cmd.IO_JUSTREAD:
+            print('ERROR: read thread: got unsupported command')
+            continue
 
         r = SimpleNamespace()
         r.tag = message_counter
@@ -76,17 +113,17 @@ def thread_ioworker(qin, qout, dbg=False):
         dt = tend-tstart
         r.processing_time = dt
         if dbg:
-            print('io thread: finishing item, processing time: {}'.format(dt))
+            print('read thread: finishing item, processing time: {}'.format(dt))
         else:
             if dt>processing_time_warn:
-                print('io thread: finishing item, excessive processing time was: {}'.format(dt))
+                print('read thread: finishing item, excessive processing time was: {}'.format(dt))
         qin.task_done()
         qout.put(r)
         message_counter+=1
-    print('io thread is finishing')
+    print('read thread is finishing')
 
 
-#####
+##### USER INTERFACE #####
 
 # Initial photon energy value to be displayed on the GUI
 # Value is fetched once during start-up of the GUI
@@ -95,5 +132,15 @@ def get_initial_photon_energy_value():
     x = pydoocs.read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON')
     value = x['data']
     return value
-    
 
+def rt_request_update(queue, dbg):
+    # send to IO thread
+    cmd = SimpleNamespace()
+    cmd.cmd = IO_Cmd.IO_JUSTREAD
+    cmd.io_dbg = dbg
+    queue.put(cmd)
+
+def rt_get_msg(queue,*,block=True): # block parameter has same default as Queue.get
+    msg = deepcopy( queue.get(block=block) )
+    queue.task_done() # to be sure, data was copied (TODO: determine if needed)
+    return msg
