@@ -14,10 +14,11 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def __init__(self, lpcb=None):
         super().__init__()
         self._main = QtWidgets.QWidget()
+        self.setWindowTitle('Crystal Map')
         self.setCentralWidget(self._main)
         layout = QtWidgets.QVBoxLayout(self._main)
 
-        static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        static_canvas = FigureCanvas(Figure(figsize=(12, 8)))
         layout.addWidget(static_canvas)
         self.addToolBar(NavigationToolbar(static_canvas, self))
         self._static_ax = static_canvas.figure.subplots()

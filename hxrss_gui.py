@@ -35,6 +35,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
         self.mono2 = SimpleNamespace()
         self.mono2.infotxt = 'Crystal 2'
+        self.mono2.pitch_min = 29.88  # [deg], min/max values from mono control panel
+        self.mono2.pitch_max = 120.06
+        self.mono2.pitch_minmax_safetymargin = 1 # don't go to the limits
 
         ### THREAD FOR MACHINE I/O ###
         # thread for communication with machine: display dbg messages?
@@ -132,13 +135,15 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             alpha = 0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
 
             roll_list = [1.58]
-            stt_thplist = np.linspace(133, 200, 1001) # cyan curve
+            stt_thplist = np.linspace(45, 115, 1001) # test data: cyan curve within pitch travel range
             stt_r = HXRSS_Bragg_max_generator(
                 stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
                 specific_hkl=[(1,1,1)], return_obj=True) # <===
             stt_phen_list = stt_r.phen_list
             stt_pangle_list = stt_r.p_angle_list
+            stt_rangle_list = stt_r.r_angle_list # FIXME: implementation still not finalized since unclear what offset is needed for these values
             stt_gid_list = stt_r.gid_list
+            print(str(stt_r.r_angle_list))
 
             # !!! there is an angle offset between input pitch angles and
             #     angles returned as second return argument !!!
@@ -146,6 +151,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             # function returns list containing lists, but they should only have single element
             stt_phen_list = stt_phen_list[0]
             stt_pangle_list = stt_pangle_list[0]
+            stt_rangle_list = stt_rangle_list[0]
 
             # dbg: pitch angle offset between input array and output array
             # print(str(stt_pangle_list[0]))
@@ -153,7 +159,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
             self.mono2.curvedata = SimpleNamespace()
             self.mono2.curvedata.pitch = stt_pangle_list
-            # TODO: store roll angle data as well
+            self.mono2.curvedata.roll = stt_rangle_list
             self.mono2.curvedata.phen = stt_phen_list
             self.mono2.curvedata.valid = True
 
@@ -202,10 +208,27 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(str(solroot))
             return False
 
+
         setpoint_pitch = solroot.x[0]
+
+        # Check that the determined setpoint is within the travel range of the actuator
+        # Don't use the full travel range (note that 'abs' was used to guard against
+        # negative safety margin values)
+        setpoint_pitch_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin <= setpoint_pitch)) and (setpoint_pitch <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
+        if setpoint_pitch_inrange==False:
+            print(mono.infotxt+f': determined pitch setpoint {setpoint_pitch} not in allowed travel range (min={mono.pitch_min}, max={mono.pitch_max}, safety_margin={mono.pitch_minmax_safetymargin}')
+            return False
+
         # TODO: check that determined setpoint is from interpolation (= point lies in the scanned pitch range)
 
-        print(mono.infotxt+': setpoint pitch='+str(setpoint_pitch))
+
+        # determine roll setpoint
+        f_interp_roll = interpolate.interp1d(cd.pitch, cd.roll)
+        setpoint_roll = f_interp_roll(setpoint_pitch)
+        setpoint_roll *= 180/np.pi # rad=>deg
+        # NOTE: currently not using this setpoint as additional considerations are needed
+
+        print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={setpoint_roll}')
         return True
 
     def on_photon_energy_enter(self):
