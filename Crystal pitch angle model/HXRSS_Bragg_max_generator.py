@@ -23,7 +23,7 @@ import scipy.optimize
 # remains unchanged.
 # If the caller provided specific hkl values, they take precedence
 # over looping the cartestian product of possible h,k,l values.
-def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, *, specific_hkl=None, return_obj=False, analyze_curves=False):
+def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, *, specific_hkl=None, return_obj=False, analyze_curves=False, analyze_curves_complete=False):
     p_angle_list = []
     phen_list = []
     r_angle_list = []
@@ -32,8 +32,11 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     gid_list = []
     color_list = []
     roll_list = []
+    # for analyze_curves
     min_pitch_list = []
     min_photonenergy_list = []
+    # for analyze_curves_complete
+    analysis_result_list = []
 
     #annotaz = plot.annotate(" ", (0,0), (-60, 650), xycoords='axes fraction', textcoords='offset points', va='top')
 
@@ -82,8 +85,9 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
         return fact*np.sqrt(h**2+k**2+l**2)/(2*d*n*np.linalg.norm(kirot(thp, thy, thr, n0, pitchax, rollax, yawax).dot((h, k, l))))
 
 #####
-    # Determine pitch angle of minimum photon energy (in degrees!)
-    # To be checked: It might be that this finds only a local minimum.
+    # Analysis of the crystal curve for given h,k,l
+    # To determine pitch angle (in degrees) with minimum photon energy,
+    # call function phev_min (see below)
     #
     # Additional parameters dthy, alpha, and roll_angle are needed
     # to replicate the coupling of pitch and yaw from main loop
@@ -91,7 +95,7 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     #
     # To find minimum photon energy supported by given (h,k,l):
     #    minimum photon energy <=> maximum value of denominator
-    def phev_min(fact, n, h, k, l, a, thp, thy_not_used, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle):
+    def phev_analysis(fact, n, h, k, l, a, thp, thy_not_used, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle):
         # 1) Formulation of the problem to solve (denominator for function 'phev')
         def denom(fact, n, h, k, l, a, thp, thy, thr, n0, pitchax, rollax, yawax):
             v = np.linalg.norm(kirot(thp, thy, thr, n0, pitchax, rollax, yawax).dot((h, k, l)))
@@ -171,44 +175,65 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
                     print('got it')
                     break
         print('##### MINSEARCH DONE')
+        result=[]
+        result.append((reduce_to_twopi(minpos)*180/np.pi,1e12,'pole'))
+        result.append((reduce_to_twopi(minpos+np.pi)*180/np.pi,1e12,'pole'))
 
-        # Maximize the denominator
+        # Maximize the denominator I
         #    <-> look for the minimum of -denom(x)
         # Assume that it is approx 90 degrees away from minimum (typically
         # this is already very close to result of optimization process)
         sp_maxsearch0 = reduce_to_twopi(minpos+0.5*np.pi)
         print(f'starting point for minimization process is: {sp_maxsearch0}')
         the_bounds=scipy.optimize.Bounds(0,2*np.pi)
-        sol = scipy.optimize.minimize(lambda x_: -f(x_), [sp_maxsearch0],
+        solmax1 = scipy.optimize.minimize(lambda x_: -f(x_), [sp_maxsearch0],
             bounds=the_bounds,
             options={'ftol':1e-15, 'gtol':1e-9, 'disp':True}) # https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb
-        print(str(sol))
+        print(str(solmax1))
 
-        # Maximize the denominator
+        # Maximize the denominator II
         #    <-> look for the minimum of -denom(x)
         # Assume that it is approx 90 degrees away from minimum (typically
         # this is already very close to result of optimization process)
         sp_maxsearch0 = reduce_to_twopi(minpos+1.5*np.pi)
         print(f'starting point for minimization process is: {sp_maxsearch0}')
         the_bounds=scipy.optimize.Bounds(0,2*np.pi)
-        sol = scipy.optimize.minimize(lambda x_: -f(x_), [sp_maxsearch0],
+        solmax2 = scipy.optimize.minimize(lambda x_: -f(x_), [sp_maxsearch0],
             bounds=the_bounds,
             options={'ftol':1e-15, 'gtol':1e-9, 'disp':True}) # https://docs.scipy.org/doc/scipy/reference/optimize.minimize-lbfgsb.html#optimize-minimize-lbfgsb
-        print(str(sol))
+        print(str(solmax2))
+
+        # for both local minima, determine corresponding photon energy
+        for sol in [solmax1.x[0], solmax2.x[0]]:
+            pitch_res = sol * 180/np.pi + thp # final coordinate transformation as in 'plotene' (what is DTHP there is thp here) ==> result is in degrees
+
+            # again the code block copied from main function (there thp is in degrees, so we need to convert)
+            DTHY = dthy+(alpha * pitch_res) # pitch angle here in degrees, so no conversion needed
+            # AMERICAN YAW DEFINITION, our roll angle
+            my_thy = (-DTHY+roll_angle)/180*np.pi
+            print(f'xyz pitch_res={pitch_res}, my_thy={my_thy} xyz')
+            phot_energy_min = phev(fact, n, h, k, l, a, pitch_res/180*np.pi, my_thy, thr, n0, pitchax, rollax, yawax)
+            print(f'*** h,k,l=({h},{k},{l}) => min=(pitch={pitch_res}, phot_energy={phot_energy_min}) ***')
+            result.append((pitch_res, phot_energy_min, 'min'))
+
+        return result
 
 
-        pitch_res = sol.x[0] * 180/np.pi + thp # final coordinate transformation as in 'plotene' (what is DTHP there is thp here) ==> result is in degrees
 
 
-        # again the code block copied from main function (there thp is in degrees, so we need to convert)
-        DTHY = dthy+(alpha * pitch_res) # pitch angle here in degrees, so no conversion needed
-        # AMERICAN YAW DEFINITION, our roll angle
-        my_thy = (-DTHY+roll_angle)/180*np.pi
-        print(f'xyz pitch_res={pitch_res}, my_thy={my_thy} xyz')
-        phot_energy_min = phev(fact, n, h, k, l, a, pitch_res/180*np.pi, my_thy, thr, n0, pitchax, rollax, yawax)
-        print(f'*** h,k,l=({h},{k},{l}) => min=(pitch={pitch_res}, phot_energy={phot_energy_min}) ***')
-        return pitch_res,phot_energy_min
+    def phev_min(fact, n, h, k, l, a, thp, thy_not_used, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle):
+        result = phev_analysis(fact, n, h, k, l, a, thp, thy_not_used, thr, n0, pitchax, rollax, yawax,    dthy, alpha, roll_angle)
+        print(str(result))
+        def cmp(x,y):
+            return(x[1]-y[1]) # photon energy
 
+        # sort order: photon energy in ascending order
+        import functools
+        result_sorted = sorted(result, key=functools.cmp_to_key(cmp)) # docu: https://docs.python.org/3/library/functools.html#functools.cmp_to_key
+        print(str(result_sorted))
+
+        #      pitch_angle         photon_energy
+        return result_sorted[0][0],result_sorted[0][1]
 
 #####
     # !!! 'thplist' is in degrees !!!
@@ -287,7 +312,14 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
             if is_allowed_reflection(h,k,l):
                 p_angle, phen, gid = plotene(
                     thplist, fact, nord, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax)
-                if analyze_curves:
+                if analyze_curves_complete:
+                    print('***')
+                    curr_analysis_result = phev_analysis(
+                        fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
+                    #                                 ^ argument not used in function
+                        dthy, alpha, roll_angle)
+                    analysis_result_list.append(curr_analysis_result)
+                elif analyze_curves:
                     print('***')
                     min_pitch,min_photonenergy = phev_min(
                         fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
@@ -315,7 +347,9 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     r.p_angle_list = p_angle_list
     r.r_angle_list = r_angle_list
     r.gid_list = gid_list
-    if analyze_curves:
+    if analyze_curves_complete:
+        r.analysis_result_list = analysis_result_list
+    elif analyze_curves:
         r.min_pitch_list = min_pitch_list
         r.min_photonenergy_list = min_photonenergy_list
     return r

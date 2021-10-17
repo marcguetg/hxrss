@@ -129,8 +129,7 @@ def thread_read_worker(qin, qout, dbg=False):
 # Value is fetched once during start-up of the GUI
 def get_initial_photon_energy_value():
     print('Reading SASE2 undulator color1 set point as initial value for photon energy field')
-    x = pydoocs.read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON')
-    value = x['data']
+    value = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON')
     return value
 
 def rt_request_update(queue, dbg):

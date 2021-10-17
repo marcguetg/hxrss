@@ -24,6 +24,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     ### TEST OPTIONS ###
     do_indicate_features=False
+    do_indicate_features=True
     do_stt=False
     ### end of TEST OPTIONS ###
 
@@ -78,7 +79,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
         ax = obj.axes
         me_data = xlat_me2plot(ax,me) 
         print('MouseEvent ({},{}) => ({},{})'.format(me.x, me.y, me_data[0], me_data[1]))
-        xdata = obj.get_xdata()
+        xdata = obj.get_xdata()  # remark: when zoomed out, xdata/ydata/ind can have multiple elements
         ydata = obj.get_ydata()
         ind = event.ind # information about picked point (index into data set), this is not the exact point that was clicked
         print('got onpick event at (x={},y={}), data=(x={},y={},ind={}), gid={}'.format(me_data[0],me_data[1],xdata[ind],ydata[ind],ind, obj.get_gid()))
@@ -87,6 +88,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
         lp.info_txt = infotxt
         lp.x = me_data[0]
         lp.y = me_data[1]
+        lp.ax = ax # to plot data, etc.
         lp.valid = True
         print(str(lp))
         # time.sleep(10)
@@ -106,6 +108,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     # test code
     hmax, kmax, lmax = 3,3,3
+    hmax, kmax, lmax = 1,1,1
 
     thplist = np.linspace(0, 360, 6001)
 
@@ -117,10 +120,10 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     roll_list = [1.58]
 
-    r = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, return_obj=True, analyze_curves=do_indicate_features)
-    phen_list = r.phen_list
-    p_angle_list = r.p_angle_list
-    gid_list = r.gid_list
+    res = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, return_obj=True, analyze_curves=do_indicate_features)
+    phen_list = res.phen_list
+    p_angle_list = res.p_angle_list
+    gid_list = res.gid_list
 
     colors = ['r', 'b', 'g', 'c', 'y', 'k']
     linecolors = cycle(colors)
@@ -132,8 +135,8 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     # indicate minima using the information returned by Bragg max gen
     if do_indicate_features:
-        min_pitch = r.min_pitch_list
-        min_photenergy = r.min_photonenergy_list
+        min_pitch = res.min_pitch_list
+        min_photenergy = res.min_photonenergy_list
         ax.plot(min_pitch, min_photenergy, 'kx')
 
     # stt = "single trace test"

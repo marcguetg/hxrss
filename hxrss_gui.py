@@ -16,7 +16,7 @@ from PyQt5.QtCore import QTimer
 import threading,queue
 import time
 from types import SimpleNamespace
-# from copy import deepcopy
+from copy import deepcopy
 
 from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, IO_Cmd
 
@@ -136,6 +136,18 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.reflection_display.setText(the_info.info_txt)
             self.photon_energy_edit.setText('{:.2f}'.format(the_info.y))
 
+            mono = self.mono2
+            # Check that the click is within the travel range of the actuator
+            # Don't use the full travel range (note that 'abs' was used to guard against
+            # negative safety margin values)
+            click_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin) <= the_info.x) and (the_info.x <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
+            if not click_inrange:
+                print('ERROR: you need to click within the pitch angle range: '+
+                    str(mono.pitch_min+abs(mono.pitch_minmax_safetymargin)) + ' and ' +
+                    str(mono.pitch_max-abs(mono.pitch_minmax_safetymargin)) +
+                    ' (safety margin {})'.format(abs(mono.pitch_minmax_safetymargin)))
+                return
+
             # from string "[h,k,l]", extract the numerical values
             # FIXME: improve this error prone conversion to string (in the plot code) and conversion back to needed object. Instead, get (h,k,l) as Python object not as string from plot window.
             matchresult=re.match(r'\[\s*(-?[0-9]+)\s*,\s*(-?[0-9]+)\s*,\s*(-?[0-9]+)\s*\]' , the_info.info_txt)
@@ -146,20 +158,97 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 print('Warning: could not extract crystal orientation from '+the_info.info_txt+', using hkl=(1,1,1)')
                 hkl = (1,1,1)
 
-            ### store detailed curve data for interpolation of setpoints ###
-            hmax, kmax, lmax = 1,1,1 # has no effect because specific_hkl parameters overrides these
             # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
             dthp = -0.392      # pitch angle
             dthy = 1.17        # roll angle (American convention)
             dthr = 0.1675      # yaw angle (American convention)
             alpha = 0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
-
             roll_list = [1.58]
-            stt_thplist = np.linspace(45, 115, 1001) # test data: cyan curve within pitch travel range
+
+            ################################################################
+            ### store detailed curve data for interpolation of setpoints ###
+            ################################################################
+            hmax, kmax, lmax = 1,1,1 # has no effect because specific_hkl parameters overrides these
+            ### Step 1: determine pitch angle scan range ###
+            # stt = "single trace test"
+            stt_thplist = np.linspace(45, 115, 1001) # values are not really relevant, as we need to determine the pitch scan range first
             stt_r = HXRSS_Bragg_max_generator(
                 stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
                 specific_hkl=[hkl], # <====
-                return_obj=True, analyze_curves=True)
+                return_obj=True, analyze_curves_complete=True)
+
+            # Remember that HXRSS_Bragg_max_generator returns lists containing lists,
+            # as it is designed to handle multiple curve traces simultaneously
+            workspace_range_analysis = deepcopy(stt_r.analysis_result_list[0])
+            print('*** STEP 1: result of analysis procedure ***')
+            print(str(workspace_range_analysis))
+            print('*** STEP 2: add travel min/max and click pos ***')
+            workspace_range_analysis.append( (mono.pitch_min, -1, 'travel_min') )
+            workspace_range_analysis.append( (mono.pitch_max, -1, 'travel_max') )
+            key_click = 'click_pos'
+            workspace_range_analysis.append( (the_info.x, -1, key_click) )
+            print(str(workspace_range_analysis))
+            def my_cmp(x_,y_):
+                # print('compare '+str(x_)+' and '+str(y_))
+                return(x_[0]-y_[0]) # first element: pitch angle
+
+            import functools
+            workspace_range_analysis = sorted(workspace_range_analysis,
+                    key=functools.cmp_to_key(my_cmp)) # docu: https://docs.python.org/3/library/functools.html#functools.cmp_to_key
+            print('*** STEP 3: sort pitch angles in ascending order ***')
+            print(str(workspace_range_analysis))
+            print('*** DONE ***')
+
+            # Let's assume that there are no curve features (pole,minimum),
+            # still the clicked point (if between travel_min and travel_max)
+            # will have two neighboring element in the sorted data. If this
+            # is not the case, then the click was outside of the valid travel
+            # range.
+            idx_click_valid=False
+            for idx_click,qqq in enumerate(workspace_range_analysis):
+                if qqq[2]==key_click:
+                    idx_click_valid=True
+                    break
+
+            if (idx_click==0) or (idx_click==len(workspace_range_analysis)-1) or (idx_click_valid==False):
+                print('ERROR: click outside of motor travel range?')
+                return
+
+            print('idx_click-1: '+str(workspace_range_analysis[idx_click-1]))
+            print('idx_click:   '+str(workspace_range_analysis[idx_click]))
+            print('idx_click+1: '+str(workspace_range_analysis[idx_click+1]))
+            idx_scanrange_min = idx_click-1
+            idx_scanrange_max = idx_click+1
+
+            pole_stay_away = 0.1 # pitch angle [degrees]
+            scanrange_min = workspace_range_analysis[idx_scanrange_min][0]
+            if workspace_range_analysis[idx_scanrange_min][2]=='pole':
+                scanrange_min += pole_stay_away
+            scanrange_max = workspace_range_analysis[idx_scanrange_max][0]
+            if workspace_range_analysis[idx_scanrange_max][2]=='pole':
+                scanrange_max -= pole_stay_away
+
+            # FIXME: workaround for the fact that the pitch scan range specified to HXRSS_Bragg_max_generator 
+            workaround = 0.5
+            print('WORKAROUND: reduce determined range by {workaround}')
+            scanrange_min += workaround
+            scanrange_max -= workaround
+            if scanrange_min>scanrange_max:
+                print('ERROR: scan range is too small. Pick different line.')
+                return
+
+            print(f'*** DONE: going to load pitch angle scan range {scanrange_min} -- {scanrange_max} degrees ***')
+
+            ##############################################
+            ### OBTAINING CURVE DATA FOR INTERPOLATION ###
+            ##############################################
+            # stt = "single trace test"
+            stt_thplist = np.linspace(scanrange_min, scanrange_max, 1001) # values are not really relevant, as we need to determine the pitch scan range first
+            stt_r = HXRSS_Bragg_max_generator(
+                stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
+                specific_hkl=[hkl], # <====
+                return_obj=True)
+
             stt_phen_list = stt_r.phen_list
             stt_pangle_list = stt_r.p_angle_list
             stt_rangle_list = stt_r.r_angle_list # FIXME: implementation still not finalized since unclear what offset is needed for these values
@@ -172,6 +261,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             stt_phen_list = stt_phen_list[0]
             stt_pangle_list = stt_pangle_list[0]
             stt_rangle_list = stt_rangle_list[0]
+
+            # indicate the data points
+            indicate_loaded_data=True
+            if indicate_loaded_data:
+                # need to specify 'gid', since the hover function expects it (otherwise there's a crash in the hover event handling function)
+                the_info.ax.plot(stt_pangle_list, np.array(stt_phen_list), 'r+', gid=the_info.info_txt)
+                parent_fig=the_info.ax.get_figure()
+                parent_fig.canvas.draw()
 
             def str_minmax(l:list):
                 q=np.array(l)
@@ -210,9 +307,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(mono.infotxt+': curvedata is not valid')
             return False
 
-        # verify that the desired photon energy is possible
+        # some information about crystal curve data used for interpolation
         phen_max = np.amax(np.array(cd.phen))
         phen_min = np.amin(np.array(cd.phen))
+        pitch_max = np.amax(np.array(cd.pitch))
+        pitch_min = np.amin(np.array(cd.pitch))
+
+        # verify that the desired photon energy is possible
         if ((phen_min<=sp_phen) and (sp_phen<=phen_max)):
             pass # ok
         else:
@@ -234,25 +335,28 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # find the pitch angle corresponding to the desired photon energy
         f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
         # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
-        pitch0 = (cd.pitch[0]+cd.pitch[-1])/2 # start value in the center of range
+        pitch0 = (pitch_min+pitch_max)/2 # start value in the center of range
         solroot = scipy.optimize.root(f, [pitch0]) # root finding does not support specification of bounds
         if not solroot.success:
             print(mono.infotxt+': issue with finding the pitch angle, scipy.optimize.root status:')
             print(str(solroot))
             return False
 
-
+        # Verify that determined setpoint is not the result of extrapolation process
         setpoint_pitch = solroot.x[0]
+        is_interpolation = (pitch_min<=setpoint_pitch) and (setpoint_pitch<=pitch_max)
+        if not is_interpolation:
+            print(mono.infotxt+': determined pitch setpoint is extrapolation of crystal curve data set, this is an error.')
+            print(str(solroot))
+            return False
 
         # Check that the determined setpoint is within the travel range of the actuator
         # Don't use the full travel range (note that 'abs' was used to guard against
         # negative safety margin values)
-        setpoint_pitch_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin <= setpoint_pitch)) and (setpoint_pitch <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
+        setpoint_pitch_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin) <= setpoint_pitch) and (setpoint_pitch <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
         if setpoint_pitch_inrange==False:
             print(mono.infotxt+f': determined pitch setpoint {setpoint_pitch} not in allowed travel range (min={mono.pitch_min}, max={mono.pitch_max}, safety_margin={mono.pitch_minmax_safetymargin}')
             return False
-
-        # TODO: check that determined setpoint is from interpolation (= point lies in the scanned pitch range)
 
 
         # determine roll setpoint
