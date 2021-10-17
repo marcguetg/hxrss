@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 
+# put the HXRSS tool box on the path, so that the Python modules can be imported
+import os
+import sys
+script_path = os.path.realpath(__file__)
+script_dir = os.path.dirname(script_path)
+hxrss_toolbox_dir = script_dir+'/Crystal pitch angle model'
+sys.path.append(hxrss_toolbox_dir)
+
 from hxrss_main_window import Ui_MainWindow
 from PyQt5 import QtWidgets as qtw
 from PyQt5 import QtCore as qtc
