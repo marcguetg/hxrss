@@ -23,7 +23,7 @@ import scipy.optimize
 # remains unchanged.
 # If the caller provided specific hkl values, they take precedence
 # over looping the cartestian product of possible h,k,l values.
-def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, specific_hkl=None, return_obj=False):
+def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, *, specific_hkl=None, return_obj=False, analyze_curves=False):
     p_angle_list = []
     phen_list = []
     r_angle_list = []
@@ -287,17 +287,19 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
             if is_allowed_reflection(h,k,l):
                 p_angle, phen, gid = plotene(
                     thplist, fact, nord, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax)
-                print('***')
-                min_pitch,min_photonenergy = phev_min(
-                    fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
-                #                                 ^ argument not used in function
-                    dthy, alpha, roll_angle)
+                if analyze_curves:
+                    print('***')
+                    min_pitch,min_photonenergy = phev_min(
+                        fact, nord, h, k, l, a, DTHP, 0, thr, n0, pitchax, rollax, yawax,
+                    #                                 ^ argument not used in function
+                        dthy, alpha, roll_angle)
+                    min_pitch_list.append(min_pitch)
+                    min_photonenergy_list.append(min_photonenergy)
+
                 phen_list.append(list(phen))
                 p_angle_list.append(list(p_angle))
                 gid_list.append(str(gid))
                 r_angle_list.append(list(thylist)) # FIXME: check if correct angle
-                min_pitch_list.append(min_pitch)
-                min_photonenergy_list.append(min_photonenergy)
                 print(f'hkl=({h},{k},{l}): done')
             else:
                 print(f'hkl=({h},{k},{l}): not allowed')
@@ -313,6 +315,7 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     r.p_angle_list = p_angle_list
     r.r_angle_list = r_angle_list
     r.gid_list = gid_list
-    r.min_pitch_list = min_pitch_list
-    r.min_photonenergy_list = min_photonenergy_list
+    if analyze_curves:
+        r.min_pitch_list = min_pitch_list
+        r.min_photonenergy_list = min_photonenergy_list
     return r

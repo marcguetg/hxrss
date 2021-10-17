@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>HXRSS GUI v0.9</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label">
@@ -31,7 +31,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
+      <y>100</y>
       <width>121</width>
       <height>16</height>
      </rect>
@@ -54,7 +54,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>70</y>
+      <y>120</y>
       <width>111</width>
       <height>23</height>
      </rect>
@@ -69,7 +69,7 @@
       <x>270</x>
       <y>100</y>
       <width>491</width>
-      <height>151</height>
+      <height>141</height>
      </rect>
     </property>
     <property name="title">
@@ -111,7 +111,7 @@
      <property name="geometry">
       <rect>
        <x>300</x>
-       <y>80</y>
+       <y>70</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -124,7 +124,7 @@
      <property name="geometry">
       <rect>
        <x>300</x>
-       <y>110</y>
+       <y>90</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -137,7 +137,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>80</y>
+       <y>70</y>
        <width>91</width>
        <height>20</height>
       </rect>
@@ -150,7 +150,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>110</y>
+       <y>90</y>
        <width>91</width>
        <height>21</height>
       </rect>
@@ -163,7 +163,7 @@
      <property name="geometry">
       <rect>
        <x>120</x>
-       <y>80</y>
+       <y>70</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -176,7 +176,7 @@
      <property name="geometry">
       <rect>
        <x>120</x>
-       <y>110</y>
+       <y>90</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -189,7 +189,7 @@
      <property name="geometry">
       <rect>
        <x>400</x>
-       <y>80</y>
+       <y>70</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -202,7 +202,7 @@
      <property name="geometry">
       <rect>
        <x>400</x>
-       <y>110</y>
+       <y>90</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -215,7 +215,7 @@
      <property name="geometry">
       <rect>
        <x>210</x>
-       <y>80</y>
+       <y>70</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -228,7 +228,7 @@
      <property name="geometry">
       <rect>
        <x>210</x>
-       <y>110</y>
+       <y>90</y>
        <width>81</width>
        <height>20</height>
       </rect>
@@ -301,12 +301,51 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
+    <widget class="QPushButton" name="mono2_crystal_insert_button">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>110</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Insert</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="mono2_crystal_park_button">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>110</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Park</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_22">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>110</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>crystal status</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QLabel" name="reflection_display">
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>50</y>
+      <y>100</y>
       <width>111</width>
       <height>16</height>
      </rect>
@@ -338,7 +377,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>260</y>
+      <y>270</y>
       <width>491</width>
       <height>141</height>
      </rect>
@@ -545,8 +584,8 @@
    <widget class="QPushButton" name="apply_button">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>110</y>
+      <x>650</x>
+      <y>80</y>
       <width>111</width>
       <height>23</height>
      </rect>
@@ -559,7 +598,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>410</y>
+      <y>440</y>
       <width>491</width>
       <height>101</height>
      </rect>
@@ -667,6 +706,58 @@
       <string>dbg I/O thread</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Min Photon Energy</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Max Photon Energy</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="photon_energy_min_display">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>50</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="photon_energy_max_display">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>70</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

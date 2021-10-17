@@ -28,18 +28,23 @@ from scipy import interpolate
 import scipy
 import numpy as np
 from HXRSS_Bragg_max_generator import HXRSS_Bragg_max_generator
+import re
 
 class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setupUi(self)
-        # self.close.connect(self.on_close)
         self.display_map_button.clicked.connect(self.on_show_map_button)
         self.apply_button.clicked.connect(self.on_apply_button)
         self.photon_energy_edit.returnPressed.connect(self.on_photon_energy_enter)
+        self.mono2_crystal_insert_button.clicked.connect(self.on_mono2_crystal_insert_button)
+        self.mono2_crystal_park_button.clicked.connect(self.on_mono2_crystal_park_button)
 
+        # set initial photon energy value (currently SASE2 color1 setpoint)
         self.photon_energy_edit.setText('{:.2f}'.format(get_initial_photon_energy_value()))
+
+
 
         self.mono2 = SimpleNamespace()
         self.mono2.infotxt = 'Crystal 2'
@@ -134,6 +139,16 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.reflection_display.setText(the_info.info_txt)
             self.photon_energy_edit.setText('{:.2f}'.format(the_info.y))
 
+            # from string "[h,k,l]", extract the numerical values
+            # FIXME: improve this error prone conversion to string (in the plot code) and conversion back to needed object. Instead, get (h,k,l) as Python object not as string from plot window.
+            matchresult=re.match(r'\[\s*(-?[0-9]+)\s*,\s*(-?[0-9]+)\s*,\s*(-?[0-9]+)\s*\]' , the_info.info_txt)
+            if matchresult is not None:
+                hkl = (int(matchresult[1]), int(matchresult[2]), int(matchresult[3]))
+            else:
+                # could not match the string
+                print('Warning: could not extract crystal orientation from '+the_info.info_txt+', using hkl=(1,1,1)')
+                hkl = (1,1,1)
+
             ### store detailed curve data for interpolation of setpoints ###
             hmax, kmax, lmax = 1,1,1 # has no effect because specific_hkl parameters overrides these
             # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
@@ -146,12 +161,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             stt_thplist = np.linspace(45, 115, 1001) # test data: cyan curve within pitch travel range
             stt_r = HXRSS_Bragg_max_generator(
                 stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
-                specific_hkl=[(1,1,1)], return_obj=True) # <===
+                specific_hkl=[hkl], # <====
+                return_obj=True, analyze_curves=True)
             stt_phen_list = stt_r.phen_list
             stt_pangle_list = stt_r.p_angle_list
             stt_rangle_list = stt_r.r_angle_list # FIXME: implementation still not finalized since unclear what offset is needed for these values
             stt_gid_list = stt_r.gid_list
-            print(str(stt_r.r_angle_list))
 
             # !!! there is an angle offset between input pitch angles and
             #     angles returned as second return argument !!!
@@ -160,6 +175,19 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             stt_phen_list = stt_phen_list[0]
             stt_pangle_list = stt_pangle_list[0]
             stt_rangle_list = stt_rangle_list[0]
+
+            def str_minmax(l:list):
+                q=np.array(l)
+                s='min={:f} max={:f}'.format(np.amin(q),np.amax(q))
+                return s
+
+            print('Information on curve data obtained for hkl='+str(hkl))
+            print('  pitch angle   '+str_minmax(stt_pangle_list))
+            print('  roll angle    '+str_minmax(stt_rangle_list))
+            print('  photon energy '+str_minmax(stt_phen_list))
+            self.photon_energy_min_display.setText(str(np.amin(np.array(stt_phen_list))))
+            self.photon_energy_max_display.setText(str(np.amax(np.array(stt_phen_list))))
+            
 
             # dbg: pitch angle offset between input array and output array
             # print(str(stt_pangle_list[0]))
@@ -178,7 +206,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def determine_mono_setpoints(self,mono,sp_phen):
         if not hasattr(mono,'curvedata'):
-            print(mono.infotxt+': no curvedata available')
+            print(mono.infotxt+': no curvedata available, select curve from map')
             return False
         cd = mono.curvedata
         if cd.valid!=True:
@@ -250,6 +278,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             return
         self.determine_setpoints(phen)
 
+################################
+
     def on_apply_button(self):
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
@@ -258,9 +288,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints.mono2_roll  = 1.5
         self.q_to_io.put(cmd)
 
-    def on_close(self):
-        print('CLOSE')
-
+    def on_mono2_crystal_insert_button(self):
+        print('crystal2 insert button')
+    def on_mono2_crystal_park_button(self):
+        print('crystal2 park button')
 
 
 if __name__ == "__main__":

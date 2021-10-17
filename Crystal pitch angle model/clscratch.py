@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 v3 Christoph Lechner (2021-10-15):
-    . Can now plot standalone (using Matplotlib.Pyplot) or integrated in PyQt5 program. In the PyQt5 case, the use of 'plt' is not possible.
+    . Can now plot standalone (using Matplotlib.Pyplot) or integrated in PyQt5 program.
+      In the PyQt5 case, the use of 'plt' is not possible.
     . Implemented callback function that is called when user is clicking one line
 v2 Christoph Lechner (2021-10-14): added comments, code to pick line by clicking
 
@@ -20,28 +21,44 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     '''
     line_pick_cb: Caller-supplied callback function that is called whenever the user clicks on a trace, single argument to callback function is 'line_pick' data structure
     '''
+
+    ### TEST OPTIONS ###
+    do_indicate_features=False
+    do_stt=False
+    ### end of TEST OPTIONS ###
+
+
     # Function to hover on plot and see a curve's Bragg id
     def on_plot_hover(event):
         # Iterating over each data member plotted
-        pressi = False
-        thy0 = 0
-        thr0 = 0
+        #pressi = False
+        #thy0 = 0
+        #thr0 = 0
         # if mouse hovers over Axes instance:
         # -> let's check over which curve we're hovering and report some infos
         # docu: https://matplotlib.org/stable/users/event_handling.html (accessed on 2021-Oct-14)
         if event.inaxes is not None:
             start = time.time()
-            for curve in event.inaxes.get_lines():
+            over_curve=False
+            ax = event.inaxes
+            for curve in ax.get_lines():
                 # Searching which data member corresponds to current mouse position
                 if curve.contains(event)[0]:
-                    plt.suptitle('over '+curve.get_gid())
-                    fig.canvas.draw()
-                    plt.show()
+                    over_curve=True
+                    # plt.suptitle('over '+curve.get_gid())
+                    ax.set_title('over '+curve.get_gid())
+                    #fig.canvas.draw()
+                    parent_fig=ax.get_figure()
+                    parent_fig.canvas.draw()
+                    # not needed to have title of axes updating
+                    #plt.show()
                     hlm = curve.get_gid()
                     print('hlm='+hlm)
-                    x, y = event.xdata, event.ydata
-                    Pitch = x
-                    Phene = y
+            # if mouse isn't hovering over a line (just over the canvas), clear title
+            if over_curve==False:
+                ax.set_title('')
+                parent_fig=ax.get_figure()
+                parent_fig.canvas.draw()
             end = time.time()
             print('execution time {}'.format(end-start))
 
@@ -76,10 +93,6 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
         if line_pick_cb is not None:
             line_pick_cb(line_pick)
 
-
-
-
-
     # store picked line here
     if line_pick is None:
         line_pick = SimpleNamespace()
@@ -92,8 +105,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     thplist = np.linspace(111, 113, 51)
 
     # test code
-    hmax, kmax, lmax = 1,1,1
-    # thplist = np.linspace(0, 360, 601)
+    hmax, kmax, lmax = 3,3,3
 
     thplist = np.linspace(0, 360, 6001)
 
@@ -105,14 +117,10 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
     roll_list = [1.58]
 
-    #phen_list, p_angle_list, gid_list = HXRSS_Bragg_max_generator(
-    #            thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha)
-    r = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, return_obj=True)
+    r = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, return_obj=True, analyze_curves=do_indicate_features)
     phen_list = r.phen_list
     p_angle_list = r.p_angle_list
     gid_list = r.gid_list
-    min_pitch = r.min_pitch_list
-    min_photenergy = r.min_photonenergy_list
 
     colors = ['r', 'b', 'g', 'c', 'y', 'k']
     linecolors = cycle(colors)
@@ -123,28 +131,36 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
         print(f'___ plotted gid={gid_list[r]} in color={my_color} ___')
 
     # indicate minima using the information returned by Bragg max gen
-    ax.plot(min_pitch, min_photenergy, 'kx')
+    if do_indicate_features:
+        min_pitch = r.min_pitch_list
+        min_photenergy = r.min_photonenergy_list
+        ax.plot(min_pitch, min_photenergy, 'kx')
 
     # stt = "single trace test"
-    stt_thplist = np.linspace(65, 160, 1001)
-    stt_r = HXRSS_Bragg_max_generator(
-        stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
-        specific_hkl=[(1,1,-1)], return_obj=True) # <===
-    stt_phen_list = stt_r.phen_list
-    stt_p_angle_list = stt_r.p_angle_list
-    stt_gid_list = stt_r.gid_list
-    ax.plot(stt_p_angle_list[0], np.array(stt_phen_list[0]), 'k+')
+    if do_stt:
+        stt_thplist = np.linspace(65, 160, 1001)
+        stt_r = HXRSS_Bragg_max_generator(
+            stt_thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha,
+            specific_hkl=[(1,1,-1)], return_obj=True) # <===
+        stt_phen_list = stt_r.phen_list
+        stt_p_angle_list = stt_r.p_angle_list
+        stt_gid_list = stt_r.gid_list
+        ax.plot(stt_p_angle_list[0], np.array(stt_phen_list[0]), 'k+')
 
     ax.set_ylim(5000, 20000) # just some reasonable limits (there are also traces outside of this range)
     ax.set_ylim(2000, 20000)
     ax.set_ylabel('Photon Energy (eV)')
     ax.set_xlabel('Pitch angle (deg)')
+    ax.set_title('hover mouse over curve to set its [h,k,l], click to select')
 
     # still has some reference to plt, which is not working with PyQt5
+    '''
     if standalone:
         canvas.mpl_connect('motion_notify_event', on_plot_hover)
     else:
         print('HXRSS line plot: hover infos disabled because not in standalone mode')
+    '''
+    canvas.mpl_connect('motion_notify_event', on_plot_hover)
     canvas.mpl_connect('pick_event', lambda event: on_pick(event,line_pick))
 
     if standalone:
