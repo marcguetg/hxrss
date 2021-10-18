@@ -8,6 +8,7 @@ script_dir = os.path.dirname(script_path)
 hxrss_toolbox_dir = script_dir+'/Crystal pitch angle model'
 sys.path.append(hxrss_toolbox_dir)
 
+
 from hxrss_main_window import Ui_MainWindow
 from PyQt5 import QtWidgets as qtw
 from PyQt5 import QtCore as qtc
@@ -20,7 +21,6 @@ from copy import deepcopy
 
 from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, IO_Cmd
 
-# from clscratch import stuff2000
 import do_crystal_plot
 
 # for development of crystal control code
@@ -312,6 +312,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(mono.infotxt+': curvedata is not valid')
             return False
 
+        print(mono.infotxt+f': computing setpoint for requested photon energy {sp_phen}')
+
         # some information about crystal curve data used for interpolation
         phen_max = np.amax(np.array(cd.phen))
         phen_min = np.amin(np.array(cd.phen))
@@ -371,10 +373,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # NOTE: currently not using this setpoint as additional considerations are needed
 
         print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={setpoint_roll}')
+        self.computed_pitch_angle_display.setText('{:.6f}'.format(setpoint_pitch))
+        self.computed_roll_angle_display.setText('1.58=const') # FIXME
+        
 
         ### Store the setpoint in the internal structure ###
         mono.setpoint.pitch = setpoint_pitch
-        print('assuming roll=1.58')
+        print('assuming roll=1.58 (overriding result of setpoint computation)')
         mono.setpoint.roll = 1.58 # FIXME
         mono.setpoint.valid = True
         return True

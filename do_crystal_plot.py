@@ -22,5 +22,5 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         layout.addWidget(static_canvas)
         self.addToolBar(NavigationToolbar(static_canvas, self))
         self._static_ax = static_canvas.figure.subplots()
-        clscratch.stuff2000_core(None,static_canvas,self._static_ax, line_pick_cb=lpcb)
+        clscratch.crystal_plot_core(None,static_canvas,self._static_ax, line_pick_cb=lpcb)
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+v4 Christoph Lechner (2021-10-17)
 v3 Christoph Lechner (2021-10-15):
     . Can now plot standalone (using Matplotlib.Pyplot) or integrated in PyQt5 program.
       In the PyQt5 case, the use of 'plt' is not possible.
@@ -19,7 +20,7 @@ import time
 
 # 'test_mode' flag limits h,k,l to enable quick preparation of plot
 #     to enable quick test iterations
-def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_cb=None, test_mode=False):
+def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_cb=None, test_mode=False):
     '''
     line_pick_cb: Caller-supplied callback function that is called whenever the user clicks on a trace, single argument to callback function is 'line_pick' data structure
     '''
@@ -63,7 +64,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
                 parent_fig=ax.get_figure()
                 parent_fig.canvas.draw()
             end = time.time()
-            print('execution time {}'.format(end-start))
+            print('on_plot_hover: execution time {}'.format(end-start))
 
 
     # expecting argument lp to be SimpleNamespace (to get infos about click out of callback function w/o global variables)
@@ -156,7 +157,7 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
     ax.set_ylim(2000, 20000)
     ax.set_ylabel('Photon Energy (eV)')
     ax.set_xlabel('Pitch angle (deg)')
-    ax.set_title('hover mouse over curve to set its [h,k,l], click to select')
+    ax.set_title('hover mouse over curve to see its [h,k,l], click to select')
 
     # still has some reference to plt, which is not working with PyQt5
     '''
@@ -176,10 +177,10 @@ def stuff2000_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_
 
 
 # when working with PyQt5, call this function
-def stuff2000(standalone=False, line_pick=None, line_pick_cb=None):
+def crystal_plot(standalone=False, line_pick=None, line_pick_cb=None):
     fig,ax = plt.subplots(figsize=(12, 8))
     canvas = fig.canvas
-    stuff2000_core(None,canvas,ax, standalone, line_pick, line_pick_cb)
+    crystal_plot_core(None,canvas,ax, standalone, line_pick, line_pick_cb)
 
 
 
@@ -192,7 +193,7 @@ if __name__ == "__main__":
     # TEST 1: Information on picked line is retrieved via passed data obj
     lp = SimpleNamespace()
     lp.valid = False
-    stuff2000(standalone=True, line_pick=lp, test_mode=True)
+    crystal_plot(standalone=True, line_pick=lp, test_mode=True)
     # once Figure is closed by user, display info on selected line
     if lp.valid==True:
         print('you picked line {} at position ({},{})'.format(lp.info_txt,lp.x,lp.y))
@@ -203,4 +204,4 @@ if __name__ == "__main__":
     def cb(my_lp):
         print('*** Entered Call-Back Function ***')
         print(str(my_lp))
-    stuff2000(standalone=True, line_pick_cb=cb, test_mode=True)
+    crystal_plot(standalone=True, line_pick_cb=cb, test_mode=True)
