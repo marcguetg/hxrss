@@ -20,6 +20,7 @@ from types import SimpleNamespace
 from copy import deepcopy
 
 from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, IO_Cmd
+from hxrss_io_crystal_params import hxrss_io_crystal_parameters_default, hxrss_io_crystal_parameters_fromDOOCS
 
 import do_crystal_plot
 
@@ -40,10 +41,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.photon_energy_edit.returnPressed.connect(self.on_photon_energy_enter)
         self.mono2_crystal_insert_button.clicked.connect(self.on_mono2_crystal_insert_button)
         self.mono2_crystal_park_button.clicked.connect(self.on_mono2_crystal_park_button)
+        #
+        self.params_report_button.clicked.connect(self.on_params_report_button)
+        self.params_fromDOOCS_button.clicked.connect(self.on_params_fromDOOCS_button)
+        self.params_default_button.clicked.connect(self.on_params_default_button)
 
         # set initial photon energy value (currently SASE2 color1 setpoint)
         self.photon_energy_edit.setText('{:.2f}'.format(get_initial_photon_energy_value()))
-
 
 
         self.mono2 = SimpleNamespace()
@@ -56,6 +60,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2.pitch_min = 29.88  # [deg], min/max values from mono control panel
         self.mono2.pitch_max = 120.06
         self.mono2.pitch_minmax_safetymargin = 1 # don't go to the limits
+
+        # Obtain default correction parameters for mono2
+        # These describe imperfections of the system
+        self.mono2.corrparams = hxrss_io_crystal_parameters_default()
+
 
         ### THREAD FOR MACHINE I/O ###
         # thread for communication with machine: display dbg messages?
@@ -131,11 +140,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 ### CRYSTAL-MAP RELATED CODE ###
 ################################
     def on_show_map_button(self):
-        blah = do_crystal_plot.ApplicationWindow(lpcb=self.on_crystal_map_linepicked)
+        blah = do_crystal_plot.ApplicationWindow(lpcb=self.on_crystal_map_linepicked,corrparams=self.mono2.corrparams)
         blah.show()
         blah.activateWindow()
         self.crystal_plot = blah # prevent issues with garbage collector (2021-Oct-15). On Ubuntu 20.04LTS plot was showing, on MacOS in BKR, the plot was not displayed, but there was also no crash or error msg displayed. Pointed out by Marc G.
-        print('abc')
+
 
     def on_crystal_map_linepicked(self,the_info):
         print('### CRYSTAL MAP CALLBACK ###')
@@ -166,12 +175,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 print('Warning: could not extract crystal orientation from '+the_info.info_txt+', using hkl=(1,1,1)')
                 hkl = (1,1,1)
 
-            # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
-            dthp = -0.392      # pitch angle
-            dthy = 1.17        # roll angle (American convention)
-            dthr = 0.1675      # yaw angle (American convention)
-            alpha = 0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
-            roll_list = [1.58]
+            # Obtain correction parameters for mono2
+            # These describe imperfections of the system
+            # Program starts with default values but can also load updates values from DOOCS
+            dthp = self.mono2.corrparams.dthp    # pitch angle
+            dthy = self.mono2.corrparams.dthy    # roll angle (American convention)
+            dthr = self.mono2.corrparams.dthr    # yaw angle (American convention)
+            alpha = self.mono2.corrparams.alpha  # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
+            roll_list = self.mono2.corrparams.roll_list
 
             ################################################################
             ### store detailed curve data for interpolation of setpoints ###
@@ -397,6 +408,22 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(f'photon energy cannot convert "{phen_str}" into number')
             return
         self.determine_setpoints(phen)
+
+
+
+
+    def on_params_report_button(self):
+        print('reporting correction parameters: ' +str(self.mono2.corrparams))
+
+    def on_params_fromDOOCS_button(self):
+        print('previous correction parameters: ' +str(self.mono2.corrparams))
+        self.mono2.corrparams = hxrss_io_crystal_parameters_fromDOOCS()
+        print('loaded correction parameters from DOOCS:' + str(self.mono2.corrparams))
+
+    def on_params_default_button(self):
+        print('previous correction parameters: ' +str(self.mono2.corrparams))
+        self.mono2.corrparams = hxrss_io_crystal_parameters_default()
+        print('loaded default correction parameters:' + str(self.mono2.corrparams))
 
 ################################
 

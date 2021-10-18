@@ -818,6 +818,45 @@
      <string>Pitch: Local Derivative [eV/deg]</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="params_report_button">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>320</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Report Params</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="params_default_button">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>350</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Default Params</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="params_fromDOOCS_button">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>380</y>
+      <width>171</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Load Params from DOOCS</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

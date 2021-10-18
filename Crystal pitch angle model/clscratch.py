@@ -18,9 +18,11 @@ from itertools import cycle
 from types import SimpleNamespace
 import time
 
+from hxrss_io_crystal_params import hxrss_io_crystal_parameters_default
+
 # 'test_mode' flag limits h,k,l to enable quick preparation of plot
 #     to enable quick test iterations
-def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_cb=None, test_mode=False):
+def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pick_cb=None, test_mode=False, corrparams=None):
     '''
     line_pick_cb: Caller-supplied callback function that is called whenever the user clicks on a trace, single argument to callback function is 'line_pick' data structure
     '''
@@ -115,13 +117,15 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
         hmax,kmax,lmax = 3,3,3
         thplist = np.linspace(0, 360, 6001)
 
-    # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
-    dthp = -0.392      # pitch angle
-    dthy = 1.17        # roll angle (American convention)
-    dthr = 0.1675      # yaw angle (American convention)
-    alpha = 0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
-
-    roll_list = [1.58]
+    # imperfections of the system (mono2 as of Oct-2021)
+    if corrparams is None:
+        print('==> no correction parameters provided, using default parameters from function hxrss_io_crystal_parameters_default <==')
+        corrparams = hxrss_io_crystal_parameters_default()
+    dthp = corrparams.dthp    # pitch angle
+    dthy = corrparams.dthy    # roll angle (American convention)
+    dthr = corrparams.dthr    # yaw angle (American convention)
+    alpha = corrparams.alpha  # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
+    roll_list = corrparams.roll_list
 
     res = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, return_obj=True, analyze_curves=do_indicate_features)
     phen_list = res.phen_list
