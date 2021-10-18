@@ -75,13 +75,16 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
 
     def closeEvent(self, event):
+        # send IO threads command to stop
         print('got close event, stopping IO thread')
-
-        # send to IO threads
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_QUIT
         self.q_to_read.put(cmd)
         self.q_to_write.put(cmd)
+
+        # close crystal plot window (otherwise closing main window will not terminate application when crystal plot window is still open)
+        if hasattr(self, 'crystal_plot'):
+            self.crystal_plot.close()
 
         event.accept()
         # to ignore this event: event.ignore()
@@ -410,8 +413,19 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def on_mono2_crystal_insert_button(self):
         print('crystal2 insert button')
+        cmd = SimpleNamespace()
+        cmd.cmd = IO_Cmd.IO_SET
+        cmd.setpoints = SimpleNamespace()
+        cmd.setpoints.mono2_inserted = 'IN'
+        self.q_to_write.put(cmd)
+
     def on_mono2_crystal_park_button(self):
         print('crystal2 park button')
+        cmd = SimpleNamespace()
+        cmd.cmd = IO_Cmd.IO_SET
+        cmd.setpoints = SimpleNamespace()
+        cmd.setpoints.mono2_inserted = 'OUT'
+        self.q_to_write.put(cmd)
 
 
 if __name__ == "__main__":

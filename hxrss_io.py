@@ -10,37 +10,59 @@ class IO_Cmd(enum.Enum):
     IO_QUIT = enum.auto()
     IO_SET = enum.auto()
 
+###########################
+### LOW-LEVEL FUNCTIONS ###
+###########################
+
 def simple_doocs_read(addr):
     x = pydoocs.read(addr)
     v = x['data']
     return v
 
+def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
+    print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
+    return
+    '''
+    # if requested, increase motor speed
+    if motor_speed is not None:
+        original_speed = simple_doocs_read(doocs_prefix+'SPEED.SET')
+        print(f'{doocs_prefix}  original speed: {original_speed}')
+        pydoocs.write(doocs_prefix+'SPEED.SET', motor_speed)
+
+    print('mono_move_motor: implement code for assigning setpoint and starting motion')
+
+    # revert to original motor speed
+    if motor_speed is not None:
+        pydoocs.write(doocs_prefix+'SPEED_SET', original_speed)
+    '''
+
+# Value of argument 'sp' determines action
+# . 'IN'  ==> mono2 moves in
+# . 'OUT' ==> mono2 moves out
 def insert_mono(sp):
-    print('insert_mono function is disabled')
+    mono2_prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
+    sp_in = -7.5
+    sp_out = 1.0
+    if sp=='IN':
+        mono_move_motor(mono2_prefix_xmotor, sp_in)
+    elif sp=='OUT':
+        mono_move_motor(mono2_prefix_xmotor, sp_out)
+    else:
+        print(f'insert_mono: unknown setpoint {sp}, supported values are IN and OUT.')
 
 def set_mono(sp):
-    print('set_mono function is disabled, it was called with setpoint: '+str(sp))
-    return
-
-    '''
+    print('set_mono was called with setpoint '+str(sp))
     motor_speed = 80  # percent
-    original_speed_pitch = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/SPEED.SET')
-    original_speed_roll  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/SPEED.SET')
-    print(f'original speeds: roll {original_speed_pitch}, pitch {original_speed_pitch}')
-
-    # increase motor speeds to fast
-    pydoocs.write('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/SPEED.SET', motor_speed)
-    pydoocs.write('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/SPEED.SET', motor_speed)
-
-    time.sleep(10)
-    print('==> implement code move mono2 to setpoint: pitch='+str(sp.pitch)+' roll='+str(sp.roll))
-
-    # recover original motor speed settings
-    print('reverting to original motor speed values')
-    pydoocs.write('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/SPEED.SET', original_speed_pitch)
-    pydoocs.write('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/SPEED.SET', original_speed_roll)
+    mono_move_motor('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/', sp.pitch, motor_speed=motor_speed)
+    mono_move_motor('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/', sp.roll,  motor_speed=motor_speed)
     return
-    '''
+
+####################################
+### READ THREAD AND WRITE THREAD ###
+####################################
+# Remark: Having a thread dedicated for write operations is advantageous
+# since it can wait for the motors to reach their desired position without
+# blocking all other I/O functions, such as updating the status indicators.
 
 def thread_write_worker(qin, qout, dbg=False):
     processing_time_warn=30 # seconds
@@ -54,16 +76,22 @@ def thread_write_worker(qin, qout, dbg=False):
             print('write thread: got QUIT cmd ==> leaving')
             break
         tstart = time.time()
-        # do work
         if item.cmd!=IO_Cmd.IO_SET:
             print('ERROR: write thread: got unsupported command')
             continue
 
+        # begin producing reply data structure and record current time
         r = SimpleNamespace()
         r.tag = message_counter
         r.timestamp = time.time() # timestamp to recognise 'old' msgs
 
-        set_mono(item.setpoints.mono2)
+        ###########
+        # do work #
+        ###########
+        if hasattr(item.setpoints, 'mono2_inserted'):
+            insert_mono(item.setpoints.mono2_inserted)
+        if hasattr(item.setpoints,'mono2'):
+            set_mono(item.setpoints.mono2)
 
         tend = time.time()
         dt = tend-tstart
@@ -99,8 +127,8 @@ def thread_read_worker(qin, qout, dbg=False):
         r.tag = message_counter
         r.timestamp = time.time() # timestamp to recognise 'old' msgs
         r.color1_rb = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON')
-        r.color2_rb = 234
-        r.color3_rb = 456
+        r.color2_rb = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR2/E_PHOTON')
+        r.color3_rb = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR3/E_PHOTON')
         r.mono1_pitch_rb = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ANGLE')
         r.mono1_pitch_sp = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ANGLE.SET')
         r.mono1_roll_rb  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2252.SA2/ANGLE')
