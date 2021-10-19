@@ -20,8 +20,9 @@ def simple_doocs_read(addr):
     return v
 
 def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
-    #print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
-    #return
+    print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
+    return
+    '''
     # if requested, increase motor speed
     if motor_speed is not None:
         original_speed = simple_doocs_read(doocs_prefix+'SPEED.SET')
@@ -38,6 +39,7 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
     # revert to original motor speed
     if motor_speed is not None:
         pydoocs.write(doocs_prefix+'SPEED.SET', original_speed)
+    '''
 
 # Value of argument 'sp' determines action
 # . 'IN'  ==> mono2 moves in
