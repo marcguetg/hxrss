@@ -20,9 +20,8 @@ def simple_doocs_read(addr):
     return v
 
 def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
-    print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
-    return
-    '''
+    #print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
+    #return
     # if requested, increase motor speed
     if motor_speed is not None:
         original_speed = simple_doocs_read(doocs_prefix+'SPEED.SET')
@@ -30,16 +29,22 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
         pydoocs.write(doocs_prefix+'SPEED.SET', motor_speed)
 
     print('mono_move_motor: implement code for assigning setpoint and starting motion')
+    pydoocs.write(doocs_prefix+'ANGLE.SET', sp)
+    time.sleep(1)
+    pydoocs.write(doocs_prefix+'CONTROL.START', 1)
+    pydoocs.write(doocs_prefix+'CONTROL.START', 0) # according to tooltip: mono control panel sends first 1 and then 0 to the CONTROL.START property???
+    time.sleep(3)
 
     # revert to original motor speed
     if motor_speed is not None:
-        pydoocs.write(doocs_prefix+'SPEED_SET', original_speed)
-    '''
+        pydoocs.write(doocs_prefix+'SPEED.SET', original_speed)
 
 # Value of argument 'sp' determines action
 # . 'IN'  ==> mono2 moves in
 # . 'OUT' ==> mono2 moves out
 def insert_mono(sp):
+    print('insert_mono function disabled')
+    return
     mono2_prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
     sp_in = -7.5
     sp_out = 1.0
@@ -54,7 +59,7 @@ def set_mono(sp):
     print('set_mono was called with setpoint '+str(sp))
     motor_speed = 80  # percent
     mono_move_motor('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/', sp.pitch, motor_speed=motor_speed)
-    mono_move_motor('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/', sp.roll,  motor_speed=motor_speed)
+    # mono_move_motor('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/', sp.roll,  motor_speed=motor_speed)
     return
 
 ####################################
