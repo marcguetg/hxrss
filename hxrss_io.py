@@ -1,25 +1,59 @@
+# C. Lechner, European XFEL
+
 import threading,queue
 import time
+from datetime import datetime
 from types import SimpleNamespace
 import enum
 from copy import deepcopy
-import pydoocs
+
+# import pydoocs
 
 class IO_Cmd(enum.Enum):
     IO_JUSTREAD = enum.auto()
     IO_QUIT = enum.auto()
     IO_SET = enum.auto()
 
+
+def hxrss_io_mono2_motors():
+    r = SimpleNamespace()
+    r.prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/'
+    r.prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/'
+    r.prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
+    return r
+
 ###########################
 ### LOW-LEVEL FUNCTIONS ###
 ###########################
 
+def timestr():
+    now = datetime.now()
+    now_s = now.strftime('%Y%m%dT%H%M%S')
+    return now_s
+
+# Use this function to enable/disable machine writes
+# False == do not touch machine hardware channels (mono etc)
+def machine_writes_enabled():
+    return False
+
 def simple_doocs_read(addr):
-    x = pydoocs.read(addr)
-    v = x['data']
+    # x = pydoocs.read(addr)
+    # v = x['data']
+    v = 42 # type of dummy value needs to be 'int', because otherwise the motor_busy function will throw exception (uses bitwise and operation)
     return v
 
+def mono_motor_busy(doocs_prefix):
+    # from the HXRSS mono expert panels (2022-Feb): Condition "motor busy" sets 0x04 in /HW_STATE
+    mask_busy = 0x4
+    q = simple_doocs_read(doocs_prefix+'HW_STATE')
+    is_busy = (q&mask_busy)==mask_busy
+    # is_busy = not is_busy  ## for test purposes
+    return is_busy
+
 def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
+    with open('my_log.txt', 'a') as f:
+        f.write(timestr() + f' requested update of motor channel {doocs_prefix} to {sp}\n')
+
     print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
     return
     '''
@@ -45,9 +79,13 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
 # . 'IN'  ==> mono2 moves in
 # . 'OUT' ==> mono2 moves out
 def insert_mono(sp):
+    with open('my_log.txt', 'a') as f:
+        f.write(f'insert_mono function called')
+
     print('insert_mono function disabled')
     return
-    mono2_prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
+    mcfg = hxrss_io_mono2_motors()
+    mono2_prefix_xmotor = mcfg.prefix_xmotor # 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
     sp_in = -7.5
     sp_out = 1.0
     if sp=='IN':
@@ -60,9 +98,15 @@ def insert_mono(sp):
 def set_mono(sp):
     print('set_mono was called with setpoint '+str(sp))
     motor_speed = 80  # percent
-    mono_move_motor('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/', sp.pitch, motor_speed=motor_speed)
-    # mono_move_motor('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/', sp.roll,  motor_speed=motor_speed)
+    mcfg = hxrss_io_mono2_motors()
+    #mono2_prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/'
+    #mono2_prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/'
+    mono_move_motor(mcfg.prefix_pitch, sp.pitch, motor_speed=motor_speed)
+    # mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=motor_speed)
     return
+
+
+
 
 ####################################
 ### READ THREAD AND WRITE THREAD ###
@@ -138,12 +182,16 @@ def thread_read_worker(qin, qout, dbg=False):
         r.color3_rb = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR3/E_PHOTON')
         r.mono1_pitch_rb = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ANGLE')
         r.mono1_pitch_sp = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ANGLE.SET')
+        r.mono1_pitch_busy = mono_motor_busy('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/')
         r.mono1_roll_rb  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2252.SA2/ANGLE')
         r.mono1_roll_sp  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2252.SA2/ANGLE.SET')
+        r.mono1_roll_busy  = mono_motor_busy('XFEL.FEL/UNDULATOR.SASE2/MONORA.2252.SA2/')
         r.mono2_pitch_rb = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/ANGLE')
         r.mono2_pitch_sp = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/ANGLE.SET')
+        r.mono2_pitch_busy = mono_motor_busy('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/')
         r.mono2_roll_rb  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ANGLE')
         r.mono2_roll_sp  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ANGLE.SET')
+        r.mono2_roll_busy  = mono_motor_busy('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/')
         tend = time.time()
         dt = tend-tstart
         r.processing_time = dt
@@ -158,7 +206,11 @@ def thread_read_worker(qin, qout, dbg=False):
     print('read thread is finishing')
 
 
+
+
+##########################
 ##### USER INTERFACE #####
+##########################
 
 # Initial photon energy value to be displayed on the GUI
 # Value is fetched once during start-up of the GUI

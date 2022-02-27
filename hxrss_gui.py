@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# C. Lechner, European XFEL
+
 # put the HXRSS tool box on the path, so that the Python modules can be imported
 import os
 import sys
@@ -48,6 +50,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
         # set initial photon energy value (currently SASE2 color1 setpoint)
         self.photon_energy_edit.setText('{:.2f}'.format(get_initial_photon_energy_value()))
+
+        # hide HXRSS crystal reflection curve information (it will become visible once needed)
+        self.photon_energy_min_label.setVisible(False)
+        self.photon_energy_min_display.setVisible(False)
+        self.photon_energy_max_label.setVisible(False)
+        self.photon_energy_max_display.setVisible(False)
 
 
         self.mono2 = SimpleNamespace()
@@ -102,17 +110,34 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     # Data was received from IO thread
     # ==> update displayed readback values
     def update_readbacks(self, msg):
-        self.color1_rb_display.setText(str(msg.color1_rb))
-        self.color2_rb_display.setText(str(msg.color2_rb))
-        self.color3_rb_display.setText(str(msg.color3_rb))
-        self.mono1_pitch_rb_display.setText(str(msg.mono1_pitch_rb))
-        self.mono1_pitch_sp_display.setText(str(msg.mono1_pitch_sp))
-        self.mono1_roll_rb_display.setText(str(msg.mono1_roll_rb))
-        self.mono1_roll_sp_display.setText(str(msg.mono1_roll_sp))
-        self.mono2_pitch_rb_display.setText(str(msg.mono2_pitch_rb))
-        self.mono2_pitch_sp_display.setText(str(msg.mono2_pitch_sp))
-        self.mono2_roll_rb_display.setText(str(msg.mono2_roll_rb))
-        self.mono2_roll_sp_display.setText(str(msg.mono2_roll_sp))
+        def str_ph_energy(q_):
+            return f'{q_:.1f}'
+        def str_pitch_angle(q_):
+            return f'{q_:.3f}'
+        def str_roll_angle(q_):
+            return f'{q_:.4f}'
+        def update_busy_indicator(qlabel, is_busy=False):
+            if is_busy:
+                # qlabel.setStyleSheet('background-color:red') # reserved for future error indication, only red border for busy
+                qlabel.setStyleSheet('border: 2px solid red')
+            else:
+                qlabel.setStyleSheet('')
+
+        self.color1_rb_display.setText(str_ph_energy(msg.color1_rb))
+        self.color2_rb_display.setText(str_ph_energy(msg.color2_rb))
+        self.color3_rb_display.setText(str_ph_energy(msg.color3_rb))
+        self.mono1_pitch_rb_display.setText(str_pitch_angle(msg.mono1_pitch_rb))
+        update_busy_indicator(self.mono1_pitch_rb_display, msg.mono1_pitch_busy)
+        self.mono1_pitch_sp_display.setText(str_pitch_angle(msg.mono1_pitch_sp))
+        self.mono1_roll_rb_display.setText(str_roll_angle(msg.mono1_roll_rb))
+        update_busy_indicator(self.mono1_roll_rb_display, msg.mono1_roll_busy)
+        self.mono1_roll_sp_display.setText(str_roll_angle(msg.mono1_roll_sp))
+        self.mono2_pitch_rb_display.setText(str_pitch_angle(msg.mono2_pitch_rb))
+        update_busy_indicator(self.mono2_pitch_rb_display, msg.mono2_pitch_busy)
+        self.mono2_pitch_sp_display.setText(str_pitch_angle(msg.mono2_pitch_sp))
+        self.mono2_roll_rb_display.setText(str_roll_angle(msg.mono2_roll_rb))
+        update_busy_indicator(self.mono2_roll_rb_display, msg.mono2_roll_busy)
+        self.mono2_roll_sp_display.setText(str_roll_angle(msg.mono2_roll_sp))
         self.io_msgtag_display.setText(str(msg.tag))
         self.io_processingtime_display.setText('{:.2f}'.format(1e3*msg.processing_time))
         self.io_msgage_display.setText('{:.2f}'.format(msg.age))
@@ -178,11 +203,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             # Obtain correction parameters for mono2
             # These describe imperfections of the system
             # Program starts with default values but can also load updates values from DOOCS
-            dthp = self.mono2.corrparams.dthp    # pitch angle
-            dthy = self.mono2.corrparams.dthy    # roll angle (American convention)
-            dthr = self.mono2.corrparams.dthr    # yaw angle (American convention)
-            alpha = self.mono2.corrparams.alpha  # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
-            roll_list = self.mono2.corrparams.roll_list
+            dthp  = mono.corrparams.dthp   # pitch angle
+            dthy  = mono.corrparams.dthy   # roll angle (American convention)
+            dthr  = mono.corrparams.dthr   # yaw angle (American convention)
+            alpha = mono.corrparams.alpha  # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
+            roll_list = mono.corrparams.roll_list
 
             ################################################################
             ### store detailed curve data for interpolation of setpoints ###
@@ -298,8 +323,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print('  pitch angle   '+str_minmax(stt_pangle_list))
             print('  roll angle    '+str_minmax(stt_rangle_list))
             print('  photon energy '+str_minmax(stt_phen_list))
+            display_phen_max=True
             self.photon_energy_min_display.setText(str(np.amin(np.array(stt_phen_list))))
-            self.photon_energy_max_display.setText(str(np.amax(np.array(stt_phen_list))))
+            self.photon_energy_min_label.setVisible(True)
+            self.photon_energy_min_display.setVisible(True)
+            if display_phen_max:
+                self.photon_energy_max_display.setText(str(np.amax(np.array(stt_phen_list))))
+                self.photon_energy_max_label.setVisible(True)
+                self.photon_energy_max_display.setVisible(True)
             
 
             # dbg: pitch angle offset between input array and output array
@@ -379,6 +410,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(mono.infotxt+f': determined pitch setpoint {setpoint_pitch} not in allowed travel range (min={mono.pitch_min}, max={mono.pitch_max}, safety_margin={mono.pitch_minmax_safetymargin}')
             return False
 
+        # determine dE_photon/dpitch
+        d_pitch = 1e-3 # deg
+        deriv = (f_interp_phen(setpoint_pitch+d_pitch/2)-f_interp_phen(setpoint_pitch-d_pitch/2))/d_pitch
+
 
         # determine roll setpoint
         f_interp_roll = interpolate.interp1d(cd.pitch, cd.roll)
@@ -387,15 +422,17 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # NOTE: currently not using this setpoint as additional considerations are needed
 
         print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={setpoint_roll}')
-        self.computed_pitch_angle_display.setText('{:.6f}'.format(setpoint_pitch))
+        self.computed_pitch_angle_display.setText('{:.4f}'.format(setpoint_pitch))
+        self.computed_pitch_angle_slope_display.setText('{:.2f}'.format(deriv))
         self.computed_roll_angle_display.setText('1.58=const') # FIXME
         
 
         ### Store the setpoint in the internal structure ###
         mono.setpoint.pitch = setpoint_pitch
         print('assuming roll=1.58 (overriding result of setpoint computation)')
-        mono.setpoint.roll = 1.58 # FIXME
+        mono.setpoint.roll = 1.58 # FIXME: computed roll point is currently not used
         mono.setpoint.valid = True
+        print('*** Crystal setpoint values updated ***')
         return True
 
     def on_photon_energy_enter(self):
