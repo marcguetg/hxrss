@@ -1,26 +1,41 @@
 # C. Lechner, European XFEL
 
+do_doocs=False
+
 import threading,queue
 import time
 from datetime import datetime
 from types import SimpleNamespace
 import enum
 from copy import deepcopy
+import os
 
-# import pydoocs
+if do_doocs:
+    # import pydoocs
+    pass
 
 class IO_Cmd(enum.Enum):
     IO_JUSTREAD = enum.auto()
     IO_QUIT = enum.auto()
     IO_SET = enum.auto()
 
+def hxrss_io_mono1_motors():
+    r = SimpleNamespace()
+    r.prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/'
+    r.prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2252.SA2/'
+    r.prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2252.SA2/'
+    return r
 
 def hxrss_io_mono2_motors():
+    r = hxrss_io_mono1_motors()
+    return r
+    '''
     r = SimpleNamespace()
     r.prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/'
     r.prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/'
     r.prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
     return r
+    '''
 
 ###########################
 ### LOW-LEVEL FUNCTIONS ###
@@ -34,7 +49,7 @@ def timestr():
 # Use this function to enable/disable machine writes
 # False == do not touch machine hardware channels (mono etc)
 def machine_writes_enabled():
-    return False
+    return do_doocs # False
 
 def simple_doocs_read(addr):
     # x = pydoocs.read(addr)
@@ -49,6 +64,28 @@ def mono_motor_busy(doocs_prefix):
     is_busy = (q&mask_busy)==mask_busy
     # is_busy = not is_busy  ## for test purposes
     return is_busy
+
+def mono_motor_wait(doocs_prefix):
+    # if this file is exists, the tool aborts the wait (even if the motor did not reach the setpoint)
+    fn_abort_file='hxrss_abort_wait_42'
+    print(f'note: to force leaving of motor wait loop, generate empty file {fn_abort_file}')
+    while True:
+        # to be sure, let's wait before checking motor status (could be that it takes some time after start until motor is busy)
+        time.sleep(1)
+        print('mono_motor_wait')
+        if not mono_motor_busy(doocs_prefix):
+            print(f'motor {doocs_prefix} is not busy')
+            break
+        # try to delete the flag file (NOTE: to avoid race conditions with any other instance of this tool, we do not use a two-step procedure that first tests if file exists and only then deletes)
+        try:
+            os.remove(fn_abort_file)
+            # This worked (= no exception thrown), so the file was there and could be deleted
+            print(f'user requested to leave wait loop (magic file detected and deleted)')
+            break
+        except FileNotFoundError:
+            pass # silently ignore this exception, which is expected if the file does not exist
+    return
+
 
 def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
     with open('my_log.txt', 'a') as f:
@@ -67,8 +104,10 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
     pydoocs.write(doocs_prefix+'ANGLE.SET', sp)
     time.sleep(1)
     pydoocs.write(doocs_prefix+'CONTROL.START', 1)
+    time.sleep(1)
     pydoocs.write(doocs_prefix+'CONTROL.START', 0) # according to tooltip: mono control panel sends first 1 and then 0 to the CONTROL.START property???
-    time.sleep(3)
+    # time.sleep(3)
+    mono_motor_wait(doocs_prefix)
 
     # revert to original motor speed
     if motor_speed is not None:

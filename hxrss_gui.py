@@ -65,6 +65,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2.setpoint.pitch = 100
         print('assuming roll=1.58')
         self.mono2.setpoint.roll = 1.58
+        self.roll_angle_edit.setText('{:.3f}'.format(self.mono2.setpoint.roll))
         self.mono2.pitch_min = 29.88  # [deg], min/max values from mono control panel
         self.mono2.pitch_max = 120.06
         self.mono2.pitch_minmax_safetymargin = 1 # don't go to the limits

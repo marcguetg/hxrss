@@ -67,7 +67,7 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>100</y>
+      <y>110</y>
       <width>491</width>
       <height>141</height>
      </rect>
@@ -766,7 +766,7 @@
     <property name="geometry">
      <rect>
       <x>330</x>
-      <y>60</y>
+      <y>80</y>
       <width>151</width>
       <height>21</height>
      </rect>
@@ -792,7 +792,7 @@
     <property name="geometry">
      <rect>
       <x>530</x>
-      <y>60</y>
+      <y>80</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -864,6 +864,29 @@
     </property>
     <property name="text">
      <string>Load Params from DOOCS</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_26">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>60</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Roll Angle (to be implemented)</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="roll_angle_edit">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>60</y>
+      <width>113</width>
+      <height>23</height>
+     </rect>
     </property>
    </widget>
   </widget>
