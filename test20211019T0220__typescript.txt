@@ -1,0 +1,1269 @@
+Script started on Tue Oct 19 02:18:08 2021
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+[?1034hbash-3.2$ ./run_hxrss_gui.sh 
+Reading SASE2 undulator color1 set point as initial value for photon energy field
+assuming roll=1.58
+*** hxrss_io_crystal_parameters_default: loading default correction parameters for monochromator2 ***
+hkl=(0,-3,-3): not allowed
+hkl=(0,-3,-2): not allowed
+hkl=(0,-3,-1): not allowed
+hkl=(0,-3,0): not allowed
+hkl=(0,-3,1): not allowed
+hkl=(0,-3,2): not allowed
+hkl=(0,-3,3): not allowed
+hkl=(0,-2,-3): not allowed
+hkl=(0,-2,-2): not allowed
+hkl=(0,-2,-1): not allowed
+hkl=(0,-2,0): not allowed
+hkl=(0,-2,1): not allowed
+hkl=(0,-2,2): not allowed
+hkl=(0,-2,3): not allowed
+hkl=(0,-1,-3): not allowed
+hkl=(0,-1,-2): not allowed
+hkl=(0,-1,-1): not allowed
+hkl=(0,-1,0): not allowed
+hkl=(0,-1,1): not allowed
+hkl=(0,-1,2): not allowed
+hkl=(0,-1,3): not allowed
+hkl=(0,0,-3): not allowed
+hkl=(0,0,-2): not allowed
+hkl=(0,0,-1): not allowed
+hkl=(0,0,0): not allowed
+hkl=(0,0,1): not allowed
+hkl=(0,0,2): not allowed
+hkl=(0,0,3): not allowed
+hkl=(0,1,-3): not allowed
+hkl=(0,1,-2): not allowed
+hkl=(0,1,-1): not allowed
+hkl=(0,1,0): not allowed
+hkl=(0,1,1): not allowed
+hkl=(0,1,2): not allowed
+hkl=(0,1,3): not allowed
+hkl=(0,2,-3): not allowed
+hkl=(0,2,-2): done
+hkl=(0,2,-1): not allowed
+hkl=(0,2,0): not allowed
+hkl=(0,2,1): not allowed
+hkl=(0,2,2): done
+hkl=(0,2,3): not allowed
+hkl=(0,3,-3): not allowed
+hkl=(0,3,-2): not allowed
+hkl=(0,3,-1): not allowed
+hkl=(0,3,0): not allowed
+hkl=(0,3,1): not allowed
+hkl=(0,3,2): not allowed
+hkl=(0,3,3): not allowed
+hkl=(1,-3,-3): done
+hkl=(1,-3,-2): not allowed
+hkl=(1,-3,-1): done
+hkl=(1,-3,0): not allowed
+hkl=(1,-3,1): done
+hkl=(1,-3,2): not allowed
+hkl=(1,-3,3): done
+hkl=(1,-2,-3): not allowed
+hkl=(1,-2,-2): not allowed
+hkl=(1,-2,-1): not allowed
+hkl=(1,-2,0): not allowed
+hkl=(1,-2,1): not allowed
+hkl=(1,-2,2): not allowed
+hkl=(1,-2,3): not allowed
+hkl=(1,-1,-3): done
+hkl=(1,-1,-2): not allowed
+hkl=(1,-1,-1): done
+hkl=(1,-1,0): not allowed
+hkl=(1,-1,1): done
+hkl=(1,-1,2): not allowed
+hkl=(1,-1,3): done
+hkl=(1,0,-3): not allowed
+hkl=(1,0,-2): not allowed
+hkl=(1,0,-1): not allowed
+hkl=(1,0,0): not allowed
+hkl=(1,0,1): not allowed
+hkl=(1,0,2): not allowed
+hkl=(1,0,3): not allowed
+hkl=(1,1,-3): done
+hkl=(1,1,-2): not allowed
+hkl=(1,1,-1): done
+hkl=(1,1,0): not allowed
+hkl=(1,1,1): done
+hkl=(1,1,2): not allowed
+hkl=(1,1,3): done
+hkl=(1,2,-3): not allowed
+hkl=(1,2,-2): not allowed
+hkl=(1,2,-1): not allowed
+hkl=(1,2,0): not allowed
+hkl=(1,2,1): not allowed
+hkl=(1,2,2): not allowed
+hkl=(1,2,3): not allowed
+hkl=(1,3,-3): done
+hkl=(1,3,-2): not allowed
+hkl=(1,3,-1): done
+hkl=(1,3,0): not allowed
+hkl=(1,3,1): done
+hkl=(1,3,2): not allowed
+hkl=(1,3,3): done
+hkl=(2,-3,-3): not allowed
+hkl=(2,-3,-2): not allowed
+hkl=(2,-3,-1): not allowed
+hkl=(2,-3,0): not allowed
+hkl=(2,-3,1): not allowed
+hkl=(2,-3,2): not allowed
+hkl=(2,-3,3): not allowed
+hkl=(2,-2,-3): not allowed
+hkl=(2,-2,-2): not allowed
+hkl=(2,-2,-1): not allowed
+hkl=(2,-2,0): done
+hkl=(2,-2,1): not allowed
+hkl=(2,-2,2): not allowed
+hkl=(2,-2,3): not allowed
+hkl=(2,-1,-3): not allowed
+hkl=(2,-1,-2): not allowed
+hkl=(2,-1,-1): not allowed
+hkl=(2,-1,0): not allowed
+hkl=(2,-1,1): not allowed
+hkl=(2,-1,2): not allowed
+hkl=(2,-1,3): not allowed
+hkl=(2,0,-3): not allowed
+hkl=(2,0,-2): done
+hkl=(2,0,-1): not allowed
+hkl=(2,0,0): not allowed
+hkl=(2,0,1): not allowed
+hkl=(2,0,2): done
+hkl=(2,0,3): not allowed
+hkl=(2,1,-3): not allowed
+hkl=(2,1,-2): not allowed
+hkl=(2,1,-1): not allowed
+hkl=(2,1,0): not allowed
+hkl=(2,1,1): not allowed
+hkl=(2,1,2): not allowed
+hkl=(2,1,3): not allowed
+hkl=(2,2,-3): not allowed
+hkl=(2,2,-2): not allowed
+hkl=(2,2,-1): not allowed
+hkl=(2,2,0): done
+hkl=(2,2,1): not allowed
+hkl=(2,2,2): not allowed
+hkl=(2,2,3): not allowed
+hkl=(2,3,-3): not allowed
+hkl=(2,3,-2): not allowed
+hkl=(2,3,-1): not allowed
+hkl=(2,3,0): not allowed
+hkl=(2,3,1): not allowed
+hkl=(2,3,2): not allowed
+hkl=(2,3,3): not allowed
+hkl=(3,-3,-3): done
+hkl=(3,-3,-2): not allowed
+hkl=(3,-3,-1): done
+hkl=(3,-3,0): not allowed
+hkl=(3,-3,1): done
+hkl=(3,-3,2): not allowed
+hkl=(3,-3,3): done
+hkl=(3,-2,-3): not allowed
+hkl=(3,-2,-2): not allowed
+hkl=(3,-2,-1): not allowed
+hkl=(3,-2,0): not allowed
+hkl=(3,-2,1): not allowed
+hkl=(3,-2,2): not allowed
+hkl=(3,-2,3): not allowed
+hkl=(3,-1,-3): done
+hkl=(3,-1,-2): not allowed
+hkl=(3,-1,-1): done
+hkl=(3,-1,0): not allowed
+hkl=(3,-1,1): done
+hkl=(3,-1,2): not allowed
+hkl=(3,-1,3): done
+hkl=(3,0,-3): not allowed
+hkl=(3,0,-2): not allowed
+hkl=(3,0,-1): not allowed
+hkl=(3,0,0): not allowed
+hkl=(3,0,1): not allowed
+hkl=(3,0,2): not allowed
+hkl=(3,0,3): not allowed
+hkl=(3,1,-3): done
+hkl=(3,1,-2): not allowed
+hkl=(3,1,-1): done
+hkl=(3,1,0): not allowed
+hkl=(3,1,1): done
+hkl=(3,1,2): not allowed
+hkl=(3,1,3): done
+hkl=(3,2,-3): not allowed
+hkl=(3,2,-2): not allowed
+hkl=(3,2,-1): not allowed
+hkl=(3,2,0): not allowed
+hkl=(3,2,1): not allowed
+hkl=(3,2,2): not allowed
+hkl=(3,2,3): not allowed
+hkl=(3,3,-3): done
+hkl=(3,3,-2): not allowed
+hkl=(3,3,-1): done
+hkl=(3,3,0): not allowed
+hkl=(3,3,1): done
+hkl=(3,3,2): not allowed
+hkl=(3,3,3): done
+___ plotted gid=[0, 2, -2] in color=r ___
+___ plotted gid=[0, 2, 2] in color=b ___
+___ plotted gid=[1, -3, -3] in color=g ___
+___ plotted gid=[1, -3, -1] in color=c ___
+___ plotted gid=[1, -3, 1] in color=y ___
+___ plotted gid=[1, -3, 3] in color=k ___
+___ plotted gid=[1, -1, -3] in color=r ___
+___ plotted gid=[1, -1, -1] in color=b ___
+___ plotted gid=[1, -1, 1] in color=g ___
+___ plotted gid=[1, -1, 3] in color=c ___
+___ plotted gid=[1, 1, -3] in color=y ___
+___ plotted gid=[1, 1, -1] in color=k ___
+___ plotted gid=[1, 1, 1] in color=r ___
+___ plotted gid=[1, 1, 3] in color=b ___
+___ plotted gid=[1, 3, -3] in color=g ___
+___ plotted gid=[1, 3, -1] in color=c ___
+___ plotted gid=[1, 3, 1] in color=y ___
+___ plotted gid=[1, 3, 3] in color=k ___
+___ plotted gid=[2, -2, 0] in color=r ___
+___ plotted gid=[2, 0, -2] in color=b ___
+___ plotted gid=[2, 0, 2] in color=g ___
+___ plotted gid=[2, 2, 0] in color=c ___
+___ plotted gid=[3, -3, -3] in color=y ___
+___ plotted gid=[3, -3, -1] in color=k ___
+___ plotted gid=[3, -3, 1] in color=r ___
+___ plotted gid=[3, -3, 3] in color=b ___
+___ plotted gid=[3, -1, -3] in color=g ___
+___ plotted gid=[3, -1, -1] in color=c ___
+___ plotted gid=[3, -1, 1] in color=y ___
+___ plotted gid=[3, -1, 3] in color=k ___
+___ plotted gid=[3, 1, -3] in color=r ___
+___ plotted gid=[3, 1, -1] in color=b ___
+___ plotted gid=[3, 1, 1] in color=g ___
+___ plotted gid=[3, 1, 3] in color=c ___
+___ plotted gid=[3, 3, -3] in color=y ___
+___ plotted gid=[3, 3, -1] in color=k ___
+___ plotted gid=[3, 3, 1] in color=r ___
+___ plotted gid=[3, 3, 3] in color=b ___
+hlm=[0, 2, -2]
+hlm=[1, -3, -3]
+hlm=[1, -3, 1]
+hlm=[1, -1, -3]
+hlm=[1, -1, -1]
+hlm=[1, -1, 1]
+hlm=[1, -1, 3]
+hlm=[1, 3, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, -1]
+hlm=[3, -1, 3]
+hlm=[3, 1, -3]
+hlm=[3, 3, -3]
+on_plot_hover: execution time 1.7839338779449463
+hlm=[1, -3, -1]
+hlm=[1, -3, 3]
+hlm=[1, 3, -3]
+hlm=[1, 3, 1]
+hlm=[2, 2, 0]
+hlm=[3, -1, -3]
+hlm=[3, -1, 1]
+hlm=[3, 1, -3]
+hlm=[3, 1, 1]
+hlm=[3, 3, 1]
+hlm=[3, 3, 3]
+on_plot_hover: execution time 1.4960839748382568
+hlm=[1, -3, -1]
+hlm=[1, -3, 3]
+hlm=[1, 3, -3]
+hlm=[1, 3, 1]
+hlm=[2, 2, 0]
+hlm=[3, -1, -3]
+hlm=[3, -1, 1]
+hlm=[3, 1, -3]
+hlm=[3, 1, 1]
+hlm=[3, 3, 1]
+hlm=[3, 3, 3]
+on_plot_hover: execution time 1.5154309272766113
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[2, 2, 0]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.9456238746643066
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8132989406585693
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.806373119354248
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8228271007537842
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8159899711608887
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8032441139221191
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8141591548919678
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8076391220092773
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8018419742584229
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[3, 3, 1]
+on_plot_hover: execution time 0.8119790554046631
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+on_plot_hover: execution time 0.6733129024505615
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+on_plot_hover: execution time 0.687108039855957
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+on_plot_hover: execution time 0.6879949569702148
+MouseEvent (1770,1962) => (53.29052494778368,12211.440733179861)
+got onpick event at (x=53.29052494778368,y=12211.440733179861), data=(x=[60.908 61.008 61.108 61.208 61.308 61.408 61.508 61.608 61.708 61.808
+ 61.908 62.008 62.108 62.208 62.308 62.408 62.508 62.608 62.708 62.808
+ 62.908 63.008 63.108],y=[12840.36103888 12795.06245614 12750.12117827 12705.53317954
+ 12661.29449475 12617.40121815 12573.84950227 12530.63555692
+ 12487.75564804 12445.20609675 12402.98327827 12361.08362097
+ 12319.50360538 12278.23976326 12237.28867666 12196.64697701
+ 12156.31134425 12116.27850595 12076.54523645 12037.10835606
+ 11997.96473021 11959.11126867 11920.54492478],ind=[613 614 615 616 617 618 619 620 621 622 623 624 625 626 627 628 629 630
+ 631 632 633 634 635]), gid=[0, 2, -2]
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[0, 2, -2]', valid=True, x=53.29052494778368, y=12211.440733179861)
+### CRYSTAL MAP CALLBACK ###
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[0, 2, -2]', valid=True, x=53.29052494778368, y=12211.440733179861)
+***
+##### MINSEARCH
+starting point for root finding process is: 3.7699111843077517
+/System/Volumes/Data/home/xfeloper/user/lechnerc/hxrss/Crystal pitch angle model/HXRSS_Bragg_max_generator.py:168: OptimizeWarning: Unknown solver options: gtol
+  options={'ftol':1e-15, 'gtol':1e-9, 'disp':True})
+Optimization terminated successfully.
+         Current function value: 0.000000
+         Iterations: 48
+         Function evaluations: 96
+ final_simplex: (array([[3.756288],
+       [3.756288]]), array([1.55431223e-15, 1.77635684e-15]))
+           fun: 1.5543122344752192e-15
+       message: 'Optimization terminated successfully.'
+          nfev: 96
+           nit: 48
+        status: 0
+       success: True
+             x: array([3.756288])
+got it
+##### MINSEARCH DONE
+starting point for minimization process is: 5.327084323539603
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -2.44068D+00    |proj g|=  2.94520D-04
+
+At iterate    1    f= -2.44068D+00    |proj g|=  4.44089D-08
+
+At iterate    2    f= -2.44068D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      2      5      2     0     0   0.000D+00  -2.441D+00
+  F =  -2.4406772001989148     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -2.4406772001989148
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 10
+      nit: 2
+   status: 0
+  success: True
+        x: array([5.3272052])
+starting point for minimization process is: 2.18549166994981
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -2.44936D+00    |proj g|=  5.80775D-03
+
+At iterate    1    f= -2.44937D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      1      3      1     0     0   0.000D+00  -2.449D+00
+  F =  -2.4493695284018684     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -2.4493695284018684
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 6
+      nit: 1
+   status: 0
+  success: True
+        x: array([2.1831168])
+xyz pitch_res=304.83437468924484, my_thy=-0.005506615224396471 xyz
+*** h,k,l=(0,2,-2) => min=(pitch=304.83437468924484, phot_energy=5697.030916426424) ***
+xyz pitch_res=124.69137898377089, my_thy=0.0019763151663338588 xyz
+*** h,k,l=(0,2,-2) => min=(pitch=124.69137898377089, phot_energy=5676.813283799644) ***
+hkl=(0,2,-2): done
+*** STEP 1: result of analysis procedure ***
+[(215.21944884912241, 1000000000000.0, 'pole'), (35.21944884912241, 1000000000000.0, 'pole'), (304.83437468924484, 5697.030916426424, 'min'), (124.69137898377089, 5676.813283799644, 'min')]
+*** STEP 2: add travel min/max and click pos ***
+[(215.21944884912241, 1000000000000.0, 'pole'), (35.21944884912241, 1000000000000.0, 'pole'), (304.83437468924484, 5697.030916426424, 'min'), (124.69137898377089, 5676.813283799644, 'min'), (29.88, -1, 'travel_min'), (120.06, -1, 'travel_max'), (53.29052494778368, -1, 'click_pos')]
+*** STEP 3: sort pitch angles in ascending order ***
+[(29.88, -1, 'travel_min'), (35.21944884912241, 1000000000000.0, 'pole'), (53.29052494778368, -1, 'click_pos'), (120.06, -1, 'travel_max'), (124.69137898377089, 5676.813283799644, 'min'), (215.21944884912241, 1000000000000.0, 'pole'), (304.83437468924484, 5697.030916426424, 'min')]
+*** DONE ***
+idx_click-1: (35.21944884912241, 1000000000000.0, 'pole')
+idx_click:   (53.29052494778368, -1, 'click_pos')
+idx_click+1: (120.06, -1, 'travel_max')
+WORKAROUND: reduce determined range by {workaround}
+*** DONE: going to load pitch angle scan range 35.81944884912241 -- 119.56 degrees ***
+hkl=(0,2,-2): done
+Information on curve data obtained for hkl=(0, 2, -2)
+  pitch angle   min=35.427449 max=119.168000
+  roll angle    min=0.002189 max=0.005668
+  photon energy min=5703.120398 max=437619.647671
+MouseEvent (1770,1962) => (53.29052494778368,12211.440733179861)
+got onpick event at (x=53.29052494778368,y=12211.440733179861), data=(x=[47.808 47.908 48.008 48.108 48.208 48.308 48.408 48.508 48.608 48.708
+ 48.808 48.908 49.008 49.108 49.208 49.308 49.408 49.508 49.608 49.708
+ 49.808 49.908 50.008 50.108 50.208 50.308 50.408 50.508 50.608 50.708
+ 50.808 50.908 51.008 51.108 51.208 51.308 51.408 51.508 51.608 51.708
+ 51.808 51.908 52.008 52.108 52.208 52.308 52.408 52.508 52.608 52.708
+ 52.808 52.908 53.008 53.108 53.208 53.308 53.408 53.508 53.608 53.708
+ 53.808 53.908 54.008 54.108 54.208 54.308 54.408 54.508 54.608 54.708
+ 54.808 54.908 55.008 55.108 55.208 55.308 55.408 55.508 55.608 55.708
+ 55.808 55.908 56.008 56.108 56.208 56.308 56.408 56.508 56.608 56.708
+ 56.808 56.908 57.008 57.108 57.208 57.308 57.408 57.508 57.608 57.708
+ 57.808 57.908 58.008 58.108 58.208 58.308 58.408 58.508 58.608 58.708
+ 58.808 58.908 59.008 59.108 59.208 59.308 59.408 59.508 59.608 59.708
+ 59.808 59.908 60.008 60.108 60.208 60.308 60.408 60.508 60.608 60.708
+ 60.808 60.908 61.008 61.108 61.208 61.308 61.408 61.508 61.608 61.708
+ 61.808 61.908 62.008 62.108 62.208 62.308 62.408 62.508 62.608 62.708],y=[11436.58509858 11441.21645681 11445.8862604  11450.59458505
+ 11455.34150715 11460.1271038  11464.95145281 11469.81463267
+ 11474.71672262 11479.65780257 11484.63795318 11489.65725581
+ 11494.71579255 11499.81364621 11504.95090034 11510.12763922
+ 11515.34394785 11520.59991201 11525.89561817 11531.23115359
+ 11536.60660626 11542.02206494 11547.47761913 11552.97335909
+ 11558.50937588 11564.08576128 11569.70260789 11575.36000905
+ 11581.05805891 11586.79685238 11592.57648517 11598.3970538
+ 11604.25865556 11610.16138856 11616.10535169 11622.09064469
+ 11628.11736809 11634.18562323 11640.29551228 11646.44713826
+ 11652.64060498 11658.87601712 11665.15348018 11671.47310052
+ 11677.83498535 11684.2392427  11690.68598151 11697.17531155
+ 11703.70734347 11710.28218879 11716.8999599  11723.56077009
+ 11730.26473353 11737.01196528 11743.8025813  11750.63669845
+ 11757.51443452 11764.43590817 11771.40123902 11778.4105476
+ 11785.46395535 11792.56158468 11799.70355892 11806.89000235
+ 11814.12104019 11821.39679864 11828.71740484 11836.08298691
+ 11843.49367395 11850.94959602 11858.45088419 11865.99767051
+ 11873.59008802 11881.22827077 11888.91235384 11896.6424733
+ 11904.41876625 11912.24137082 11920.11042618 11928.02607253
+ 11935.98845113 11943.99770429 11952.05397539 11960.15740886
+ 11968.30815021 11976.50634605 11984.75214406 11993.04569301
+ 12001.3871428  12009.7766444  12018.21434994 12026.70041264
+ 12035.23498687 12043.81822813 12052.45029307 12061.13133948
+ 12069.86152633 12078.64101376 12087.46996306 12096.34853674
+ 12105.27689846 12114.25521312 12123.28364681 12132.36236682
+ 12141.49154171 12150.67134121 12159.90193635 12169.18349937
+ 12178.51620379 12187.90022437 12197.33573717 12206.82291953
+ 12216.36195008 12225.95300873 12235.59627674 12245.29193665
+ 12255.04017235 12264.84116908 12274.69511339 12284.60219322
+ 12294.56259786 12304.57651798 12314.64414563 12324.76567427
+ 12334.94129874 12345.17121532 12355.45562171 12365.79471702
+ 12376.18870185 12386.63777821 12397.14214961 12407.70202103
+ 12418.31759892 12428.98909125 12439.71670749 12450.50065864
+ 12461.34115721 12472.23841727 12483.19265444 12494.20408592
+ 12505.27293045 12516.39940841 12527.58374173 12538.82615399
+ 12550.12687038 12561.48611773 12572.90412451 12584.38112087
+ 12595.91733861 12607.51301124],ind=[482 483 484 485 486 487 488 489 490 491 492 493 494 495 496 497 498 499
+ 500 501 502 503 504 505 506 507 508 509 510 511 512 513 514 515 516 517
+ 518 519 520 521 522 523 524 525 526 527 528 529 530 531 532 533 534 535
+ 536 537 538 539 540 541 542 543 544 545 546 547 548 549 550 551 552 553
+ 554 555 556 557 558 559 560 561 562 563 564 565 566 567 568 569 570 571
+ 572 573 574 575 576 577 578 579 580 581 582 583 584 585 586 587 588 589
+ 590 591 592 593 594 595 596 597 598 599 600 601 602 603 604 605 606 607
+ 608 609 610 611 612 613 614 615 616 617 618 619 620 621 622 623 624 625
+ 626 627 628 629 630 631]), gid=[1, -3, -1]
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[1, -3, -1]', valid=True, x=53.29052494778368, y=12211.440733179861)
+### CRYSTAL MAP CALLBACK ###
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[1, -3, -1]', valid=True, x=53.29052494778368, y=12211.440733179861)
+***
+##### MINSEARCH
+starting point for root finding process is: 5.340707511102648
+/System/Volumes/Data/home/xfeloper/user/lechnerc/hxrss/Crystal pitch angle model/HXRSS_Bragg_max_generator.py:168: OptimizeWarning: Unknown solver options: gtol
+  options={'ftol':1e-15, 'gtol':1e-9, 'disp':True})
+Optimization terminated successfully.
+         Current function value: 0.000000
+         Iterations: 49
+         Function evaluations: 98
+ final_simplex: (array([[5.33801471],
+       [5.33801471]]), array([5.55111512e-16, 1.33226763e-15]))
+           fun: 5.551115123125783e-16
+       message: 'Optimization terminated successfully.'
+          nfev: 98
+           nit: 49
+        status: 0
+       success: True
+             x: array([5.33801471])
+got it
+##### MINSEARCH DONE
+starting point for minimization process is: 0.6256257331869115
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -1.71584D+00    |proj g|=  2.17961D-02
+
+At iterate    1    f= -1.71591D+00    |proj g|=  1.53643D-02
+
+At iterate    2    f= -1.71598D+00    |proj g|=  2.66454D-07
+
+At iterate    3    f= -1.71598D+00    |proj g|=  6.66134D-08
+
+At iterate    4    f= -1.71598D+00    |proj g|=  4.44089D-08
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      4      6      4     0     0   4.441D-08  -1.716D+00
+  F =  -1.7159842300465935     
+
+CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH             
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -1.7159842300465935
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([-4.4408921e-08])
+  message: b'CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH'
+     nfev: 12
+      nit: 4
+   status: 0
+  success: True
+        x: array([0.61284162])
+starting point for minimization process is: 3.7672183867767046
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -1.72826D+00    |proj g|=  4.62734D-03
+
+At iterate    1    f= -1.72826D+00    |proj g|=  3.31930D-03
+
+At iterate    2    f= -1.72826D+00    |proj g|=  6.66134D-08
+
+At iterate    3    f= -1.72826D+00    |proj g|=  2.22045D-08
+
+At iterate    4    f= -1.72826D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      4      8      4     0     0   0.000D+00  -1.728D+00
+  F =  -1.7282620208490700     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -1.72826202084907
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 16
+      nit: 4
+   status: 0
+  success: True
+        x: array([3.76452391])
+xyz pitch_res=34.72123833797626, my_thy=0.005713570101282414 xyz
+*** h,k,l=(1,-3,-1) => min=(pitch=34.72123833797626, phot_energy=11141.618328724813) ***
+xyz pitch_res=215.29933171973803, my_thy=-0.0017874337405531342 xyz
+*** h,k,l=(1,-3,-1) => min=(pitch=215.29933171973803, phot_energy=11062.466898866818) ***
+hkl=(1,-3,-1): done
+*** STEP 1: result of analysis procedure ***
+[(305.84571406638776, 1000000000000.0, 'pole'), (125.84571406638774, 1000000000000.0, 'pole'), (34.72123833797626, 11141.618328724813, 'min'), (215.29933171973803, 11062.466898866818, 'min')]
+*** STEP 2: add travel min/max and click pos ***
+[(305.84571406638776, 1000000000000.0, 'pole'), (125.84571406638774, 1000000000000.0, 'pole'), (34.72123833797626, 11141.618328724813, 'min'), (215.29933171973803, 11062.466898866818, 'min'), (29.88, -1, 'travel_min'), (120.06, -1, 'travel_max'), (53.29052494778368, -1, 'click_pos')]
+*** STEP 3: sort pitch angles in ascending order ***
+[(29.88, -1, 'travel_min'), (34.72123833797626, 11141.618328724813, 'min'), (53.29052494778368, -1, 'click_pos'), (120.06, -1, 'travel_max'), (125.84571406638774, 1000000000000.0, 'pole'), (215.29933171973803, 11062.466898866818, 'min'), (305.84571406638776, 1000000000000.0, 'pole')]
+*** DONE ***
+idx_click-1: (34.72123833797626, 11141.618328724813, 'min')
+idx_click:   (53.29052494778368, -1, 'click_pos')
+idx_click+1: (120.06, -1, 'travel_max')
+WORKAROUND: reduce determined range by {workaround}
+*** DONE: going to load pitch angle scan range 35.22123833797626 -- 119.56 degrees ***
+hkl=(1,-3,-1): done
+Information on curve data obtained for hkl=(1, -3, -1)
+  pitch angle   min=34.829238 max=119.168000
+  roll angle    min=0.002189 max=0.005693
+  photon energy min=11141.378913 max=111905.264548
+MouseEvent (1770,1962) => (53.29052494778368,12211.440733179861)
+got onpick event at (x=53.29052494778368,y=12211.440733179861), data=(x=[51.008 51.108 51.208 51.308 51.408 51.508 51.608 51.708 51.808 51.908
+ 52.008 52.108 52.208 52.308 52.408 52.508 52.608 52.708 52.808 52.908
+ 53.008 53.108 53.208 53.308 53.408 53.508 53.608 53.708 53.808 53.908
+ 54.008 54.108 54.208 54.308 54.408 54.508 54.608 54.708 54.808 54.908
+ 55.008 55.108 55.208 55.308 55.408],y=[13074.61734828 13028.34525579 12982.43893616 12936.89425827
+ 12891.70715329 12846.87361354 12802.38969128 12758.25149766
+ 12714.45520158 12670.99702866 12627.87326018 12585.08023203
+ 12542.61433379 12500.47200765 12458.64974756 12417.1440982
+ 12375.95165414 12335.06905891 12294.49300411 12254.2202286
+ 12214.24751761 12174.57170198 12135.18965727 12096.09830307
+ 12057.29460217 12018.7755598  11980.53822294 11942.57967956
+ 11904.89705791 11867.48752588 11830.34829022 11793.47659599
+ 11756.86972582 11720.52499932 11684.43977245 11648.61143688
+ 11613.03741941 11577.71518139 11542.64221815 11507.81605838
+ 11473.23426364 11438.8944278  11404.79417648 11370.93116658
+ 11337.30308571],ind=[514 515 516 517 518 519 520 521 522 523 524 525 526 527 528 529 530 531
+ 532 533 534 535 536 537 538 539 540 541 542 543 544 545 546 547 548 549
+ 550 551 552 553 554 555 556 557 558]), gid=[1, 1, -3]
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[1, 1, -3]', valid=True, x=53.29052494778368, y=12211.440733179861)
+### CRYSTAL MAP CALLBACK ###
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[1, 1, -3]', valid=True, x=53.29052494778368, y=12211.440733179861)
+***
+##### MINSEARCH
+starting point for root finding process is: 0.47123889803846897
+/System/Volumes/Data/home/xfeloper/user/lechnerc/hxrss/Crystal pitch angle model/HXRSS_Bragg_max_generator.py:168: OptimizeWarning: Unknown solver options: gtol
+  options={'ftol':1e-15, 'gtol':1e-9, 'disp':True})
+Optimization terminated successfully.
+         Current function value: 0.000000
+         Iterations: 46
+         Function evaluations: 92
+ final_simplex: (array([[0.44051296],
+       [0.44051296]]), array([1.99840144e-15, 2.22044605e-15]))
+           fun: 1.9984014443252818e-15
+       message: 'Optimization terminated successfully.'
+          nfev: 92
+           nit: 46
+        status: 0
+       success: True
+             x: array([0.44051296])
+got it
+##### MINSEARCH DONE
+starting point for minimization process is: 2.0113092887126727
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -3.31662D+00    |proj g|=  7.37188D-06
+
+At iterate    1    f= -3.31662D+00    |proj g|=  4.44089D-08
+
+At iterate    2    f= -3.31662D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      2      4      2     0     0   0.000D+00  -3.317D+00
+  F =  -3.3166234583277743     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -3.3166234583277743
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 8
+      nit: 2
+   status: 0
+  success: True
+        x: array([2.0113071])
+starting point for minimization process is: 5.152901942302466
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -3.31657D+00    |proj g|=  2.92655D-05
+
+At iterate    1    f= -3.31657D+00    |proj g|=  4.44089D-08
+
+At iterate    2    f= -3.31657D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      2      6      2     0     0   0.000D+00  -3.317D+00
+  F =  -3.3165677094913431     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -3.316567709491343
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 12
+      nit: 2
+   status: 0
+  success: True
+        x: array([5.15289311])
+xyz pitch_res=114.84740810030777, my_thy=0.0023852222603946483 xyz
+*** h,k,l=(1,1,-3) => min=(pitch=114.84740810030777, phot_energy=5764.550747153793) ***
+xyz pitch_res=294.84702745201287, my_thy=-0.0050917524434618885 xyz
+*** h,k,l=(1,1,-3) => min=(pitch=294.84702745201287, phot_energy=5764.647643071289) ***
+hkl=(1,1,-3): done
+*** STEP 1: result of analysis procedure ***
+[(25.239533538695735, 1000000000000.0, 'pole'), (205.23953353869572, 1000000000000.0, 'pole'), (114.84740810030777, 5764.550747153793, 'min'), (294.84702745201287, 5764.647643071289, 'min')]
+*** STEP 2: add travel min/max and click pos ***
+[(25.239533538695735, 1000000000000.0, 'pole'), (205.23953353869572, 1000000000000.0, 'pole'), (114.84740810030777, 5764.550747153793, 'min'), (294.84702745201287, 5764.647643071289, 'min'), (29.88, -1, 'travel_min'), (120.06, -1, 'travel_max'), (53.29052494778368, -1, 'click_pos')]
+*** STEP 3: sort pitch angles in ascending order ***
+[(25.239533538695735, 1000000000000.0, 'pole'), (29.88, -1, 'travel_min'), (53.29052494778368, -1, 'click_pos'), (114.84740810030777, 5764.550747153793, 'min'), (120.06, -1, 'travel_max'), (205.23953353869572, 1000000000000.0, 'pole'), (294.84702745201287, 5764.647643071289, 'min')]
+*** DONE ***
+idx_click-1: (29.88, -1, 'travel_min')
+idx_click:   (53.29052494778368, -1, 'click_pos')
+idx_click+1: (114.84740810030777, 5764.550747153793, 'min')
+WORKAROUND: reduce determined range by {workaround}
+*** DONE: going to load pitch angle scan range 30.38 -- 114.34740810030777 degrees ***
+hkl=(1,1,-3): done
+Information on curve data obtained for hkl=(1, 1, -3)
+  pitch angle   min=29.988000 max=113.955408
+  roll angle    min=0.002406 max=0.005894
+  photon energy min=5765.114476 max=64336.851223
+MouseEvent (1770,1962) => (53.29052494778368,12211.440733179861)
+got onpick event at (x=53.29052494778368,y=12211.440733179861), data=(x=[61.408 61.508 61.608 61.708 61.808 61.908 62.008 62.108 62.208 62.308
+ 62.408 62.508 62.608 62.708 62.808 62.908 63.008 63.108 63.208 63.308
+ 63.408],y=[12795.5846184  12750.6513132  12706.07093886 12661.83953776
+ 12617.95321151 12574.40811992 12531.20047984 12488.32656414
+ 12445.78270069 12403.56527135 12361.67071095 12320.09550636
+ 12278.83619553 12237.88936657 12197.25165685 12156.9197521
+ 12116.89038556 12077.16033716 12037.7264326  11998.58554267
+ 11959.73458233],ind=[618 619 620 621 622 623 624 625 626 627 628 629 630 631 632 633 634 635
+ 636 637 638]), gid=[2, 0, -2]
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[2, 0, -2]', valid=True, x=53.29052494778368, y=12211.440733179861)
+### CRYSTAL MAP CALLBACK ###
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[2, 0, -2]', valid=True, x=53.29052494778368, y=12211.440733179861)
+***
+##### MINSEARCH
+starting point for root finding process is: 0.6283185307179586
+/System/Volumes/Data/home/xfeloper/user/lechnerc/hxrss/Crystal pitch angle model/HXRSS_Bragg_max_generator.py:168: OptimizeWarning: Unknown solver options: gtol
+  options={'ftol':1e-15, 'gtol':1e-9, 'disp':True})
+Optimization terminated successfully.
+         Current function value: 0.000000
+         Iterations: 46
+         Function evaluations: 92
+ final_simplex: (array([[0.61875786],
+       [0.61875786]]), array([8.88178420e-16, 1.33226763e-15]))
+           fun: 8.881784197001252e-16
+       message: 'Optimization terminated successfully.'
+          nfev: 92
+           nit: 46
+        status: 0
+       success: True
+             x: array([0.61875786])
+got it
+##### MINSEARCH DONE
+starting point for minimization process is: 2.1895541845866147
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -2.44963D+00    |proj g|=  3.32800D-04
+
+At iterate    1    f= -2.44963D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      1      3      1     0     0   0.000D+00  -2.450D+00
+  F =  -2.4496342543610838     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -2.449634254361084
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 6
+      nit: 1
+   status: 0
+  success: True
+        x: array([2.18941853])
+starting point for minimization process is: 5.331146838176408
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -2.45820D+00    |proj g|=  6.46159D-03
+
+At iterate    1    f= -2.45821D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      1      3      1     0     0   0.000D+00  -2.458D+00
+  F =  -2.4582092335862482     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -2.458209233586248
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 6
+      nit: 1
+   status: 0
+  success: True
+        x: array([5.32852241])
+xyz pitch_res=125.0524414897005, my_thy=0.001961317050043005 xyz
+*** h,k,l=(2,0,-2) => min=(pitch=125.0524414897005, phot_energy=5676.2002248101935) ***
+xyz pitch_res=304.909844998158, my_thy=-0.005509750173196187 xyz
+*** h,k,l=(2,0,-2) => min=(pitch=304.909844998158, phot_energy=5656.399913656617) ***
+hkl=(2,0,-2): done
+*** STEP 1: result of analysis procedure ***
+[(35.452213792021425, 1000000000000.0, 'pole'), (215.4522137920214, 1000000000000.0, 'pole'), (125.0524414897005, 5676.2002248101935, 'min'), (304.909844998158, 5656.399913656617, 'min')]
+*** STEP 2: add travel min/max and click pos ***
+[(35.452213792021425, 1000000000000.0, 'pole'), (215.4522137920214, 1000000000000.0, 'pole'), (125.0524414897005, 5676.2002248101935, 'min'), (304.909844998158, 5656.399913656617, 'min'), (29.88, -1, 'travel_min'), (120.06, -1, 'travel_max'), (53.29052494778368, -1, 'click_pos')]
+*** STEP 3: sort pitch angles in ascending order ***
+[(29.88, -1, 'travel_min'), (35.452213792021425, 1000000000000.0, 'pole'), (53.29052494778368, -1, 'click_pos'), (120.06, -1, 'travel_max'), (125.0524414897005, 5676.2002248101935, 'min'), (215.4522137920214, 1000000000000.0, 'pole'), (304.909844998158, 5656.399913656617, 'min')]
+*** DONE ***
+idx_click-1: (35.452213792021425, 1000000000000.0, 'pole')
+idx_click:   (53.29052494778368, -1, 'click_pos')
+idx_click+1: (120.06, -1, 'travel_max')
+WORKAROUND: reduce determined range by {workaround}
+*** DONE: going to load pitch angle scan range 36.052213792021426 -- 119.56 degrees ***
+hkl=(2,0,-2): done
+Information on curve data obtained for hkl=(2, 0, -2)
+  pitch angle   min=35.660214 max=119.168000
+  roll angle    min=0.002189 max=0.005658
+  photon energy min=5706.180462 max=542549.665061
+MouseEvent (1770,1962) => (53.29052494778368,12211.440733179861)
+got onpick event at (x=53.29052494778368,y=12211.440733179861), data=(x=[50.408 50.508 50.608 50.708 50.808 50.908 51.008 51.108 51.208 51.308
+ 51.408 51.508 51.608 51.708 51.808 51.908 52.008 52.108 52.208 52.308
+ 52.408 52.508 52.608 52.708 52.808 52.908 53.008 53.108 53.208 53.308
+ 53.408 53.508 53.608 53.708 53.808 53.908 54.008 54.108 54.208 54.308
+ 54.408 54.508 54.608 54.708 54.808 54.908 55.008 55.108 55.208 55.308
+ 55.408 55.508 55.608 55.708 55.808 55.908 56.008 56.108 56.208 56.308
+ 56.408 56.508 56.608 56.708 56.808 56.908 57.008 57.108 57.208 57.308
+ 57.408 57.508 57.608 57.708 57.808 57.908 58.008 58.108 58.208 58.308
+ 58.408 58.508 58.608 58.708 58.808 58.908 59.008 59.108 59.208 59.308
+ 59.408 59.508 59.608 59.708 59.808 59.908 60.008 60.108 60.208 60.308
+ 60.408 60.508 60.608 60.708 60.808 60.908 61.008 61.108 61.208 61.308
+ 61.408 61.508 61.608 61.708 61.808 61.908 62.008 62.108 62.208 62.308
+ 62.408 62.508 62.608 62.708 62.808 62.908 63.008 63.108 63.208 63.308
+ 63.408 63.508],y=[11346.06458287 11351.56712084 11357.10978509 11362.69266812
+ 11368.31586318 11373.97946432 11379.68356637 11385.42826495
+ 11391.2136565  11397.03983823 11402.90690816 11408.81496515
+ 11414.76410882 11420.75443966 11426.78605895 11432.85906881
+ 11438.97357217 11445.12967282 11451.32747538 11457.56708531
+ 11463.84860893 11470.17215339 11476.53782673 11482.94573783
+ 11489.39599643 11495.88871317 11502.42399955 11509.00196796
+ 11515.62273165 11522.2864048  11528.99310247 11535.74294062
+ 11542.53603611 11549.37250673 11556.25247119 11563.17604909
+ 11570.143361   11577.15452839 11584.20967369 11591.30892027
+ 11598.45239245 11605.6402155  11612.87251566 11620.14942014
+ 11627.4710571  11634.8375557  11642.24904609 11649.7056594
+ 11657.20752775 11664.75478428 11672.34756312 11679.98599943
+ 11687.67022939 11695.40039021 11703.17662011 11710.99905838
+ 11718.86784535 11726.78312239 11734.74503195 11742.75371753
+ 11750.80932371 11758.91199616 11767.06188162 11775.25912793
+ 11783.50388404 11791.7963     11800.13652698 11808.52471726
+ 11816.96102427 11825.44560257 11833.97860786 11842.56019698
+ 11851.19052797 11859.86975999 11868.59805341 11877.37556976
+ 11886.20247178 11895.0789234  11904.00508975 11912.98113718
+ 11922.00723327 11931.08354682 11940.21024788 11949.38750775
+ 11958.61549896 11967.89439534 11977.22437198 11986.60560524
+ 11996.03827279 12005.5225536  12015.05862792 12024.64667737
+ 12034.28688484 12043.9794346  12053.72451225 12063.52230474
+ 12073.3730004  12083.27678892 12093.23386138 12103.24441026
+ 12113.30862944 12123.42671421 12133.59886129 12143.82526883
+ 12154.10613643 12164.44166515 12174.83205749 12185.27751747
+ 12195.77825055 12206.33446372 12216.94636547 12227.61416581
+ 12238.33807628 12249.11830995 12259.95508148 12270.84860706
+ 12281.79910447 12292.80679308 12303.87189385 12314.99462937
+ 12326.17522385 12337.41390311 12348.71089466 12360.06642765
+ 12371.4807329  12382.95404293 12394.48659195 12406.07861588
+ 12417.73035238 12429.44204083 12441.21392238 12453.04623994],ind=[508 509 510 511 512 513 514 515 516 517 518 519 520 521 522 523 524 525
+ 526 527 528 529 530 531 532 533 534 535 536 537 538 539 540 541 542 543
+ 544 545 546 547 548 549 550 551 552 553 554 555 556 557 558 559 560 561
+ 562 563 564 565 566 567 568 569 570 571 572 573 574 575 576 577 578 579
+ 580 581 582 583 584 585 586 587 588 589 590 591 592 593 594 595 596 597
+ 598 599 600 601 602 603 604 605 606 607 608 609 610 611 612 613 614 615
+ 616 617 618 619 620 621 622 623 624 625 626 627 628 629 630 631 632 633
+ 634 635 636 637 638 639]), gid=[3, -1, 1]
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[3, -1, 1]', valid=True, x=53.29052494778368, y=12211.440733179861)
+### CRYSTAL MAP CALLBACK ###
+namespace(ax=<AxesSubplot:title={'center':'over [3, -1, 1]'}, xlabel='Pitch angle (deg)', ylabel='Photon Energy (eV)'>, info_txt='[3, -1, 1]', valid=True, x=53.29052494778368, y=12211.440733179861)
+***
+##### MINSEARCH
+starting point for root finding process is: 2.199114857512855
+/System/Volumes/Data/home/xfeloper/user/lechnerc/hxrss/Crystal pitch angle model/HXRSS_Bragg_max_generator.py:168: OptimizeWarning: Unknown solver options: gtol
+  options={'ftol':1e-15, 'gtol':1e-9, 'disp':True})
+Optimization terminated successfully.
+         Current function value: 0.000000
+         Iterations: 42
+         Function evaluations: 84
+ final_simplex: (array([[2.18612183],
+       [2.18612183]]), array([4.35207426e-14, 4.40758541e-14]))
+           fun: 4.3520742565306136e-14
+       message: 'Optimization terminated successfully.'
+          nfev: 84
+           nit: 42
+        status: 0
+       success: True
+             x: array([2.18612183])
+got it
+##### MINSEARCH DONE
+starting point for minimization process is: 3.756918153955785
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -1.73589D+00    |proj g|=  1.25041D-02
+
+At iterate    1    f= -1.73591D+00    |proj g|=  9.33988D-03
+
+At iterate    2    f= -1.73593D+00    |proj g|=  1.77636D-07
+
+At iterate    3    f= -1.73593D+00    |proj g|=  4.44089D-08
+
+At iterate    4    f= -1.73593D+00    |proj g|=  0.00000D+00
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      4     17      4     0     0   0.000D+00  -1.736D+00
+  F =  -1.7359307877007000     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -1.7359307877007
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([0.])
+  message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+     nfev: 34
+      nit: 4
+   status: 0
+  success: True
+        x: array([3.74976035])
+starting point for minimization process is: 0.6153255003659925
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =            1     M =           10
+
+At X0         0 variables are exactly at the bounds
+
+At iterate    0    f= -1.74807D+00    |proj g|=  4.73817D-03
+
+At iterate    1    f= -1.74807D+00    |proj g|=  3.59632D-03
+
+At iterate    2    f= -1.74807D+00    |proj g|=  6.66134D-08
+
+At iterate    3    f= -1.74807D+00    |proj g|=  4.44089D-08
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+    1      3      4      3     0     0   4.441D-08  -1.748D+00
+  F =  -1.7480732536120405     
+
+CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH             
+
+ Cauchy                time 0.000E+00 seconds.
+ Subspace minimization time 0.000E+00 seconds.
+ Line search           time 0.000E+00 seconds.
+
+ Total User time 0.000E+00 seconds.
+
+      fun: -1.7480732536120405
+ hess_inv: <1x1 LbfgsInvHessProduct with dtype=float64>
+      jac: array([4.4408921e-08])
+  message: b'CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH'
+     nfev: 8
+      nit: 3
+   status: 0
+  success: True
+        x: array([0.61801911])
+xyz pitch_res=214.45344240315586, my_thy=-0.001752296482790444 xyz
+*** h,k,l=(3,-1,1) => min=(pitch=214.45344240315586, phot_energy=11013.599864225762) ***
+xyz pitch_res=35.017886915371605, my_thy=0.005701247664617778 xyz
+*** h,k,l=(3,-1,1) => min=(pitch=35.017886915371605, phot_energy=10937.097171701522) ***
+hkl=(3,-1,1): done
+*** STEP 1: result of analysis procedure ***
+[(125.25555419774695, 1000000000000.0, 'pole'), (305.25555419774696, 1000000000000.0, 'pole'), (214.45344240315586, 11013.599864225762, 'min'), (35.017886915371605, 10937.097171701522, 'min')]
+*** STEP 2: add travel min/max and click pos ***
+[(125.25555419774695, 1000000000000.0, 'pole'), (305.25555419774696, 1000000000000.0, 'pole'), (214.45344240315586, 11013.599864225762, 'min'), (35.017886915371605, 10937.097171701522, 'min'), (29.88, -1, 'travel_min'), (120.06, -1, 'travel_max'), (53.29052494778368, -1, 'click_pos')]
+*** STEP 3: sort pitch angles in ascending order ***
+[(29.88, -1, 'travel_min'), (35.017886915371605, 10937.097171701522, 'min'), (53.29052494778368, -1, 'click_pos'), (120.06, -1, 'travel_max'), (125.25555419774695, 1000000000000.0, 'pole'), (214.45344240315586, 11013.599864225762, 'min'), (305.25555419774696, 1000000000000.0, 'pole')]
+*** DONE ***
+idx_click-1: (35.017886915371605, 10937.097171701522, 'min')
+idx_click:   (53.29052494778368, -1, 'click_pos')
+idx_click+1: (120.06, -1, 'travel_max')
+WORKAROUND: reduce determined range by {workaround}
+*** DONE: going to load pitch angle scan range 35.517886915371605 -- 119.56 degrees ***
+hkl=(3,-1,1): done
+Information on curve data obtained for hkl=(3, -1, 1)
+  pitch angle   min=35.125887 max=119.168000
+  roll angle    min=0.002189 max=0.005680
+  photon energy min=10936.859143 max=110218.307427
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[1, 1, -3]
+on_plot_hover: execution time 0.8481941223144531
+hlm=[0, 2, -2]
+hlm=[1, -3, -1]
+hlm=[1, 1, -3]
+hlm=[2, 0, -2]
+hlm=[3, -1, 1]
+hlm=[1, 1, -3]
+on_plot_hover: execution time 0.8908019065856934
+got close event, stopping IO thread
+read thread: got QUIT cmd ==> leaving
+write thread: got QUIT cmd ==> leaving
+write thread is finishing
+read thread is finishing
+bash-3.2$ exit
+
+Script done on Tue Oct 19 02:21:18 2021

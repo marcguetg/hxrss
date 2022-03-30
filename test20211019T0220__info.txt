@@ -1,0 +1,7 @@
+2021-10-19
+
+Test with pickradius=50 on MacOS in BKR (machine xfelbkr6)
+
+Did a single click in the open crystal map
+
+See screenshot in mobile phone.
