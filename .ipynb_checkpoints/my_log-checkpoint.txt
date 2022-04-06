@@ -1,0 +1,1 @@
+20220401T085617 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ to 100
