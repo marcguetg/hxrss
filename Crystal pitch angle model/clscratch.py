@@ -108,7 +108,7 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
 
     # maximum h,k,l to scan (generator loops over -hmax .. hmax, etc.)
     hmax,kmax,lmax = 5,5,5
-    hmax,kmax,lmax = 3,3,3
+    #hmax,kmax,lmax = 3,3,3
 
     # scan over these pitch angles
     thplist = np.linspace(0, 120, 101)
