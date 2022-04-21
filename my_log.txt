@@ -27,4 +27,6 @@
 20220420T142345 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ to 44.79432946340481
 20220420T142350 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ to 46.00883140911289
 20220421T105007 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ to 45.68797955142554
-insert_mono function calledinsert_mono function called
+insert_mono function calledinsert_mono function calledinsert_mono function called20220421T150718 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/ to 45.09240330579723
+insert_mono function calledinsert_mono function calledinsert_mono function calledinsert_mono function called20220421T151404 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/ to 46.0273564286501
+20220421T151404 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ to 1.28

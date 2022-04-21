@@ -239,15 +239,16 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     # !!! 'thplist' is in degrees !!!
     def plotene(thplist, fact, n, h, k, l, a, DTHP, thylist, thr, n0, pitchax, rollax, yawax):
         count = 0
-        fout = open('stuff.txt','w')
+        # disabled writing the dbg file to resolve permission issue in bkr
+        # fout = open('stuff.txt','w')
         for thp, thy in zip(thplist/180*np.pi, thylist):
-            print(str( (thp,thy) ), file=fout)
+            # print(str( (thp,thy) ), file=fout)
             eevlist[count] = (phev(fact, 1, h, k, l, a, thp,
                                    thy, thr, n0, pitchax, rollax, yawax))
             count = count+1
         gid = [h, k, l]
         thplist_f = thplist+DTHP
-        fout.close()
+        # fout.close()
         return thplist_f, eevlist, gid
 
     # returns True is combination of (h,k,l) is allowed

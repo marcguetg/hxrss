@@ -1,5 +1,6 @@
 # C. Lechner, European XFEL
 
+# do_doocs=True # False
 do_doocs=False
 
 import threading,queue
@@ -11,7 +12,7 @@ from copy import deepcopy
 import os
 
 if do_doocs:
-    # import pydoocs
+    #import pydoocs
     pass
 
 class IO_Cmd(enum.Enum):
@@ -27,15 +28,13 @@ def hxrss_io_mono1_motors():
     return r
 
 def hxrss_io_mono2_motors():
-    r = hxrss_io_mono1_motors()
-    return r
-    '''
+    #r = hxrss_io_mono1_motors()
+    #return r
     r = SimpleNamespace()
     r.prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/'
     r.prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/'
     r.prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
     return r
-    '''
 
 ###########################
 ### LOW-LEVEL FUNCTIONS ###
@@ -52,9 +51,11 @@ def machine_writes_enabled():
     return do_doocs # False
 
 def simple_doocs_read(addr):
-    # x = pydoocs.read(addr)
-    # v = x['data']
-    v = 42 # type of dummy value needs to be 'int', because otherwise the motor_busy function will throw exception (uses bitwise and operation)
+    if do_doocs:
+        x = pydoocs.read(addr)
+        v = x['data']
+    else:
+        v = 42 # type of dummy value needs to be 'int', because otherwise the motor_busy function will throw exception (uses bitwise and operation)
     return v
 
 def mono_motor_busy(doocs_prefix):
@@ -68,13 +69,17 @@ def mono_motor_busy(doocs_prefix):
 def mono_motor_wait(doocs_prefix):
     # if this file is exists, the tool aborts the wait (even if the motor did not reach the setpoint)
     fn_abort_file='hxrss_abort_wait_42'
-    print(f'note: to force leaving of motor wait loop, generate empty file {fn_abort_file}')
+    print(f'note: to force abort of motor wait loop, generate empty file {fn_abort_file}')
+    info_round1=True
     while True:
         # to be sure, let's wait before checking motor status (could be that it takes some time after start until motor is busy)
         time.sleep(1)
-        print('mono_motor_wait')
+        if info_round1:
+            print('mono_motor_wait', end='')
+            info_round1=False
+        print('.', end='', flush=True)
         if not mono_motor_busy(doocs_prefix):
-            print(f'motor {doocs_prefix} is not busy')
+            # print(f'motor {doocs_prefix} is not busy')
             break
         # try to delete the flag file (NOTE: to avoid race conditions with any other instance of this tool, we do not use a two-step procedure that first tests if file exists and only then deletes)
         try:
@@ -84,67 +89,82 @@ def mono_motor_wait(doocs_prefix):
             break
         except FileNotFoundError:
             pass # silently ignore this exception, which is expected if the file does not exist
+    print(' DONE') # print final newline
     return
 
 
-def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
+def mono_move_motor(doocs_prefix, sp, *, motor_speed=None, is_rot=True):
     with open('my_log.txt', 'a') as f:
         f.write(timestr() + f' requested update of motor channel {doocs_prefix} to {sp}\n')
 
-    print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
-    return
-    '''
+    if not machine_writes_enabled():
+        print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
+        return
+
     # if requested, increase motor speed
     if motor_speed is not None:
         original_speed = simple_doocs_read(doocs_prefix+'SPEED.SET')
         print(f'{doocs_prefix}  original speed: {original_speed}')
         pydoocs.write(doocs_prefix+'SPEED.SET', motor_speed)
 
-    print('mono_move_motor: implement code for assigning setpoint and starting motion')
-    pydoocs.write(doocs_prefix+'ANGLE.SET', sp)
+    # rotational/linear stages have different address for set point
+    if is_rot:
+        pydoocs.write(doocs_prefix+'ANGLE.SET', sp)
+    else:
+        pydoocs.write(doocs_prefix+'POS.SET', sp)
     time.sleep(1)
     pydoocs.write(doocs_prefix+'CONTROL.START', 1)
     time.sleep(1)
     pydoocs.write(doocs_prefix+'CONTROL.START', 0) # according to tooltip: mono control panel sends first 1 and then 0 to the CONTROL.START property???
-    # time.sleep(3)
+    time.sleep(1)
     mono_motor_wait(doocs_prefix)
 
     # revert to original motor speed
     if motor_speed is not None:
         pydoocs.write(doocs_prefix+'SPEED.SET', original_speed)
-    '''
+
 
 # Value of argument 'sp' determines action
 # . 'IN'  ==> mono2 moves in
 # . 'OUT' ==> mono2 moves out
 def insert_mono(sp):
     with open('my_log.txt', 'a') as f:
-        f.write(f'insert_mono function called\n')
+        f.write(f'insert_mono function called')
 
-    print('insert_mono function disabled')
-    return
+    if not machine_writes_enabled():
+        print('insert_mono function disabled')
+        return
+    #
     mcfg = hxrss_io_mono2_motors()
-    mono2_prefix_xmotor = mcfg.prefix_xmotor # 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
+    mono2_prefix_xmotor = mcfg.prefix_xmotor
+    # setpoints are for mono2
     sp_in = -7.5
     sp_out = 1.0
     if sp=='IN':
-        mono_move_motor(mono2_prefix_xmotor, sp_in)
+        mono_move_motor(mono2_prefix_xmotor, sp_in,  is_rot=False)
     elif sp=='OUT':
-        mono_move_motor(mono2_prefix_xmotor, sp_out)
+        mono_move_motor(mono2_prefix_xmotor, sp_out, is_rot=False)
     else:
         print(f'insert_mono: unknown setpoint {sp}, supported values are IN and OUT.')
+
+# 2022-02-28: Reverse engineered from cell 9 monochromator expert panel
+def is_mono_inserted():
+    # from the HXRSS mono expert panels (2022-Feb): Condition "range error" sets 0x10 in /HW_STATE
+    mcfg = hxrss_io_mono2_motors()
+    mono2_prefix_xmotor = mcfg.prefix_xmotor
+    mask_range_error = 0x10
+    q = simple_doocs_read(mono2_prefix_xmotor+'HW_STATE')
+    is_range_error = (q&mask_range_error)==mask_range_error
+    is_inserted = not is_range_error
+    return is_inserted
 
 def set_mono(sp):
     print('set_mono was called with setpoint '+str(sp))
     motor_speed = 80  # percent
     mcfg = hxrss_io_mono2_motors()
-    #mono2_prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/'
-    #mono2_prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/'
     mono_move_motor(mcfg.prefix_pitch, sp.pitch, motor_speed=motor_speed)
-    # mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=motor_speed)
+    mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=motor_speed)
     return
-
-
 
 
 ####################################
@@ -231,6 +251,7 @@ def thread_read_worker(qin, qout, dbg=False):
         r.mono2_roll_rb  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ANGLE')
         r.mono2_roll_sp  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ANGLE.SET')
         r.mono2_roll_busy  = mono_motor_busy('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/')
+        r.mono2_is_inserted = is_mono_inserted()
         tend = time.time()
         dt = tend-tstart
         r.processing_time = dt

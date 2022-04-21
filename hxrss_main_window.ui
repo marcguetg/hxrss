@@ -547,6 +547,19 @@
         <string>crystal status</string>
        </property>
       </widget>
+      <widget class="QLabel" name="mono2_crystal_inserted_display">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>110</y>
+         <width>60</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_2">
       <property name="geometry">
