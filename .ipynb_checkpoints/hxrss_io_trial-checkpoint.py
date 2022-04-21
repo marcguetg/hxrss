@@ -1,6 +1,6 @@
 # C. Lechner, European XFEL
 
-do_doocs=False
+do_doocs=False  ## I will set this to True
 
 import threading,queue
 import time
@@ -11,7 +11,7 @@ from copy import deepcopy
 import os
 
 if do_doocs:
-    # import pydoocs
+    import pydoocs
     pass
 
 class IO_Cmd(enum.Enum):
@@ -27,15 +27,13 @@ def hxrss_io_mono1_motors():
     return r
 
 def hxrss_io_mono2_motors():
-    r = hxrss_io_mono1_motors()
-    return r
-    '''
+    #r = hxrss_io_mono1_motors()
+    #return r
     r = SimpleNamespace()
     r.prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/'
     r.prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/'
     r.prefix_xmotor = 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
     return r
-    '''
 
 ###########################
 ### LOW-LEVEL FUNCTIONS ###
@@ -52,9 +50,9 @@ def machine_writes_enabled():
     return do_doocs # False
 
 def simple_doocs_read(addr):
-    # x = pydoocs.read(addr)
-    # v = x['data']
-    v = 42 # type of dummy value needs to be 'int', because otherwise the motor_busy function will throw exception (uses bitwise and operation)
+    x = pydoocs.read(addr)
+    v = x['data']
+    #v = 42 # type of dummy value needs to be 'int', because otherwise the motor_busy function will throw exception (uses bitwise and operation)
     return v
 
 def mono_motor_busy(doocs_prefix):
@@ -91,9 +89,8 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
     with open('my_log.txt', 'a') as f:
         f.write(timestr() + f' requested update of motor channel {doocs_prefix} to {sp}\n')
 
-    print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
-    return
-    '''
+    #print(f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
+    #return
     # if requested, increase motor speed
     if motor_speed is not None:
         original_speed = simple_doocs_read(doocs_prefix+'SPEED.SET')
@@ -112,7 +109,7 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None):
     # revert to original motor speed
     if motor_speed is not None:
         pydoocs.write(doocs_prefix+'SPEED.SET', original_speed)
-    '''
+
 
 # Value of argument 'sp' determines action
 # . 'IN'  ==> mono2 moves in
@@ -121,8 +118,8 @@ def insert_mono(sp):
     with open('my_log.txt', 'a') as f:
         f.write(f'insert_mono function called\n')
 
-    print('insert_mono function disabled')
-    return
+    #print('insert_mono function disabled')
+    #return
     mcfg = hxrss_io_mono2_motors()
     mono2_prefix_xmotor = mcfg.prefix_xmotor # 'XFEL.FEL/UNDULATOR.SASE2/MONOCI.2307.SA2/'
     sp_in = -7.5
@@ -136,12 +133,12 @@ def insert_mono(sp):
 
 def set_mono(sp):
     print('set_mono was called with setpoint '+str(sp))
-    motor_speed = 80  # percent
+    motor_speed = 40  # percent
     mcfg = hxrss_io_mono2_motors()
     #mono2_prefix_pitch = 'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/'
     #mono2_prefix_roll  = 'XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/'
     mono_move_motor(mcfg.prefix_pitch, sp.pitch, motor_speed=motor_speed)
-    # mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=motor_speed)
+    mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=motor_speed)
     return
 
 
