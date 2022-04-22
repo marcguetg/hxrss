@@ -26,7 +26,7 @@ from copy import deepcopy
 
 from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, IO_Cmd
 from hxrss_io_crystal_params import hxrss_io_crystal_parameters_default, hxrss_io_crystal_parameters_fromDOOCS
-
+from data.update_table import update_table
 import do_crystal_plot
 
 # for development of crystal control code
@@ -75,6 +75,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.params_fromDOOCS_button.clicked.connect(self.on_params_fromDOOCS_button)
         self.params_default_button.clicked.connect(self.on_params_default_button)
         self.tableButton.clicked.connect(self.on_table_clear_click)
+        self.update_table_button.clicked.connect(self.on_update_table_button)
 
         # set initial photon energy value (currently SASE2 color1 setpoint)
         self.photon_energy_edit.setText('{:.2f}'.format(get_initial_photon_energy_value()))
@@ -582,6 +583,15 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print('previous correction parameters: ' +str(self.mono2.corrparams))
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
         print('loaded default correction parameters:' + str(self.mono2.corrparams))
+        
+    def on_update_table_button(self):
+        print('Updating table')
+        try:
+            update_table()
+        except:
+            print('Table not updated.')
+            return
+        print('Table updated successfully.')
         
     def loadCsv(self):
         df = pd.read_csv(self.filename)

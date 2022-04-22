@@ -33,7 +33,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -451,8 +451,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="params_report_button">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>230</y>
+        <x>70</x>
+        <y>110</y>
         <width>171</width>
         <height>21</height>
        </rect>
@@ -464,8 +464,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="params_default_button">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>260</y>
+        <x>70</x>
+        <y>140</y>
         <width>171</width>
         <height>21</height>
        </rect>
@@ -477,8 +477,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="params_fromDOOCS_button">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>290</y>
+        <x>70</x>
+        <y>170</y>
         <width>171</width>
         <height>21</height>
        </rect>
@@ -490,9 +490,9 @@ p, li { white-space: pre-wrap; }
      <widget class="QGroupBox" name="groupBox">
       <property name="geometry">
        <rect>
-        <x>80</x>
-        <y>30</y>
-        <width>491</width>
+        <x>60</x>
+        <y>550</y>
+        <width>701</width>
         <height>141</height>
        </rect>
       </property>
@@ -673,26 +673,13 @@ p, li { white-space: pre-wrap; }
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="label_22">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>110</y>
-         <width>91</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>crystal status</string>
-       </property>
-      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_2">
       <property name="geometry">
        <rect>
-        <x>220</x>
-        <y>190</y>
-        <width>491</width>
+        <x>60</x>
+        <y>260</y>
+        <width>701</width>
         <height>141</height>
        </rect>
       </property>
@@ -907,9 +894,9 @@ p, li { white-space: pre-wrap; }
      <widget class="QGroupBox" name="groupBox_3">
       <property name="geometry">
        <rect>
-        <x>210</x>
-        <y>350</y>
-        <width>491</width>
+        <x>60</x>
+        <y>430</y>
+        <width>701</width>
         <height>101</height>
        </rect>
       </property>
@@ -1017,6 +1004,39 @@ p, li { white-space: pre-wrap; }
        </property>
       </widget>
      </widget>
+     <widget class="QGroupBox" name="groupBox_4">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>60</y>
+        <width>711</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Update Parameters</string>
+      </property>
+      <widget class="QPushButton" name="update_table_button">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>50</y>
+         <width>171</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Update Config Table</string>
+       </property>
+      </widget>
+     </widget>
+     <zorder>groupBox_4</zorder>
+     <zorder>params_report_button</zorder>
+     <zorder>params_default_button</zorder>
+     <zorder>params_fromDOOCS_button</zorder>
+     <zorder>groupBox</zorder>
+     <zorder>groupBox_2</zorder>
+     <zorder>groupBox_3</zorder>
     </widget>
    </widget>
   </widget>
