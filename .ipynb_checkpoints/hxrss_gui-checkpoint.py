@@ -183,10 +183,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_roll_rb_display.setText(str_roll_angle(msg.mono2_roll_rb))
         update_busy_indicator(self.mono2_roll_rb_display, msg.mono2_roll_busy)
         self.mono2_roll_sp_display.setText(str_roll_angle(msg.mono2_roll_sp))
-        str_mono2_crystal_status='parked'
-        if msg.mono2_is_inserted:
-            str_mono2_crystal_status='inserted'
-        self.mono2_crystal_inserted_display.setText(str_mono2_crystal_status)
         self.io_msgtag_display.setText(str(msg.tag))
         self.io_processingtime_display.setText('{:.2f}'.format(1e3*msg.processing_time))
         self.io_msgage_display.setText('{:.2f}'.format(msg.age))
