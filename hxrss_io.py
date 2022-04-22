@@ -148,12 +148,22 @@ def insert_mono(sp):
         print(f'insert_mono: unknown setpoint {sp}, supported values are IN and OUT.')
 
 # 2022-02-28: Reverse engineered from cell 9 monochromator expert panel
-def is_mono_inserted():
+def is_mono2_inserted():
     # from the HXRSS mono expert panels (2022-Feb): Condition "range error" sets 0x10 in /HW_STATE
     mcfg = hxrss_io_mono2_motors()
     mono2_prefix_xmotor = mcfg.prefix_xmotor
     mask_range_error = 0x10
     q = simple_doocs_read(mono2_prefix_xmotor+'HW_STATE')
+    is_range_error = (q&mask_range_error)==mask_range_error
+    is_inserted = not is_range_error
+    return is_inserted
+
+def is_mono1_inserted():
+    # from the HXRSS mono expert panels (2022-Feb): Condition "range error" sets 0x10 in /HW_STATE
+    mcfg = hxrss_io_mono1_motors()
+    mono1_prefix_xmotor = mcfg.prefix_xmotor
+    mask_range_error = 0x10
+    q = simple_doocs_read(mono1_prefix_xmotor+'HW_STATE')
     is_range_error = (q&mask_range_error)==mask_range_error
     is_inserted = not is_range_error
     return is_inserted
@@ -251,7 +261,8 @@ def thread_read_worker(qin, qout, dbg=False):
         r.mono2_roll_rb  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ANGLE')
         r.mono2_roll_sp  = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ANGLE.SET')
         r.mono2_roll_busy  = mono_motor_busy('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/')
-        r.mono2_is_inserted = is_mono_inserted()
+        r.mono2_is_inserted = is_mono2_inserted()
+        r.mono1_is_inserted = is_mono1_inserted()
         tend = time.time()
         dt = tend-tstart
         r.processing_time = dt

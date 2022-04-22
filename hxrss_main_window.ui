@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>857</width>
+    <height>811</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -28,8 +28,8 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>791</width>
-      <height>571</height>
+      <width>840</width>
+      <height>775</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -40,66 +40,101 @@
       <string>Tool</string>
      </attribute>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Photon Energy [eV]</string>
+      <item row="20" column="6" rowspan="5">
+       <widget class="Line" name="line_7">
+        <property name="lineWidth">
+         <number>4</number>
+        </property>
+        <property name="midLineWidth">
+         <number>4</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
-      <item row="7" column="0" colspan="6">
-       <widget class="QLabel" name="label_21">
+      <item row="20" column="2" colspan="4">
+       <widget class="QLabel" name="label_37">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Crystal Configuration Calculator&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Monochromator 1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0" colspan="6">
-       <widget class="QTableView" name="tableView"/>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_20">
+      <item row="21" column="1" colspan="3">
+       <widget class="QPushButton" name="mono1_crystal_insert_button">
         <property name="text">
-         <string>Photon Energy [ev]</string>
+         <string>Insert</string>
         </property>
        </widget>
       </item>
-      <item row="15" column="4">
-       <widget class="QLabel" name="computed_pitch_angle_slope_display">
+      <item row="21" column="9">
+       <widget class="QPushButton" name="mono2_crystal_park_button">
         <property name="text">
-         <string/>
+         <string>Park</string>
         </property>
        </widget>
       </item>
-      <item row="15" column="1">
-       <widget class="QLabel" name="computed_pitch_angle_display">
+      <item row="22" column="0">
+       <widget class="QLabel" name="label_39">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
-         <string/>
+         <string>Inserted/Parked:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="3">
-       <widget class="QPushButton" name="display_map_button">
+      <item row="21" column="4" colspan="2">
+       <widget class="QPushButton" name="mono1_crystal_park_button">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
-         <string>Display Map</string>
+         <string>Park</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="4">
-       <widget class="QPushButton" name="tableButton">
+      <item row="20" column="7" colspan="3">
+       <widget class="QLabel" name="label_38">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
-         <string>Clear Table Selection</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Monochromator 2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1" colspan="2">
-       <widget class="QLineEdit" name="photon_energy_edit"/>
+      <item row="21" column="7" colspan="2">
+       <widget class="QPushButton" name="mono2_crystal_insert_button">
+        <property name="text">
+         <string>Insert</string>
+        </property>
+       </widget>
       </item>
-      <item row="9" column="1">
-       <widget class="QLineEdit" name="photonE"/>
+      <item row="24" column="7" colspan="3">
+       <widget class="QLabel" name="mono2_roll_rb_display">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </item>
-      <item row="2" column="0" colspan="5">
-       <widget class="Line" name="line_3">
+      <item row="25" column="0" colspan="10">
+       <widget class="Line" name="line_8">
         <property name="lineWidth">
          <number>4</number>
         </property>
@@ -111,7 +146,86 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0" colspan="5">
+      <item row="23" column="7" colspan="3">
+       <widget class="QLabel" name="mono2_pitch_rb_display">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="23" column="1" colspan="5">
+       <widget class="QLabel" name="mono1_pitch_rb_display">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="22" column="7" colspan="3">
+       <widget class="QLabel" name="mono2_crystal_inserted_display">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="22" column="1" colspan="5">
+       <widget class="QLabel" name="mono1_crystal_inserted_display">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="24" column="0">
+       <widget class="QLabel" name="label_41">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Roll Angle:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="23" column="0">
+       <widget class="QLabel" name="label_40">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Pitch Angle:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="24" column="1" colspan="5">
+       <widget class="QLabel" name="mono1_roll_rb_display">
+        <property name="text">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_20">
+        <property name="text">
+         <string>Photon Energy [ev]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="11">
+       <widget class="QLabel" name="label_21">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Crystal Configuration Calculator&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="10">
        <widget class="Line" name="line">
         <property name="lineWidth">
          <number>4</number>
@@ -124,16 +238,6 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="1">
-       <widget class="QLineEdit" name="roll_angle_edit"/>
-      </item>
-      <item row="9" column="3">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Reflection:</string>
-        </property>
-       </widget>
-      </item>
       <item row="10" column="0">
        <widget class="QLabel" name="label_26">
         <property name="text">
@@ -141,35 +245,10 @@
         </property>
        </widget>
       </item>
-      <item row="11" column="0" colspan="6">
-       <widget class="QLabel" name="calclabel">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
+      <item row="9" column="1" colspan="3">
+       <widget class="QLineEdit" name="photonE"/>
       </item>
-      <item row="15" column="2" colspan="2">
-       <widget class="QLabel" name="label_25">
-        <property name="text">
-         <string>Pitch: Local Derivative [eV/deg]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="4" colspan="2">
-       <widget class="QPushButton" name="apply_button">
-        <property name="text">
-         <string>Apply</string>
-        </property>
-       </widget>
-      </item>
-      <item row="15" column="0">
-       <widget class="QLabel" name="label_23">
-        <property name="text">
-         <string>Computed Pitch Angle</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="4">
+      <item row="9" column="7" colspan="3">
        <widget class="QLabel" name="reflection_display">
         <property name="minimumSize">
          <size>
@@ -182,21 +261,121 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="5">
-       <widget class="QLabel" name="label_24">
+      <item row="9" column="5">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;HXRSS Crystal Set Tool&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Reflection:</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="6">
-       <widget class="QLabel" name="loglabel">
+      <item row="15" column="0">
+       <widget class="QLabel" name="label_23">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Computed Pitch Angle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="3" colspan="3">
+       <widget class="QLabel" name="label_25">
+        <property name="text">
+         <string>Pitch: Local Derivative [eV/deg]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="9">
+       <widget class="QPushButton" name="apply_button">
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1" colspan="3">
+       <widget class="QLineEdit" name="roll_angle_edit"/>
+      </item>
+      <item row="15" column="1" colspan="2">
+       <widget class="QLabel" name="computed_pitch_angle_display">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="6" column="0" colspan="5">
+      <item row="11" column="0" colspan="11">
+       <widget class="QLabel" name="calclabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="8" colspan="2">
+       <widget class="QLabel" name="computed_pitch_angle_slope_display">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="0" colspan="10">
+       <widget class="Line" name="line_5">
+        <property name="lineWidth">
+         <number>4</number>
+        </property>
+        <property name="midLineWidth">
+         <number>4</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="0" colspan="10">
+       <widget class="QLabel" name="label_27">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Crystal Status&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="18" column="0" colspan="10">
+       <widget class="Line" name="line_6">
+        <property name="lineWidth">
+         <number>4</number>
+        </property>
+        <property name="midLineWidth">
+         <number>4</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="10">
+       <widget class="Line" name="line_4">
+        <property name="lineWidth">
+         <number>4</number>
+        </property>
+        <property name="midLineWidth">
+         <number>4</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="11">
+       <widget class="QTableView" name="tableView">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="10">
        <widget class="Line" name="line_2">
         <property name="frameShadow">
          <enum>QFrame::Sunken</enum>
@@ -212,8 +391,22 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="5">
-       <widget class="Line" name="line_4">
+      <item row="3" column="9">
+       <widget class="QPushButton" name="tableButton">
+        <property name="text">
+         <string>Clear Table Selection</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="8">
+       <widget class="QPushButton" name="display_map_button">
+        <property name="text">
+         <string>Display Map</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="10">
+       <widget class="Line" name="line_3">
         <property name="lineWidth">
          <number>4</number>
         </property>
@@ -222,6 +415,30 @@
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="10">
+       <widget class="QLabel" name="label_24">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;HXRSS Crystal Set Tool&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="11">
+       <widget class="QLabel" name="loglabel">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="5">
+       <widget class="QLineEdit" name="photon_energy_edit"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Photon Energy [eV]</string>
         </property>
        </widget>
       </item>
@@ -392,58 +609,6 @@
         <string>TextLabel</string>
        </property>
       </widget>
-      <widget class="QLabel" name="mono2_pitch_rb_display">
-       <property name="geometry">
-        <rect>
-         <x>400</x>
-         <y>70</y>
-         <width>81</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="mono2_roll_rb_display">
-       <property name="geometry">
-        <rect>
-         <x>400</x>
-         <y>90</y>
-         <width>81</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="mono1_pitch_rb_display">
-       <property name="geometry">
-        <rect>
-         <x>210</x>
-         <y>70</y>
-         <width>81</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="mono1_roll_rb_display">
-       <property name="geometry">
-        <rect>
-         <x>210</x>
-         <y>90</y>
-         <width>81</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
       <widget class="QLabel" name="label_7">
        <property name="geometry">
         <rect>
@@ -508,32 +673,6 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QPushButton" name="mono2_crystal_insert_button">
-       <property name="geometry">
-        <rect>
-         <x>300</x>
-         <y>110</y>
-         <width>61</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Insert</string>
-       </property>
-      </widget>
-      <widget class="QPushButton" name="mono2_crystal_park_button">
-       <property name="geometry">
-        <rect>
-         <x>400</x>
-         <y>110</y>
-         <width>61</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Park</string>
-       </property>
-      </widget>
       <widget class="QLabel" name="label_22">
        <property name="geometry">
         <rect>
@@ -545,19 +684,6 @@
        </property>
        <property name="text">
         <string>crystal status</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="mono2_crystal_inserted_display">
-       <property name="geometry">
-        <rect>
-         <x>120</x>
-         <y>110</y>
-         <width>60</width>
-         <height>16</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TextLabel</string>
        </property>
       </widget>
      </widget>
@@ -902,7 +1028,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>857</width>
      <height>24</height>
     </rect>
    </property>

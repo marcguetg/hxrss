@@ -117,8 +117,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # Obtain default correction parameters for mono2
         # These describe imperfections of the system
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
-
-
+        self.mono1_roll_rb_display.setAlignment(Qt.AlignCenter)
+        self.mono2_roll_rb_display.setAlignment(Qt.AlignCenter)
+        self.mono1_pitch_rb_display.setAlignment(Qt.AlignCenter)
+        self.mono2_pitch_rb_display.setAlignment(Qt.AlignCenter)
+        self.mono1_crystal_inserted_display.setAlignment(Qt.AlignCenter)
+        self.mono2_crystal_inserted_display.setAlignment(Qt.AlignCenter)
         ### THREAD FOR MACHINE I/O ###
         # thread for communication with machine: display dbg messages?
         self.io_thread_dbg=False
@@ -183,9 +187,20 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_roll_rb_display.setText(str_roll_angle(msg.mono2_roll_rb))
         update_busy_indicator(self.mono2_roll_rb_display, msg.mono2_roll_busy)
         self.mono2_roll_sp_display.setText(str_roll_angle(msg.mono2_roll_sp))
+                
+        str_mono1_crystal_status='parked'
         str_mono2_crystal_status='parked'
+        self.mono1_crystal_park_button.setEnabled(False)
+        self.mono2_crystal_park_button.setEnabled(False)
+        if msg.mono1_is_inserted:
+            str_mono1_crystal_status='inserted'
+            self.mono1_crystal_insert_button.setEnabled(False)
+            self.mono1_crystal_park_button.setEnabled(True)
         if msg.mono2_is_inserted:
             str_mono2_crystal_status='inserted'
+            self.mono2_crystal_insert_button.setEnabled(False)
+            self.mono2_crystal_park_button.setEnabled(True)
+        self.mono1_crystal_inserted_display.setText(str_mono1_crystal_status)
         self.mono2_crystal_inserted_display.setText(str_mono2_crystal_status)
         self.io_msgtag_display.setText(str(msg.tag))
         self.io_processingtime_display.setText('{:.2f}'.format(1e3*msg.processing_time))
