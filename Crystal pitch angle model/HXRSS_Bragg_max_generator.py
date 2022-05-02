@@ -265,7 +265,9 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
 #User defined quantities
 ################ AMERICAN NAME CONVENTION --- OUR ROLL IS YAW HERE AND VICEVERSA!!!######################
 
-    pitchax = np.array((-1, 1, 0))/np.linalg.norm(np.array((-1, 1, 0)))
+    #pitchax = np.array((-1, 1, 0))/np.linalg.norm(np.array((-1, 1, 0))) 02.05.2022 change
+    pitchax =  np.array((1,-1,0))/np.linalg.norm(np.array((1,-1,0)))
+
     rollax = np.array((0, 0, 1))/np.linalg.norm(np.array((0, 0, 1)))
     yawax = np.array((1, 1, 0))/np.linalg.norm(np.array((1, 1, 0)))
     n0 = -rollax  # direction of incident radiation
@@ -328,7 +330,7 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
                         dthy, alpha, roll_angle)
                     min_pitch_list.append(min_pitch)
                     min_photonenergy_list.append(min_photonenergy)
-                
+
                 phen_lim = [v for i, v in enumerate(phen) if v>=minE and v < maxE]
                 indices = [i for i, v in enumerate(phen) if v>=minE and v < maxE]
                 p_angle_lim = [p_angle[i] for i in indices]
