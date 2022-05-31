@@ -75,13 +75,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.params_fromDOOCS_button.clicked.connect(self.on_params_fromDOOCS_button)
         self.params_default_button.clicked.connect(self.on_params_default_button)
         self.update_table_button.clicked.connect(self.on_update_table_button)
-        self.logbook.clicked.connect(self.on_logbook_button)
 
         # set initial photon energy value (currently SASE2 color1 setpoint)
         self.photon_energy_edit.setText('{:.2f}'.format(get_initial_photon_energy_value()))
 
         self.display_map_button.setEnabled(False)
-        
+        self.apply_button.setEnabled(False)
         # hide HXRSS crystal reflection curve information (it will become visible once needed)
         #self.photon_energy_min_label.setVisible(False)
         #self.photon_energy_min_display.setVisible(False)
@@ -100,7 +99,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2.setpoint.pitch = 100
         print('assuming roll=1.58')
         self.mono2.setpoint.roll = 1.28
-        self.roll_angle_edit.setText('{:.3f}'.format(self.mono2.setpoint.roll))
+        
         self.mono2.pitch_min = 29.88  # [deg], min/max values from mono control panel
         self.mono2.pitch_max = 120.06
         self.mono2.pitch_minmax_safetymargin = 1 # don't go to the limits
@@ -131,6 +130,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.timeout)
         self.update_timer.start(1000)
+        
 
 
     def closeEvent(self, event):
@@ -180,7 +180,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_roll_rb_display.setText(str_roll_angle(msg.mono2_roll_rb))
         update_busy_indicator(self.mono2_roll_rb_display, msg.mono2_roll_busy)
         self.mono2_roll_sp_display.setText(str_roll_angle(msg.mono2_roll_sp))
-                
+             
         str_mono1_crystal_status='parked'
         str_mono2_crystal_status='parked'
         self.mono1_crystal_park_button.setEnabled(False)
@@ -243,9 +243,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print('### CRYSTAL MAP CALLBACK ###')
         print(str(the_info))
         if the_info.valid:
+            self.apply_button.setEnabled(True)
             self.label_2.setVisible(True)
             self.reflection_display.setVisible(True)
             self.reflection_display.setText(the_info.info_txt)
+            self.reflection_chosen = the_info.info_txt
             #self.photonE.setText('{:.2f}'.format(the_info.y))
             self.roll_angle_edit.setText('{:.3f}'.format(the_info.roll))
             #self.loglabel.setText('You have selected reflection '+ the_info.info_txt+'. Adjust the Photon energy and click Enter to calculate the crystal configuration.')
@@ -562,8 +564,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             return
         self.rollconfig = self.roll_calc
     
-    def on_logbook_button(self):
-        self.logbook_entry(widget=self.tab, text="Carried out pitch angle scan")
 
     def on_params_report_button(self):
         print('reporting correction parameters: ' +str(self.mono2.corrparams))
@@ -586,6 +586,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print('Table not updated.')
             return
         print('Table updated successfully.')
+        
+    def on_logbook_button(self, msg_text):
+        self.logbook_entry(widget=self.tab, text=msg_text)
         
         
     def get_screenshot(self, window_widget):
@@ -628,7 +631,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         elif current_pitch >= self.mono2.setpoint.pitch:
             pitch_start = self.mono2.setpoint.pitch + 1
             pitch_end = self.mono2.setpoint.pitch - 1
-        print('Current pitch: '+ str(np.round(current_pitch, 4)) + '° and roll: '+ str(np.round(current_roll, 4))+'°. Moving to '+ str(np.round(pitch_start, 4)) + '° and roll: '+ str(np.round(self.mono2.setpoint.roll, 4))+'°.')
+        #print('Current pitch: '+ str(np.round(current_pitch, 4)) + '° and roll: '+ str(np.round(current_roll, 4))+'°. Moving to '+ str(np.round(pitch_start, 4)) + '° and roll: '+ str(np.round(self.mono2.setpoint.roll, 4))+'°.')
         cmd.setpoints.mono2.pitch = pitch_start
         cmd.setpoints.mono2.roll  = self.mono2.setpoint.roll # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.valid = True
@@ -643,7 +646,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints.mono2.roll  = self.mono2.setpoint.roll # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.valid = True
         cmd.setpoints.mono2.speed = 5
-        print('Crystal setpoint updated: pitch: '+ str(np.round(pitch_end, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
+        #print('Crystal setpoint updated: pitch: '+ str(np.round(pitch_end, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
         self.q_to_write.put(cmd)
         # Move 3
         cmd = SimpleNamespace()
@@ -654,12 +657,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints.mono2.roll  = self.mono2.setpoint.roll # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.valid = True
         cmd.setpoints.mono2.speed = 80
-        print('Crystal setpoint updated to central point: pitch: '+ str(np.round(self.mono2.setpoint.pitch, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
+        #print('Crystal setpoint updated to central point: pitch: '+ str(np.round(self.mono2.setpoint.pitch, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
         self.q_to_write.put(cmd)
         self.display_map_button.setEnabled(True)
         self.apply_button.setEnabled(True)
         self.calclabel.setText('Finished scan.')
-
+        self.on_logbook_button('Scanned reflection '+self.reflection_chosen+ ' at '+ str(self.phen) + ' eV.\nPitch range scanned: '+ str(np.round(pitch_start, 4)) + '° to: '+  str(np.round(pitch_start, 4)) + '°.')
+        print('Scanned reflection '+self.reflection_chosen+ ' at '+ str(self.phen) + ' eV.\nPitch range scanned: '+ str(np.round(pitch_start, 4)) + '° to: '+  str(np.round(pitch_end, 4)) + '°.')
+        
     def on_mono2_crystal_insert_button(self):
         print('crystal2 insert button')
         cmd = SimpleNamespace()

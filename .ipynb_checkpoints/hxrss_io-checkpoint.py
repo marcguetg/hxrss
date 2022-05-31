@@ -249,6 +249,7 @@ def thread_read_worker(qin, qout, dbg=False):
         r.color1_rb = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON')
         r.color2_rb = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR2/E_PHOTON')
         r.color3_rb = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR3/E_PHOTON')
+        r.global_color_rb = simple_doocs_read('XFEL.UTIL/HIGH_LEVEL_STATUS/PHOTON_ENERGY.SA2/PHOTON_ENERGY_OUTPUT')
         r.mono1_pitch_rb = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ANGLE')
         r.mono1_pitch_sp = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ANGLE.SET')
         r.mono1_pitch_busy = mono_motor_busy('XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/')
@@ -275,9 +276,6 @@ def thread_read_worker(qin, qout, dbg=False):
         qout.put(r)
         message_counter+=1
     print('read thread is finishing')
-
-
-
 
 ##########################
 ##### USER INTERFACE #####

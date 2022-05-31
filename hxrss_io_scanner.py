@@ -173,7 +173,7 @@ def set_mono(sp):
     #motor_speed = 80  # percent
     mcfg = hxrss_io_mono2_motors()
     mono_move_motor(mcfg.prefix_pitch, sp.pitch, motor_speed=sp.speed)
-    mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=sp.speed)
+    #mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=sp.speed)
     return
 
 
@@ -288,6 +288,11 @@ def thread_read_worker(qin, qout, dbg=False):
 def get_initial_photon_energy_value():
     print('Reading SASE2 undulator color1 set point as initial value for photon energy field')
     value = simple_doocs_read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON')
+    return value
+
+def get_initial_roll_angle_value():
+    print('Reading current roll angle')
+    value = simple_doocs_read('XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ANGLE')
     return value
 
 def rt_request_update(queue, dbg):

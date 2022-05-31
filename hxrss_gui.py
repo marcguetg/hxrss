@@ -12,7 +12,7 @@ script_dir = os.path.dirname(script_path)
 hxrss_toolbox_dir = script_dir+'/Crystal pitch angle model'
 sys.path.append(hxrss_toolbox_dir)
 
-
+from datetime import datetime
 from hxrss_main_window import Ui_MainWindow
 from PyQt5 import QtWidgets as qtw
 from PyQt5 import QtCore as qtc
@@ -28,7 +28,7 @@ from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_w
 from hxrss_io_crystal_params import hxrss_io_crystal_parameters_default, hxrss_io_crystal_parameters_fromDOOCS
 from data.update_table import update_table
 import do_crystal_plot
-
+from spectr_gui import send_to_desy_elog
 # for development of crystal control code
 from scipy import interpolate
 import scipy
@@ -79,10 +79,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
         # set initial photon energy value (currently SASE2 color1 setpoint)
         self.photon_energy_edit.setText('{:.2f}'.format(get_initial_photon_energy_value()))
-
+        self.apply_button.setEnabled(False)
         self.display_map_button.setEnabled(False)
         self.tableButton.setEnabled(False)
-        
+        self.scan_checkBox.setEnabled(False)
         # hide HXRSS crystal reflection curve information (it will become visible once needed)
         #self.photon_energy_min_label.setVisible(False)
         #self.photon_energy_min_display.setVisible(False)
@@ -92,6 +92,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.reflection_display.setVisible(False)
         self.loglabel.setText('Insert the desired Photon Energy value')
         self.model = QtGui.QStandardItemModel(self)
+        self.logbookstring = []
         
         # TableView
         self.tableView.setModel(self.model)
@@ -124,6 +125,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_pitch_rb_display.setAlignment(Qt.AlignCenter)
         self.mono1_crystal_inserted_display.setAlignment(Qt.AlignCenter)
         self.mono2_crystal_inserted_display.setAlignment(Qt.AlignCenter)
+        
+        self.scan_checkBox.stateChanged.connect(self.state_changed)
+        
+        
         ### THREAD FOR MACHINE I/O ###
         # thread for communication with machine: display dbg messages?
         self.io_thread_dbg=False
@@ -188,7 +193,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_roll_rb_display.setText(str_roll_angle(msg.mono2_roll_rb))
         update_busy_indicator(self.mono2_roll_rb_display, msg.mono2_roll_busy)
         self.mono2_roll_sp_display.setText(str_roll_angle(msg.mono2_roll_sp))
-                
+        self.undulatorph.setText(str_ph_energy(msg.global_color_rb))
         str_mono1_crystal_status='parked'
         str_mono2_crystal_status='parked'
         self.mono1_crystal_park_button.setEnabled(False)
@@ -254,13 +259,15 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print('### CRYSTAL MAP CALLBACK ###')
         print(str(the_info))
         if the_info.valid:
+            self.apply_button.setEnabled(True)
             self.label_2.setVisible(True)
             self.reflection_display.setVisible(True)
             self.reflection_display.setText(the_info.info_txt)
+            self.reflection_chosen = the_info.info_txt
             self.photonE.setText('{:.2f}'.format(the_info.y))
             self.roll_angle_edit.setText('{:.3f}'.format(the_info.roll))
             #self.loglabel.setText('You have selected reflection '+ the_info.info_txt+'. Adjust the Photon energy and click Enter to calculate the crystal configuration.')
-
+            
             mono = self.mono2
             # Check that the click is within the travel range of the actuator
             # Don't use the full travel range (note that 'abs' was used to guard against
@@ -459,15 +466,25 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         pitch_min = np.amin(np.array(cd.pitch))
 
         # verify that the desired photon energy is possible
-        if ((phen_min<=sp_phen) and (sp_phen<=phen_max)):
-            self.calclabel.setText('Insert an energy value between '+ str(np.round(phen_min,1)) +' eV and '+str(np.round(phen_max,1))+' eV. Press Enter to calculate setpoint.')
-            pass # ok
+        if self.scan_checkBox.isChecked() == 1:
+            if ((phen_min<=sp_phen) and (sp_phen<=phen_max)):
+                self.scanlabel.setText('Calculating setpoint.')
+                pass # ok
+            else:
+                print(mono.infotxt+f': requested photon energy is outside of possible range {phen_min}..{phen_max}')
+                self.scanlabel.setText('Requested photon energy is outside of possible range '+ str(np.round(phen_min,1)) +' eV and '+str(np.round(phen_max,1))+' eV. Stopping scan')
+                self.scan_checkBox.setChecked(False)
+                return False
         else:
-            print(mono.infotxt+f': requested photon energy is outside of possible range {phen_min}..{phen_max}')
-            self.calclabel.setText('Requested photon energy is outside of possible range '+ str(np.round(phen_min,1)) +' eV and '+str(np.round(phen_max,1))+' eV.')
-            self.phen = sp_phen
-            self.on_show_map_button()
-            return False
+            if ((phen_min<=sp_phen) and (sp_phen<=phen_max)):
+                self.calclabel.setText('Insert an energy value between '+ str(np.round(phen_min,1)) +' eV and '+str(np.round(phen_max,1))+' eV. Press Enter to calculate setpoint.')
+                pass # ok
+            else:
+                print(mono.infotxt+f': requested photon energy is outside of possible range {phen_min}..{phen_max}')
+                self.calclabel.setText('Requested photon energy is outside of possible range '+ str(np.round(phen_min,1)) +' eV and '+str(np.round(phen_max,1))+' eV.')
+                self.phen = sp_phen
+                self.on_show_map_button()
+                return False
 
         # setup INTERPOLATION of stored crystal curve
         # Curve continues with extrapolation outside known pitch range
@@ -518,15 +535,20 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         setpoint_roll *= 180/np.pi # rad=>deg
         # NOTE: currently not using this setpoint as additional considerations are needed
 
-        print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={setpoint_roll}')
-        self.computed_pitch_angle_display.setText('{:.4f}'.format(setpoint_pitch))
-        self.computed_pitch_angle_slope_display.setText('{:.2f}'.format(deriv))
+        print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={self.roll_angle_edit.text()}')
+        if self.scan_checkBox.isChecked() == 1:
+            self.scanlabel.setText('Computed pitch angle: '+'{:.4f}'.format(setpoint_pitch))
+            self.logbookstring.append(datetime.now().isoformat()+': Moving to ' +'{:.4f}'.format(setpoint_pitch)+ '° at '+ str(sp_phen) + ' eV.\n')
+            self.phen_sp = sp_phen
+        else:
+            self.computed_pitch_angle_display.setText('{:.4f}'.format(setpoint_pitch))
+            self.computed_pitch_angle_slope_display.setText('{:.2f}'.format(deriv))
         #self.computed_roll_angle_display.setText('1.58=const') # FIXME
         
 
         ### Store the setpoint in the internal structure ###
         mono.setpoint.pitch = setpoint_pitch
-        print('assuming roll from config table or roll=1.58 (overriding result of setpoint computation)')
+        #print('assuming roll from config table or roll=1.58 (overriding result of setpoint computation)')
         mono.setpoint.roll = float(self.roll_angle_edit.text()) #1.58 # FIXME: computed roll point is currently not used
         mono.setpoint.valid = True
         print('*** Crystal setpoint values updated ***')
@@ -626,6 +648,52 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.pitchconfig = None
         self.rollconfig = None
         #print(value)
+        
+    def on_logbook_button(self, msg_text):
+        self.logbook_entry(widget=self.tab, text=msg_text)
+        
+    def get_screenshot(self, window_widget):
+        screenshot_tmp = QtCore.QByteArray()
+        screeshot_buffer = QtCore.QBuffer(screenshot_tmp)
+        screeshot_buffer.open(QtCore.QIODevice.WriteOnly)
+        widget = QtWidgets.QWidget.grab(window_widget)
+        widget.save(screeshot_buffer, "png")
+        return screenshot_tmp.toBase64().data().decode()
+
+    def logbook_entry(self, widget, text=""):
+        """
+        Method to send data + screenshot to eLogbook
+        :return:
+        """
+        #screenshot = self.get_screenshot(widget)
+        res = send_to_desy_elog(author="", title="Crystal Scan Tool: HXRSS", severity="INFO", text=text, elog="xfellog")
+        print(res)
+        if res == True:
+            self.scanlabel.setText('Finished scan! Logbook entry submitted.' )
+        if not res:
+            self.scanlabel.setText('Finished scan! Error during eLogBook sending.')
+            
+    def state_changed(self, int):
+        if self.scan_checkBox.isChecked():
+            print("CHECKED!")
+            self.apply_button.setEnabled(False)
+            self.spinBox.setMaximum(30000)
+            self.spinBox.setValue(self.phen_calc+10)
+            self.difference = self.spinBox.value() - self.phen_calc
+            self.logbookstring = []
+            self.logbookstring.append(datetime.now().isoformat()+': Started scanning reflection ' + self.reflection_chosen+ ' at '+ str(self.phen_calc) + ' eV.\n')
+            self.spinBox.valueChanged.connect(self.sync_phen)
+        else:
+            print("UNCHECKED!")
+            self.apply_button.setEnabled(True)
+            s = ''.join(self.logbookstring)
+            if s != '':
+                self.on_logbook_button(s)
+            print(s)
+            
+    def sync_phen(self):
+        self.determine_setpoints(self.spinBox.value()-self.difference)
+        self.on_apply_button()
 
 ################################
 
@@ -638,8 +706,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         #print('assuming roll=1.58')
         cmd.setpoints.mono2.roll  = self.mono2.setpoint.roll # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.valid = True
-        self.calclabel.setText('Crystal setpoint updated: pitch: '+ str(np.round(self.mono2.setpoint.pitch, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
+        if self.scan_checkBox.isChecked():
+            self.scanlabel.setText('Scan mode activated: setpoint updated to pitch: '+ str(np.round(self.mono2.setpoint.pitch, 4)) + '° at model phen: ' + str(self.phen_sp) + ' eV' )
+        else:
+            self.calclabel.setText('Crystal setpoint updated: pitch: '+ str(np.round(self.mono2.setpoint.pitch, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
+            self.scan_checkBox.setEnabled(True)
         self.q_to_write.put(cmd)
+        
 
     def on_mono2_crystal_insert_button(self):
         print('crystal2 insert button')
