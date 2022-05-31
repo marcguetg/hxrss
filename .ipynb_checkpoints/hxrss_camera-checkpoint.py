@@ -611,17 +611,54 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 ################################
 
     def on_apply_button(self):
+        self.display_map_button.setEnabled(False)
+        self.apply_button.setEnabled(False)
+        cmd = SimpleNamespace()
+        cmd.cmd = IO_Cmd.IO_SET
+        cmd.setpoints = SimpleNamespace()
+        cmd.setpoints.mono2 = SimpleNamespace()
+        msg = rt_get_msg(self.q_from_read,block=False)
+        current_pitch = msg.mono2_pitch_rb
+        current_roll = msg.mono2_roll_rb
+        # Move 1
+        self.calclabel.setText('Starting scan.')
+        if current_pitch < self.mono2.setpoint.pitch:
+            pitch_start = self.mono2.setpoint.pitch - 1
+            pitch_end = self.mono2.setpoint.pitch + 1
+        elif current_pitch >= self.mono2.setpoint.pitch:
+            pitch_start = self.mono2.setpoint.pitch + 1
+            pitch_end = self.mono2.setpoint.pitch - 1
+        print('Current pitch: '+ str(np.round(current_pitch, 4)) + '° and roll: '+ str(np.round(current_roll, 4))+'°. Moving to '+ str(np.round(pitch_start, 4)) + '° and roll: '+ str(np.round(self.mono2.setpoint.roll, 4))+'°.')
+        cmd.setpoints.mono2.pitch = pitch_start
+        cmd.setpoints.mono2.roll  = self.mono2.setpoint.roll # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
+        cmd.setpoints.mono2.valid = True
+        cmd.setpoints.mono2.speed = 80
+        self.q_to_write.put(cmd)
+        # Move 2
+        cmd = SimpleNamespace()
+        cmd.cmd = IO_Cmd.IO_SET
+        cmd.setpoints = SimpleNamespace()
+        cmd.setpoints.mono2 = SimpleNamespace()
+        cmd.setpoints.mono2.pitch = pitch_end
+        cmd.setpoints.mono2.roll  = self.mono2.setpoint.roll # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
+        cmd.setpoints.mono2.valid = True
+        cmd.setpoints.mono2.speed = 5
+        print('Crystal setpoint updated: pitch: '+ str(np.round(pitch_end, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
+        self.q_to_write.put(cmd)
+        # Move 3
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.mono2 = SimpleNamespace()
         cmd.setpoints.mono2.pitch = self.mono2.setpoint.pitch
-        #print('assuming roll=1.58')
         cmd.setpoints.mono2.roll  = self.mono2.setpoint.roll # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.valid = True
-        cmd.setpoints.mono2.speed = 40
-        self.calclabel.setText('Crystal setpoint updated: pitch: '+ str(np.round(self.mono2.setpoint.pitch, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
+        cmd.setpoints.mono2.speed = 80
+        print('Crystal setpoint updated to central point: pitch: '+ str(np.round(self.mono2.setpoint.pitch, 4)) + '° and roll: '+ str(self.mono2.setpoint.roll)+'°.')
         self.q_to_write.put(cmd)
+        self.display_map_button.setEnabled(True)
+        self.apply_button.setEnabled(True)
+        self.calclabel.setText('Finished scan.')
 
     def on_mono2_crystal_insert_button(self):
         print('crystal2 insert button')
