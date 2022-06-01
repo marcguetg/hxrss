@@ -199,13 +199,35 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono1_crystal_park_button.setEnabled(False)
         self.mono2_crystal_park_button.setEnabled(False)
         if msg.mono1_is_inserted:
-            str_mono1_crystal_status='inserted'
-            self.mono1_crystal_insert_button.setEnabled(False)
-            self.mono1_crystal_park_button.setEnabled(True)
+            if msg.mono1_insert_busy == False:
+                str_mono1_crystal_status='inserted'
+                self.mono1_crystal_insert_button.setEnabled(False)
+                self.mono1_crystal_park_button.setEnabled(True)
+            else:
+                str_mono1_crystal_status='inserting...'
+                update_busy_indicator(self.mono1_crystal_inserted_display, msg.mono1_insert_busy)
+                self.mono1_crystal_insert_button.setEnabled(False)
+                self.mono1_crystal_park_button.setEnabled(False)            
         if msg.mono2_is_inserted:
-            str_mono2_crystal_status='inserted'
+            if msg.mono2_insert_busy == False:
+                str_mono2_crystal_status='inserted'
+                self.mono2_crystal_insert_button.setEnabled(False)
+                self.mono2_crystal_park_button.setEnabled(True)
+            else:
+                str_mono2_crystal_status='inserting...'
+                update_busy_indicator(self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
+                self.mono2_crystal_insert_button.setEnabled(False)
+                self.mono2_crystal_park_button.setEnabled(False)
+        if msg.mono1_is_inserted == False and msg.mono1_insert_busy == True:
+            update_busy_indicator(self.mono1_crystal_inserted_display, msg.mono1_insert_busy)
+            str_mono1_crystal_status='parking...'
+            self.mono1_crystal_insert_button.setEnabled(False)
+            self.mono1_crystal_park_button.setEnabled(False)
+        if msg.mono2_is_inserted == False and msg.mono2_insert_busy == True:
+            update_busy_indicator(self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
+            str_mono2_crystal_status='parking...'
             self.mono2_crystal_insert_button.setEnabled(False)
-            self.mono2_crystal_park_button.setEnabled(True)
+            self.mono2_crystal_park_button.setEnabled(False)
         self.mono1_crystal_inserted_display.setText(str_mono1_crystal_status)
         self.mono2_crystal_inserted_display.setText(str_mono2_crystal_status)
         self.io_msgtag_display.setText(str(msg.tag))
@@ -216,7 +238,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.io_thread_dbg = self.io_threaddbg_checkbox.checkState()
         dbg = self.io_thread_dbg
         rt_request_update(self.q_to_read, dbg)
-
         got_something=False
         try:
             # there may be multiple objects waiting in the queue.
@@ -239,6 +260,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
         roi.minE = self.phen-1500
         roi.maxE = self.phen+1500   # roll angle (American convention)
+        roi.phen = self.phen
         if self.pitchconfig == None:
             roi.minpitch = 30
             roi.maxpitch = 120
@@ -468,6 +490,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # verify that the desired photon energy is possible
         if self.scan_checkBox.isChecked() == 1:
             if ((phen_min<=sp_phen) and (sp_phen<=phen_max)):
+                self.calclabel.setText('Possible photon energy range: '+ str(np.round(phen_min,1)) +' eV to '+str(np.round(phen_max,1))+' eV.')
                 self.scanlabel.setText('Calculating setpoint.')
                 pass # ok
             else:
@@ -538,7 +561,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={self.roll_angle_edit.text()}')
         if self.scan_checkBox.isChecked() == 1:
             self.scanlabel.setText('Computed pitch angle: '+'{:.4f}'.format(setpoint_pitch))
-            self.logbookstring.append(datetime.now().isoformat()+': Moving to ' +'{:.4f}'.format(setpoint_pitch)+ '° at '+ str(sp_phen) + ' eV.\n')
+            self.logbookstring.append(datetime.now().isoformat()+':  Undulator Eph was noted to change to '+str(self.spinBox.value())+' eV. Moving crystal pitch to ' +'{:.4f}'.format(setpoint_pitch)+ '° (model Eph: '+ str(sp_phen) + ' eV).\n')
             self.phen_sp = sp_phen
         else:
             self.computed_pitch_angle_display.setText('{:.4f}'.format(setpoint_pitch))
@@ -667,7 +690,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         """
         #screenshot = self.get_screenshot(widget)
         res = send_to_desy_elog(author="", title="Crystal Scan Tool: HXRSS", severity="INFO", text=text, elog="xfellog")
-        print(res)
         if res == True:
             self.scanlabel.setText('Finished scan! Logbook entry submitted.' )
         if not res:

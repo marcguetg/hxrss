@@ -131,7 +131,7 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
     maxE = roi.maxE
     minE = roi.minE
     roll_list = roi.roll
- 
+    phen = roi.phen
 
     res = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, maxE, minE, return_obj=True, analyze_curves=do_indicate_features)
     phen_list = res.phen_list
@@ -161,7 +161,7 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
         stt_p_angle_list = stt_r.p_angle_list
         stt_gid_list = stt_r.gid_list
         ax.plot(stt_p_angle_list[0], np.array(stt_phen_list[0]), 'k+')
-
+    ax.axhline(y=roi.phen, color='r', linestyle='--')
     #ax.set_ylim(5000, 20000) # just some reasonable limits (there are also traces outside of this range)
     ax.set_ylim(roi.minE+600, roi.maxE-600)
     ax.set_xlim(roi.minpitch, roi.maxpitch)
