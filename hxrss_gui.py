@@ -193,7 +193,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_roll_rb_display.setText(str_roll_angle(msg.mono2_roll_rb))
         update_busy_indicator(self.mono2_roll_rb_display, msg.mono2_roll_busy)
         self.mono2_roll_sp_display.setText(str_roll_angle(msg.mono2_roll_sp))
-        self.undulatorph.setText(str_ph_energy(msg.global_color_rb))
+        #self.undulatorph.setValue(msg.global_color_rb)
+        self.undulatorph.setValue(msg.mono1_pitch_rb)
         str_mono1_crystal_status='parked'
         str_mono2_crystal_status='parked'
         self.mono1_crystal_park_button.setEnabled(False)
@@ -561,7 +562,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={self.roll_angle_edit.text()}')
         if self.scan_checkBox.isChecked() == 1:
             self.scanlabel.setText('Computed pitch angle: '+'{:.4f}'.format(setpoint_pitch))
-            self.logbookstring.append(datetime.now().isoformat()+':  Undulator Eph was noted to change to '+str(self.spinBox.value())+' eV. Moving crystal pitch to ' +'{:.4f}'.format(setpoint_pitch)+ '° (model Eph: '+ str(sp_phen) + ' eV).\n')
+            self.logbookstring.append(datetime.now().isoformat()+':  Undulator Eph was noted to change to '+str(self.undulatorph.value())+' eV. Moving crystal pitch to ' +'{:.4f}'.format(setpoint_pitch)+ '° (model Eph: '+ str(sp_phen) + ' eV).\n')
             self.phen_sp = sp_phen
         else:
             self.computed_pitch_angle_display.setText('{:.4f}'.format(setpoint_pitch))
@@ -699,23 +700,23 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         if self.scan_checkBox.isChecked():
             print("CHECKED!")
             self.apply_button.setEnabled(False)
-            self.spinBox.setMaximum(30000)
-            self.spinBox.setValue(self.phen_calc+10)
-            self.difference = self.spinBox.value() - self.phen_calc
+            #self.spinBox.setMaximum(30000)
+            #self.spinBox.setValue(self.phen_calc+10)
+            self.difference = self.undulatorph.value() - self.phen_calc
             self.logbookstring = []
             self.logbookstring.append(datetime.now().isoformat()+': Started scanning reflection ' + self.reflection_chosen+ ' at '+ str(self.phen_calc) + ' eV.\n')
-            self.spinBox.valueChanged.connect(self.sync_phen)
+            self.undulatorph.valueChanged.connect(self.sync_phen)
         else:
             print("UNCHECKED!")
             self.apply_button.setEnabled(True)
             s = ''.join(self.logbookstring)
-            if s != '':
+            if len(s) > 85:
                 self.on_logbook_button(s)
             print(s)
             
     def sync_phen(self):
-        self.determine_setpoints(self.spinBox.value()-self.difference)
-        self.on_apply_button()
+        self.determine_setpoints(self.undulatorph.value()-self.difference)
+        #self.on_apply_button()
 
 ################################
 
@@ -755,6 +756,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
 if __name__ == "__main__":
     app = qtw.QApplication([])
+    
+    path = os.path.join(os.path.dirname(sys.modules[__name__].__file__), 'gui/hxrss.png')
+    app.setWindowIcon(QtGui.QIcon(path))
 
     w = MainWindow()
     w.show()
