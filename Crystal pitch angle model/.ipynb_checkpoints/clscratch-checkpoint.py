@@ -52,7 +52,8 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
                 if curve.contains(event)[0]:
                     over_curve=True
                     # plt.suptitle('over '+curve.get_gid())
-                    ax.set_title('over '+curve.get_gid())
+                    if curve.get_gid() != None:
+                        ax.set_title('over '+curve.get_gid())
                     #fig.canvas.draw()
                     parent_fig=ax.get_figure()
                     parent_fig.canvas.draw()

@@ -90,6 +90,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         #self.photon_energy_max_display.setVisible(False)
         self.label_2.setVisible(False)
         self.reflection_display.setVisible(False)
+        self.label_22.setVisible(False)
+        self.undulatorph.setVisible(False)
+        self.label_23.setVisible(False)
+        self.label_25.setVisible(False)
         self.loglabel.setText('Insert the desired Photon Energy value')
         self.model = QtGui.QStandardItemModel(self)
         self.logbookstring = []
@@ -193,8 +197,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_roll_rb_display.setText(str_roll_angle(msg.mono2_roll_rb))
         update_busy_indicator(self.mono2_roll_rb_display, msg.mono2_roll_busy)
         self.mono2_roll_sp_display.setText(str_roll_angle(msg.mono2_roll_sp))
-        #self.undulatorph.setValue(msg.global_color_rb)
-        self.undulatorph.setValue(msg.mono1_pitch_rb)
+        self.undulatorph.setValue(msg.global_color_rb)
+        #self.undulatorph.setValue(msg.mono1_pitch_rb)
         str_mono1_crystal_status='parked'
         str_mono2_crystal_status='parked'
         self.mono1_crystal_park_button.setEnabled(False)
@@ -284,6 +288,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         if the_info.valid:
             self.apply_button.setEnabled(True)
             self.label_2.setVisible(True)
+            self.label_23.setVisible(True)
+            self.label_25.setVisible(True)
             self.reflection_display.setVisible(True)
             self.reflection_display.setText(the_info.info_txt)
             self.reflection_chosen = the_info.info_txt
@@ -562,7 +568,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print(mono.infotxt+f': setpoint pitch={setpoint_pitch}, roll={self.roll_angle_edit.text()}')
         if self.scan_checkBox.isChecked() == 1:
             self.scanlabel.setText('Computed pitch angle: '+'{:.4f}'.format(setpoint_pitch))
-            self.logbookstring.append(datetime.now().isoformat()+':  Undulator Eph was noted to change to '+str(self.undulatorph.value())+' eV. Moving crystal pitch to ' +'{:.4f}'.format(setpoint_pitch)+ '° (model Eph: '+ str(sp_phen) + ' eV).\n')
+            self.logbookstring.append(datetime.now().isoformat()+':   Set Eph was noted to change to '+str(self.undulatorph.value())+' eV. Moving crystal pitch to ' +'{:.4f}'.format(setpoint_pitch)+ 'deg (model Eph: '+ str(sp_phen) + ' eV).\n')
             self.phen_sp = sp_phen
         else:
             self.computed_pitch_angle_display.setText('{:.4f}'.format(setpoint_pitch))
@@ -699,15 +705,17 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def state_changed(self, int):
         if self.scan_checkBox.isChecked():
             print("CHECKED!")
+            self.label_22.setVisible(True)
+            self.undulatorph.setVisible(True)
             self.apply_button.setEnabled(False)
-            #self.spinBox.setMaximum(30000)
-            #self.spinBox.setValue(self.phen_calc+10)
             self.difference = self.undulatorph.value() - self.phen_calc
             self.logbookstring = []
             self.logbookstring.append(datetime.now().isoformat()+': Started scanning reflection ' + self.reflection_chosen+ ' at '+ str(self.phen_calc) + ' eV.\n')
             self.undulatorph.valueChanged.connect(self.sync_phen)
         else:
             print("UNCHECKED!")
+            self.label_22.setVisible(False)
+            self.undulatorph.setVisible(False)
             self.apply_button.setEnabled(True)
             s = ''.join(self.logbookstring)
             if len(s) > 85:
@@ -716,7 +724,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             
     def sync_phen(self):
         self.determine_setpoints(self.undulatorph.value()-self.difference)
-        #self.on_apply_button()
+        self.on_apply_button()
 
 ################################
 
