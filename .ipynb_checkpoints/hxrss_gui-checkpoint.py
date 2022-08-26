@@ -228,6 +228,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono1_motemp_rb_display.setText(str_ph_energy(msg.mono1_motemp_rb))
         self.mono2_motemp_rb_display.setText(str_ph_energy(msg.mono2_motemp_rb))
         self.undulatorph.setValue(msg.global_color_rb)
+        self.temp.setValue(msg.mono2_motemp_rb)
         #self.undulatorph.setValue(msg.mono1_pitch_rb)
         str_mono1_crystal_status = 'parked'
         str_mono2_crystal_status = 'parked'
