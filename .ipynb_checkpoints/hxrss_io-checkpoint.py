@@ -1,6 +1,9 @@
 # C. Lechner, European XFEL
 
-# do_doocs=True # False
+# do_doocs=True 
+# change to true in production
+do_doocs=False
+
 import queue
 import threading
 import os
@@ -9,11 +12,10 @@ import enum
 from types import SimpleNamespace
 from datetime import datetime
 import time
-do_doocs = False
 
 
 if do_doocs:
-    #import pydoocs
+    import pydoocs
     pass
 
 

@@ -804,7 +804,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def sync_phen(self):
         self.determine_setpoints(self.undulatorph.value()-self.difference)
-        self.on_apply_button()
+        if msg.mono2_motemp_rb < 100:
+            #uncomment in production
+            #self.on_apply_button()
+        else:
+            self.scan_checkBox.setChecked(False)
+            self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
+            
 
 ################################
 
