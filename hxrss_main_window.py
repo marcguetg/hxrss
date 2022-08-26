@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(857, 787)
+        MainWindow.resize(857, 779)
         MainWindow.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         MainWindow.setDockOptions(QtWidgets.QMainWindow.AllowTabbedDocks|QtWidgets.QMainWindow.AnimatedDocks)
         MainWindow.setUnifiedTitleAndToolBarOnMac(False)
@@ -223,6 +223,8 @@ class Ui_MainWindow(object):
         self.mono2_motemp_rb_display.setObjectName("mono2_motemp_rb_display")
         self.gridLayout.addWidget(self.mono2_motemp_rb_display, 28, 7, 1, 3)
         self.temp = QtWidgets.QDoubleSpinBox(self.tab)
+        self.temp.setReadOnly(True)
+        self.temp.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
         self.temp.setMaximum(199.99)
         self.temp.setObjectName("temp")
         self.gridLayout.addWidget(self.temp, 17, 9, 1, 1)
