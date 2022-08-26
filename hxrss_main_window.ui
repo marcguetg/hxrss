@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>857</width>
-    <height>847</height>
+    <height>787</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -26,7 +26,7 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>-10</x>
       <y>0</y>
       <width>840</width>
       <height>775</height>
@@ -44,13 +44,6 @@
        <widget class="QLabel" name="label_21">
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt;Crystal Configuration Calculator&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="17" column="3" colspan="3">
-       <widget class="QLabel" name="label_22">
-        <property name="text">
-         <string>Undulator Photon Energy [ev]</string>
         </property>
        </widget>
       </item>
@@ -365,28 +358,6 @@
         </property>
        </widget>
       </item>
-      <item row="17" column="8">
-       <widget class="QDoubleSpinBox" name="undulatorph">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="locale">
-         <locale language="English" country="UnitedStates"/>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::NoButtons</enum>
-        </property>
-        <property name="decimals">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <double>25000.000000000000000</double>
-        </property>
-       </widget>
-      </item>
       <item row="18" column="0" colspan="10">
        <widget class="QLabel" name="scanlabel">
         <property name="text">
@@ -517,6 +488,49 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt; &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="9">
+       <widget class="QDoubleSpinBox" name="temp">
+        <property name="maximum">
+         <double>199.990000000000009</double>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="2" colspan="2">
+       <widget class="QLabel" name="label_22">
+        <property name="text">
+         <string>Und. Photon Energy [ev]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="4">
+       <widget class="QDoubleSpinBox" name="undulatorph">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="locale">
+         <locale language="English" country="UnitedStates"/>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <double>25000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="8">
+       <widget class="QLabel" name="label_28">
+        <property name="text">
+         <string>Motor temp:</string>
         </property>
        </widget>
       </item>

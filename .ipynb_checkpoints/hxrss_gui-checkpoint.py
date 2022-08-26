@@ -106,6 +106,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.reflection_display.setVisible(False)
         self.label_22.setVisible(False)
         self.undulatorph.setVisible(False)
+        self.label_28.setVisible(False)
+        self.temp.setVisible(False)
         self.label_23.setVisible(False)
         self.label_25.setVisible(False)
         self.loglabel.setText('Insert the desired Photon Energy value')
@@ -785,6 +787,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         if self.scan_checkBox.isChecked():
             print("CHECKED!")
             self.label_22.setVisible(True)
+            self.label_28.setVisible(True)
+            self.temp.setVisible(True)
             self.undulatorph.setVisible(True)
             self.apply_button.setEnabled(False)
             self.difference = self.undulatorph.value() - self.phen_calc
@@ -795,22 +799,32 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         else:
             print("UNCHECKED!")
             self.label_22.setVisible(False)
+            self.label_28.setVisible(False)
+            self.temp.setVisible(False)
             self.undulatorph.setVisible(False)
             self.apply_button.setEnabled(True)
             s = ''.join(self.logbookstring)
             if len(s) > 85:
                 self.on_logbook_button(s)
             print(s)
+            
+    def motor_temp_scan_shutdown(self):
+        if self.temp.value() > 100:
+            self.scan_checkBox.setChecked(False)
+            self.label_22.setVisible(False)
+            self.label_28.setVisible(False)
+            self.temp.setVisible(False)
+            self.undulatorph.setVisible(False)
+            self.apply_button.setEnabled(True)
+            self.logbookstring.append(datetime.now().isoformat()+'Scan mode shut down: motor temperature above threshold')
+            self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
 
     def sync_phen(self):
         self.determine_setpoints(self.undulatorph.value()-self.difference)
-        if msg.mono2_motemp_rb < 100:
-            #uncomment in production
-            #self.on_apply_button()
-        else:
-            self.scan_checkBox.setChecked(False)
-            self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
-            
+        # Check motor temperature, if it is over 100 degrees then the scan is stopped
+        self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
+        self.on_apply_button()
+                    
 
 ################################
 
