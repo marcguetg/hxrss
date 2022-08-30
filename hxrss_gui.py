@@ -75,6 +75,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.photon_energy_edit.returnPressed.connect(
             self.on_photon_energy_enter)
         self.photonE.returnPressed.connect(self.on_calc_photon_energy_enter)
+        self.pitch_angle_edit.returnPressed.connect(
+            self.on_calc_pitch_angle_enter)
         self.roll_angle_edit.returnPressed.connect(
             self.on_calc_roll_angle_enter)
         self.mono2_crystal_insert_button.clicked.connect(
@@ -137,6 +139,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.line = None
         self.pitchconfig = None
         self.rollconfig = None
+        self.last_undulatorph = 0
         # Obtain default correction parameters for mono2
         # These describe imperfections of the system
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
@@ -232,8 +235,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         #self.undulatorph.setValue(msg.mono1_pitch_rb)
         str_mono1_crystal_status = 'parked'
         str_mono2_crystal_status = 'parked'
-        self.mono1_crystal_park_button.setEnabled(False)
-        self.mono2_crystal_park_button.setEnabled(False)
         if msg.mono1_is_inserted:
             self.mono1_crystal_insert_button.setEnabled(False)
             self.mono1_crystal_park_button.setEnabled(True)
@@ -242,11 +243,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 self.mono1_crystal_insert_button.setEnabled(False)
                 self.mono1_crystal_park_button.setEnabled(True)
             else:
-                str_mono1_crystal_status = 'inserting...'
+                str_mono1_crystal_status = 'moving...'
                 update_busy_indicator(
                     self.mono1_crystal_inserted_display, msg.mono1_insert_busy)
-                self.mono1_crystal_insert_button.setEnabled(False)
-                self.mono1_crystal_park_button.setEnabled(False)
+                self.mono1_crystal_insert_button.setEnabled(True)
+                self.mono1_crystal_park_button.setEnabled(True)
         if msg.mono2_is_inserted:
             self.mono2_crystal_insert_button.setEnabled(False)
             self.mono2_crystal_park_button.setEnabled(True)
@@ -255,11 +256,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 self.mono2_crystal_insert_button.setEnabled(False)
                 self.mono2_crystal_park_button.setEnabled(True)
             else:
-                str_mono2_crystal_status = 'inserting...'
+                str_mono2_crystal_status = 'moving...'
                 update_busy_indicator(
                     self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
-                self.mono2_crystal_insert_button.setEnabled(False)
-                self.mono2_crystal_park_button.setEnabled(False)
+                self.mono2_crystal_insert_button.setEnabled(True)
+                self.mono2_crystal_park_button.setEnabled(True)
         if msg.mono1_is_inserted == False and msg.mono1_insert_busy == True:
             update_busy_indicator(
                 self.mono1_crystal_inserted_display, msg.mono1_insert_busy)
@@ -333,6 +334,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.apply_button.setEnabled(True)
             self.label_2.setVisible(True)
             self.label_23.setVisible(True)
+            #self.label_30.setVisible(True)
             self.label_25.setVisible(True)
             self.reflection_display.setVisible(True)
             self.reflection_display.setText(the_info.info_txt)
@@ -533,6 +535,90 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def determine_setpoints(self, sp_phen):
         self.determine_mono_setpoints(self.mono2, sp_phen)
 
+    def determine_mono_setpoints_from_pitch(self, mono, sp_pitch):
+        if not hasattr(mono, 'curvedata'):
+            print(mono.infotxt+': no curvedata available, select curve from map')
+            return False
+        cd = mono.curvedata
+        if cd.valid != True:
+            print(mono.infotxt+': curvedata is not valid')
+            return False
+
+        print(mono.infotxt
+              + f': computing setpoint for requested pitch angle {sp_pitch} and roll angle {self.rollconfig}')
+        
+        phen_max = np.amax(np.array(cd.phen))
+        phen_min = np.amin(np.array(cd.phen))
+        pitch_max = np.amax(np.array(cd.pitch))
+        pitch_min = np.amin(np.array(cd.pitch))
+
+        setpoint_pitch_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin) <= sp_pitch) and (
+            sp_pitch <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
+        if setpoint_pitch_inrange == False:
+            print(
+                mono.infotxt+f': determined pitch setpoint {sp_pitch} not in allowed travel range (min={mono.pitch_min}, max={mono.pitch_max}, safety_margin={mono.pitch_minmax_safetymargin}')
+            return False
+
+        if ((pitch_min <= sp_pitch) and (sp_pitch <= pitch_max)):
+                self.calclabel.setText('Insert a pitch value between ' + str(np.round(pitch_min, 2))
+                                       + ' deg and '+str(np.round(pitch_max, 2))+' deg. Press Enter to calculate setpoint.')
+                pass  # ok
+        else:
+            print(
+                mono.infotxt+f': requested pitch angle is outside of possible range {pitch_min}..{pitch_max}')
+            self.calclabel.setText('Requested pitch angle is outside of possible range ' + str(
+                np.round(pitch_min, 1)) + ' eV and '+str(np.round(pitch_max, 1))+' eV.')
+            self.pitch = sp_pitch
+            self.on_show_map_button()
+            return False
+        
+        f_interp_pitch = interpolate.interp1d(cd.phen, cd.pitch,
+                                             fill_value='extrapolate', bounds_error=False)
+
+        # find the pitch angle corresponding to the desired photon energy
+        def f(phen): return (f_interp_pitch(phen)-sp_pitch)
+        # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
+        phen0 = (phen_min+phen_max)/2  # start value in the center of range
+        # root finding does not support specification of bounds
+        solroot = scipy.optimize.root(f, [phen0])
+        if not solroot.success:
+            print(
+                mono.infotxt+': issue with finding the photon energy, scipy.optimize.root status:')
+            print(str(solroot))
+            return False
+
+        
+        # Verify that determined setpoint is not the result of extrapolation process
+        setpoint_phen = solroot.x[0]
+        is_interpolation = (phen_min <= setpoint_phen) and (
+            setpoint_phen <= phen_max)
+        if not is_interpolation:
+            print(mono.infotxt+': determined phen setpoint is extrapolation of crystal curve data set, this is an error.')
+            print(str(solroot))
+            return False
+
+        # determine dE_photon/dpitch
+        
+
+        print(mono.infotxt
+              + f': setpoint pitch={sp_pitch}, roll={self.roll_angle_edit.text()}')
+
+        self.computed_pitch_angle_display.setText(
+            '{:.4f}'.format(sp_pitch))
+        self.computed_pitch_angle_slope_display.setText('N/A')
+        #self.computed_phen_display.setText('{:.2f}'.format(setpoint_phen))
+        self.photonE.setText('{:.2f}'.format(setpoint_phen))
+
+        ### Store the setpoint in the internal structure ###
+        mono.setpoint.pitch = sp_pitch
+        #print('assuming roll from config table or roll=1.58 (overriding result of setpoint computation)')
+        # 1.58 # FIXME: computed roll point is currently not used
+        mono.setpoint.roll = float(self.roll_angle_edit.text())
+        mono.setpoint.valid = True
+        print('*** Crystal setpoint values updated ***')
+        return True
+        
+
     def determine_mono_setpoints(self, mono, sp_phen):
         if not hasattr(mono, 'curvedata'):
             print(mono.infotxt+': no curvedata available, select curve from map')
@@ -646,6 +732,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 '{:.4f}'.format(setpoint_pitch))
             self.computed_pitch_angle_slope_display.setText(
                 '{:.2f}'.format(deriv))
+            self.pitch_angle_edit.setText('{:.4f}'.format(setpoint_pitch))
         #self.computed_roll_angle_display.setText('1.58=const') # FIXME
 
         ### Store the setpoint in the internal structure ###
@@ -686,6 +773,17 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(f'photon energy cannot convert "{phen_str}" into number')
             return
         self.determine_setpoints(self.phen_calc)
+
+    def on_calc_pitch_angle_enter(self):
+        print('pitch angle edit: [enter] detected')
+        pitch_str = self.pitch_angle_edit.text()
+        # convert string to number, continue only if this works
+        try:
+            self.pitch_calc = float(pitch_str)
+        except ValueError:
+            print(f'pitch angle cannot convert "{pitch_str}" into number')
+            return
+        self.determine_mono_setpoints_from_pitch(self.mono2, self.pitch_calc)
 
     def on_calc_roll_angle_enter(self):
         print('roll angle edit: [enter] detected')
@@ -821,10 +919,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
 
     def sync_phen(self):
-        self.determine_setpoints(self.undulatorph.value()-self.difference)
-        # Check motor temperature, if it is over 100 degrees then the scan is stopped
-        self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
-        self.on_apply_button()
+        if self.undulatorph.value() != self.last_undulatorph:
+            self.determine_setpoints(self.undulatorph.value()-self.difference)
+            # Check motor temperature, if it is over 100 degrees then the scan is stopped
+            self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
+            self.on_apply_button()
+        else:
+            print('False trigger; no difference in photon energy from the last setpoint')
                     
 
 ################################
@@ -839,6 +940,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.roll = self.mono2.setpoint.roll
         cmd.setpoints.mono2.valid = True
+        self.last_undulatorph = self.undulatorph.value()
         if self.scan_checkBox.isChecked():
             self.scanlabel.setText('Scan mode activated: setpoint updated to pitch: ' + str(
                 np.round(self.mono2.setpoint.pitch, 4)) + '° at model phen: ' + str(self.phen_sp) + ' eV')
