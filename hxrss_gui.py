@@ -261,24 +261,28 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                     self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
                 self.mono2_crystal_insert_button.setEnabled(True)
                 self.mono2_crystal_park_button.setEnabled(True)
-        if msg.mono1_is_inserted == False and msg.mono1_insert_busy == True:
-            update_busy_indicator(
-                self.mono1_crystal_inserted_display, msg.mono1_insert_busy)
-            str_mono1_crystal_status = 'moving...'
-            self.mono1_crystal_insert_button.setEnabled(False)
-            self.mono1_crystal_park_button.setEnabled(False)
-        if msg.mono2_is_inserted == False and msg.mono2_insert_busy == True:
-            update_busy_indicator(
-                self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
-            str_mono2_crystal_status = 'moving...'
-            self.mono2_crystal_insert_button.setEnabled(False)
-            self.mono2_crystal_park_button.setEnabled(False)
+        #if msg.mono1_is_inserted == False and msg.mono1_insert_busy == True:
+        #    update_busy_indicator(
+        #        self.mono1_crystal_inserted_display, msg.mono1_insert_busy)
+        #    str_mono1_crystal_status = 'moving...'
+        #    self.mono1_crystal_insert_button.setEnabled(False)
+        #    self.mono1_crystal_park_button.setEnabled(False)
+        #if msg.mono2_is_inserted == False and msg.mono2_insert_busy == True:
+        #    update_busy_indicator(
+        #        self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
+        #    str_mono2_crystal_status = 'moving...'
+        #    self.mono2_crystal_insert_button.setEnabled(False)
+        #    self.mono2_crystal_park_button.setEnabled(False)
         self.mono1_crystal_inserted_display.setText(str_mono1_crystal_status)
         self.mono2_crystal_inserted_display.setText(str_mono2_crystal_status)
         self.io_msgtag_display.setText(str(msg.tag))
         self.io_processingtime_display.setText(
             '{:.2f}'.format(1e3*msg.processing_time))
         self.io_msgage_display.setText('{:.2f}'.format(msg.age))
+        print(f'DEBUG: Queuesizes: '
+        f'read_in = {self.q_to_read.qsize()}' f'read_out = {self.q_from_read.qsize()}'
+        f'write_in = {self.q_to_write.qsize()}' f'read_out = {self.q_from_read.qsize()}'
+        )
 
     def timeout(self):
         self.io_thread_dbg = self.io_threaddbg_checkbox.checkState()
@@ -340,6 +344,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.reflection_display.setText(the_info.info_txt)
             self.reflection_chosen = the_info.info_txt
             self.photonE.setText('{:.2f}'.format(the_info.y))
+            self.pitch_angle_edit.setText('{:.4f}'.format(the_info.x))
             self.roll_angle_edit.setText('{:.3f}'.format(the_info.roll))
             #self.loglabel.setText('You have selected reflection '+ the_info.info_txt+'. Adjust the Photon energy and click Enter to calculate the crystal configuration.')
 
@@ -795,6 +800,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(f'roll angle cannot convert "{roll_str}" into number')
             return
         self.rollconfig = self.roll_calc
+        self.on_calc_pitch_angle_enter()
 
     def on_params_report_button(self):
         print('reporting correction parameters: ' + str(self.mono2.corrparams))
@@ -919,13 +925,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
 
     def sync_phen(self):
-        if self.undulatorph.value() != self.last_undulatorph:
-            self.determine_setpoints(self.undulatorph.value()-self.difference)
-            # Check motor temperature, if it is over 100 degrees then the scan is stopped
-            self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
-            self.on_apply_button()
-        else:
-            print('False trigger; no difference in photon energy from the last setpoint')
+        #if self.undulatorph.value() != self.last_undulatorph:
+        self.determine_setpoints(self.undulatorph.value()-self.difference)
+        # Check motor temperature, if it is over 100 degrees then the scan is stopped
+        self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
+        self.on_apply_button()
+        #else:
+        #print('False trigger; no difference in photon energy from the last setpoint')
                     
 
 ################################

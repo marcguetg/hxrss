@@ -87,7 +87,6 @@ def mono_motor_wait(doocs_prefix):
     info_round1 = True
     while True:
         # to be sure, let's wait before checking motor status (could be that it takes some time after start until motor is busy)
-        time.sleep(1)
         if info_round1:
             print('mono_motor_wait', end='')
             info_round1 = False
@@ -103,6 +102,7 @@ def mono_motor_wait(doocs_prefix):
             break
         except FileNotFoundError:
             pass  # silently ignore this exception, which is expected if the file does not exist
+        time.sleep(0.1)
     print(' DONE')  # print final newline
     return
 
@@ -128,12 +128,12 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None, is_rot=True):
         pydoocs.write(doocs_prefix+'ANGLE.SET', sp)
     else:
         pydoocs.write(doocs_prefix+'POS.SET', sp)
-    time.sleep(1)
+    #time.sleep(1)
     pydoocs.write(doocs_prefix+'CONTROL.START', 1)
-    time.sleep(1)
+    #time.sleep(1)
     # according to tooltip: mono control panel sends first 1 and then 0 to the CONTROL.START property???
     pydoocs.write(doocs_prefix+'CONTROL.START', 0)
-    time.sleep(1)
+    #time.sleep(1)
     mono_motor_wait(doocs_prefix)
 
     # revert to original motor speed
