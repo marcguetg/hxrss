@@ -6,7 +6,7 @@ The Crystal Set tool is a PyQt GUI designed to be used by machine operators to c
 
 A scan feature is available where a reflection is picked and as the undulator photon energy changes, the crystal pitch angle moves synchronously. The motor temperature is also tracked and scanning is stopped when exceeding a predefined value.
 
-![Alt text][misc/screen.png]
+![Alt text](misc/screen.png)
 
 [1]   C. Grech, G. Geloni, and M.W. Guetg, “Machine Learning Applied for the Calibration of the Hard X-Ray Single-Shot Spectrometer at the European XFEL”, in Proc. IPAC'22, Bangkok, Thailand, Jun. 2022, pp. 965-968. doi:10.18429/JACoW-IPAC2022-TUPOST046
 
