@@ -424,7 +424,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "HXRSS GUI v0.9"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "HXRSS GUI v1.0"))
         self.label_37.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">Monochromator 1</span></p></body></html>"))
         self.mono2_pitch_rb_display.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"/></body></html>"))
         self.mono2_crystal_inserted_display.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"/></body></html>"))
