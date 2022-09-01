@@ -23,7 +23,7 @@ import scipy.optimize
 # remains unchanged.
 # If the caller provided specific hkl values, they take precedence
 # over looping the cartestian product of possible h,k,l values.
-def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, maxE, minE, *, specific_hkl=None, return_obj=False, analyze_curves=False, analyze_curves_complete=False):
+def HXRSS_Bragg_scan_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_angle_list, dthr, alpha, maxE, minE, *, specific_hkl=None, return_obj=False, analyze_curves=False, analyze_curves_complete=False):
     p_angle_list = []
     phen_list = []
     r_angle_list = []
@@ -309,7 +309,11 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
             krange=range(-kmax, kmax+1)
             lrange=range(-lmax, lmax+1)
             hkl_list = list(itertools.product(hrange,krange,lrange))
-        # print(str(hkl_list))
+            
+            
+
+        hkl_list = [(0,0,4), (4,0,0),(3,1,-3),(1,3,-3),(3,-1,-3),(1,-3,3),(1,1,5),(1,1,3),(1,1,1),(1,-1,-3),(3,1,3),(1,3,3),(5,3,1)]
+        print(str(hkl_list))
         for hkl in hkl_list:
             h,k,l=hkl  # unpack to interface with existing code
             if is_allowed_reflection(h,k,l):

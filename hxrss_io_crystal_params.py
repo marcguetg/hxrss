@@ -11,7 +11,7 @@ def hxrss_io_crystal_parameters_default():
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
     d.dthp = -0.392      # pitch angle
     d.dthy = 1.17        # roll angle (American convention)
-    d.dthr = 0.1675      # yaw angle (American convention)
+    d.dthr = -0.1675      # yaw angle (American convention)
     d.alpha = 0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
     d.roll_list = [1.58]
     return d
@@ -29,4 +29,3 @@ def hxrss_io_crystal_parameters_fromDOOCS():
     d.timestamp = datetime.now()
     d.from_DOOCS=1
     return d
-

@@ -13,7 +13,7 @@ Created on Sun Sep 26 19:46:24 2021
 @author: christiangrech
 """
 import numpy as np
-from HXRSS_Bragg_max_generator import HXRSS_Bragg_max_generator
+from HXRSS_Bragg_max_generatorScanner import HXRSS_Bragg_scan_generator
 from itertools import cycle
 from types import SimpleNamespace
 import time
@@ -92,8 +92,8 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
         #
         infotxt = obj.get_gid()
         lp.info_txt = infotxt
-        lp.x = me_data[0]
-        lp.y = me_data[1]
+        lp.x = me_data[1]
+        lp.y = me_data[0]
         lp.roll = roi.roll[0]
         lp.ax = ax # to plot data, etc.
         lp.valid = True
@@ -134,7 +134,7 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
     roll_list = roi.roll
     phen = roi.phen
 
-    res = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, maxE, minE, return_obj=True, analyze_curves=do_indicate_features)
+    res = HXRSS_Bragg_scan_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, maxE, minE, return_obj=True, analyze_curves=do_indicate_features)
     phen_list = res.phen_list
     p_angle_list = res.p_angle_list
     gid_list = res.gid_list
@@ -144,14 +144,14 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
 
     for r in range(len(p_angle_list)):
         my_color=next(linecolors)
-        ax.plot(p_angle_list[r], phen_list[r], color=my_color, gid=gid_list[r], picker=True, pickradius=20)
+        ax.plot(phen_list[r], p_angle_list[r], color=my_color, gid=gid_list[r], picker=True, pickradius=20)
         #print(f'___ plotted gid={gid_list[r]} in color={my_color} ___')
 
     # indicate minima using the information returned by Bragg max gen
     if do_indicate_features:
         min_pitch = res.min_pitch_list
         min_photenergy = res.min_photonenergy_list
-        ax.plot(min_pitch, min_photenergy, 'kx')
+        ax.plot(min_photenergy, min_pitch, 'kx')
 
     # stt = "single trace test"
     if do_stt:
@@ -161,13 +161,13 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
         stt_phen_list = stt_r.phen_list
         stt_p_angle_list = stt_r.p_angle_list
         stt_gid_list = stt_r.gid_list
-        ax.plot(stt_p_angle_list[0], np.array(stt_phen_list[0]), 'k+')
-    ax.axhline(y=roi.phen, color='r', linestyle='--')
+        ax.plot(np.array(stt_phen_list[0]), stt_p_angle_list[0], 'k+')
+    ax.axvline(x=roi.phen, color='r', linestyle='--')
     #ax.set_ylim(5000, 20000) # just some reasonable limits (there are also traces outside of this range)
-    ax.set_ylim(roi.minE+600, roi.maxE-600)
-    ax.set_xlim(roi.minpitch, roi.maxpitch)
-    ax.set_ylabel('Photon Energy (eV)')
-    ax.set_xlabel('Pitch angle (deg)')
+    ax.set_xlim(roi.phen-1000, roi.phen+1000)
+    ax.set_ylim(roi.minpitch, roi.maxpitch)
+    ax.set_xlabel('Photon Energy (eV)')
+    ax.set_ylabel('Pitch angle (deg)')
     ax.set_title('hover mouse over curve to see its [h,k,l], click to select')
 
     # still has some reference to plt, which is not working with PyQt5
