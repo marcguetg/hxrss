@@ -890,7 +890,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def state_changed(self, int):
         if self.scan_checkBox.isChecked():
-            print("CHECKED!")
             self.label_22.setVisible(True)
             self.label_28.setVisible(True)
             self.temp.setVisible(True)
@@ -902,7 +901,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             )+': Started scanning reflection ' + self.reflection_chosen + ' at ' + str(self.phen_calc) + ' eV.\n')
             self.undulatorph.valueChanged.connect(self.sync_phen)
         else:
-            print("UNCHECKED!")
             self.label_22.setVisible(False)
             self.label_28.setVisible(False)
             self.temp.setVisible(False)
@@ -955,6 +953,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 self.mono2.setpoint.pitch, 4)) + '° and roll: ' + str(self.mono2.setpoint.roll)+'°.')
             self.scan_checkBox.setEnabled(True)
         self.q_to_write.put(cmd)
+        ########print('TEST writing:', cmd.setpoints)
 
     def on_mono2_crystal_insert_button(self):
         print('crystal2 insert button')
@@ -963,6 +962,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.mono2_inserted = 'IN'
         self.q_to_write.put(cmd)
+        ########print('TEST inserting:', cmd.setpoints)
 
     def on_mono2_crystal_park_button(self):
         print('crystal2 park button')
@@ -971,6 +971,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.mono2_inserted = 'OUT'
         self.q_to_write.put(cmd)
+        ########print('TEST parking:', cmd.setpoints)
 
 
 if __name__ == "__main__":

@@ -67,23 +67,23 @@ def pre_loop(argv):
 if __name__ == "__main__":
     start_en, step, no_steps, pause, colors = pre_loop(sys.argv[1:])
     energy = start_en
-    for i in range(no_steps + 1):
+    for i in range(no_steps):
+        value=energy
+        energy = value+step
         print(f'Setting {i}/{no_steps}: {energy} for colors {colors}')
-        value  = energy
-        pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON', value)
+        pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON', energy)
         time.sleep(0.01)
         pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/CMD', 1)
         if '2' in colors:
             col_2_en = pydoocs.read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR2/E_PHOTON')
-            pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR2/E_PHOTON', col_2_en+step)
+            pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR2/E_PHOTON', col_2_en['data']+step)
             time.sleep(0.01)
             pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR2/CMD', 1)
         if '3' in colors:
             col_3_en = pydoocs.read('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR3/E_PHOTON')
-            pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR3/E_PHOTON', col_3_en+step)
+            pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR3/E_PHOTON', col_3_en['data']+step)
             pydoocs.write('XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR3/CMD', 1)
-            time.sleep(0.01)
-        energy = value+step                      
+            time.sleep(0.01)                      
         time.sleep(pause)
                 
     print('done')

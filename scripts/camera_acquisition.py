@@ -51,13 +51,17 @@ except KeyboardInterrupt:
 print('Acquisition Ended')
 
 
+timestampStr = datetime.now().strftime('%Y%m%d%H%M%S')
+# Store data (serialize)
+with open('/pnfs/desy.de/m/projects/felrd/daq/camera/camera_'+timestampStr+'.pkl', 'wb') as handle:
+    pickle.dump(camdata, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+print('Data saved in /pnfs/desy.de/m/projects/felrd/daq/camera/camera_'+timestampStr+'.pkl')
+
+
 plt.imshow(image, cmap='viridis')
 plt.grid(None)
 # Hide grid lines
 #plt.colorbar()
 # Hide axes ticks
 plt.show()
-timestampStr = dateTimeObj.strftime('%Y%m%d%H%M%S')
-# Store data (serialize)
-with open('/pnfs/desy.de/m/projects/felrd/daq/camera/camera_'+timestampStr+'.pkl', 'wb') as handle:
-    pickle.dump(camdata, handle, protocol=pickle.HIGHEST_PROTOCOL)
