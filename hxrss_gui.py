@@ -924,6 +924,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.label_28.setVisible(False)
             self.temp.setVisible(False)
             self.undulatorph.setVisible(False)
+            self.photonE.setEnabled(True)
+            self.pitch_angle_edit.setEnabled(True)
             self.apply_button.setEnabled(True)
             self.logbookstring.append(datetime.now().isoformat()+'Scan mode shut down: motor temperature above threshold')
             self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
