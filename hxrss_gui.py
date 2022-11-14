@@ -139,7 +139,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.line = None
         self.pitchconfig = None
         self.rollconfig = None
-        self.last_undulatorph = 0
         # Obtain default correction parameters for mono2
         # These describe imperfections of the system
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
@@ -890,11 +889,15 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def state_changed(self, int):
         if self.scan_checkBox.isChecked():
+            self.on_calc_photon_energy_enter()
             self.label_22.setVisible(True)
             self.label_28.setVisible(True)
             self.temp.setVisible(True)
             self.undulatorph.setVisible(True)
             self.apply_button.setEnabled(False)
+            self.photonE.setEnabled(False)
+            self.pitch_angle_edit.setEnabled(False)
+            self.roll_angle_edit.setEnabled(False)
             self.difference = self.undulatorph.value() - self.phen_calc
             self.logbookstring = []
             self.logbookstring.append(datetime.now().isoformat(
@@ -906,13 +909,16 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.temp.setVisible(False)
             self.undulatorph.setVisible(False)
             self.apply_button.setEnabled(True)
+            self.photonE.setEnabled(True)
+            self.pitch_angle_edit.setEnabled(True)
+            self.roll_angle_edit.setEnabled(True)
             s = ''.join(self.logbookstring)
             if len(s) > 85:
                 self.on_logbook_button(s)
             print(s)
             
     def motor_temp_scan_shutdown(self):
-        if self.temp.value() > 100:
+        if self.temp.value() > 80:
             self.scan_checkBox.setChecked(False)
             self.label_22.setVisible(False)
             self.label_28.setVisible(False)
@@ -944,7 +950,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.roll = self.mono2.setpoint.roll
         cmd.setpoints.mono2.valid = True
-        self.last_undulatorph = self.undulatorph.value()
         if self.scan_checkBox.isChecked():
             self.scanlabel.setText('Scan mode activated: setpoint updated to pitch: ' + str(
                 np.round(self.mono2.setpoint.pitch, 4)) + '° at model phen: ' + str(self.phen_sp) + ' eV')
