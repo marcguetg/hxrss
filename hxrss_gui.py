@@ -99,6 +99,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.display_map_button.setEnabled(False)
         self.tableButton.setEnabled(False)
         self.scan_checkBox.setEnabled(False)
+        self.doocs_checkBox.setEnabled(False)
         # hide HXRSS crystal reflection curve information (it will become visible once needed)
         #self.photon_energy_min_label.setVisible(False)
         #self.photon_energy_min_display.setVisible(False)
@@ -152,6 +153,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_crystal_inserted_display.setAlignment(Qt.AlignCenter)
 
         self.scan_checkBox.stateChanged.connect(self.state_changed)
+        self.doocs_checkBox.stateChanged.connect(self.send_doocs)
 
         ### THREAD FOR MACHINE I/O ###
         # thread for communication with machine: display dbg messages?
@@ -170,6 +172,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.timeout)
         self.update_timer.start(1000)
+
+        self.timer_live = QTimer()
+        self.timer_live.timeout.connect(self.send_doocs)
 
     def closeEvent(self, event):
         # send IO threads command to stop
@@ -278,10 +283,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.io_processingtime_display.setText(
             '{:.2f}'.format(1e3*msg.processing_time))
         self.io_msgage_display.setText('{:.2f}'.format(msg.age))
-        print(f'DEBUG: Queuesizes: '
-        f'read_in = {self.q_to_read.qsize()}' f'read_out = {self.q_from_read.qsize()}'
-        f'write_in = {self.q_to_write.qsize()}' f'read_out = {self.q_from_read.qsize()}'
-        )
+        #print(f'DEBUG: Queuesizes: '
+        #f'read_in = {self.q_to_read.qsize()}' f'read_out = {self.q_from_read.qsize()}'
+        #f'write_in = {self.q_to_write.qsize()}' f'read_out = {self.q_from_read.qsize()}'
+        #)
 
     def timeout(self):
         self.io_thread_dbg = self.io_threaddbg_checkbox.checkState()
@@ -303,6 +308,21 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             if got_something == False:
                 if dbg:
                     print('GUI timer: there was nothing in queue')
+
+    def send_doocs(self):
+        if self.doocs_checkBox.isChecked():
+            self.timer_live.start(1000)
+            msg = rt_get_msg(self.q_from_read, block=False)
+            cmd = SimpleNamespace()
+            cmd.cmd = IO_Cmd.IO_SET
+            cmd.setpoints = SimpleNamespace()
+            cmd.setpoints.doocs_phen = msg.mono2_pitch_rb
+            self.q_to_write.put(cmd)
+            print('Testing doocs_send ', msg.mono2_pitch_rb)
+        else:
+            self.timer_live.stop()
+           
+
 
 ################################
 ### CRYSTAL-MAP RELATED CODE ###
@@ -345,6 +365,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.photonE.setText('{:.2f}'.format(the_info.y))
             self.pitch_angle_edit.setText('{:.4f}'.format(the_info.x))
             self.roll_angle_edit.setText('{:.3f}'.format(the_info.roll))
+            self.doocs_checkBox.setEnabled(True)
             #self.loglabel.setText('You have selected reflection '+ the_info.info_txt+'. Adjust the Photon energy and click Enter to calculate the crystal configuration.')
 
             mono = self.mono2
@@ -952,6 +973,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.roll = self.mono2.setpoint.roll
         cmd.setpoints.mono2.valid = True
+        cmd.setpoints.mono2.motor_speed = 80
         if self.scan_checkBox.isChecked():
             self.scanlabel.setText('Scan mode activated: setpoint updated to pitch: ' + str(
                 np.round(self.mono2.setpoint.pitch, 4)) + '° at model phen: ' + str(self.phen_sp) + ' eV')

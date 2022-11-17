@@ -1261,3 +1261,7 @@ insert_mono function called20220422T125930 requested update of motor channel XFE
 20221114T142429 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ to 1.58
 20221114T142639 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/ to 100
 20221114T142639 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ to 1.58
+20221117T152250 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/ to 100
+20221117T152250 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ to 1.58
+20221117T153554 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/ to 100
+20221117T153554 requested update of motor channel XFEL.FEL/UNDULATOR.SASE2/MONORA.2307.SA2/ to 1.58
