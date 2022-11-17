@@ -311,14 +311,16 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def send_doocs(self):
         if self.doocs_checkBox.isChecked():
+            self.interp_from_pitch(self.mono2)
             self.timer_live.start(1000)
             msg = rt_get_msg(self.q_from_read, block=False)
+            phen = self.phen_from_model(self.mono2, msg.mono2_pitch_rb)
             cmd = SimpleNamespace()
             cmd.cmd = IO_Cmd.IO_SET
             cmd.setpoints = SimpleNamespace()
-            cmd.setpoints.doocs_phen = msg.mono2_pitch_rb
+            cmd.setpoints.doocs_phen = phen
             self.q_to_write.put(cmd)
-            print('Testing doocs_send ', msg.mono2_pitch_rb)
+            print('Testing doocs_send ', phen)
         else:
             self.timer_live.stop()
            
@@ -560,7 +562,45 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def determine_setpoints(self, sp_phen):
         self.determine_mono_setpoints(self.mono2, sp_phen)
 
-    
+    def interp_from_pitch(self, mono):
+        if not hasattr(mono, 'curvedata'):
+            print(mono.infotxt+': no curvedata available, select curve from map')
+            return False
+        cd = mono.curvedata
+        if cd.valid != True:
+            print(mono.infotxt+': curvedata is not valid')
+            return False
+
+        self.f_interp_pitch = interpolate.interp1d(cd.phen, cd.pitch,
+                                             fill_value='extrapolate', bounds_error=False)
+        
+        
+    def phen_from_model(self, mono, sp_pitch):
+        cd = mono.curvedata
+        phen_max = np.amax(np.array(cd.phen))
+        phen_min = np.amin(np.array(cd.phen))
+        pitch_max = np.amax(np.array(cd.pitch))
+        pitch_min = np.amin(np.array(cd.pitch))
+        # find the pitch angle corresponding to the desired photon energy
+        def f(phen): return (self.f_interp_pitch(phen)-sp_pitch)
+        # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
+        phen0 = (phen_min+phen_max)/2  # start value in the center of range
+        # root finding does not support specification of bounds
+        solroot = scipy.optimize.root(f, [phen0])
+        if not solroot.success:
+            print(
+                mono.infotxt+': issue with finding the photon energy, scipy.optimize.root status:')
+            print(str(solroot))
+            return -1        
+        # Verify that determined setpoint is not the result of extrapolation process
+        setpoint_phen = solroot.x[0]
+        is_interpolation = (phen_min <= setpoint_phen) and (
+            setpoint_phen <= phen_max)
+        if not is_interpolation:
+            return -1
+        return setpoint_phen
+
+       
 
     def determine_mono_setpoints_from_pitch(self, mono, sp_pitch):
         if not hasattr(mono, 'curvedata'):
