@@ -199,8 +199,8 @@ def set_mono(sp):
     return
 
 def send_doocs(sp):
-    #pydoocs.write("XFEL.UTIL/DYNPROP/HIREX.SA2/FILENAME", sp)
-    print('testing doocs send'+str(sp))
+    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/PHOTON_ENERGY", sp)
+    #print('testing doocs send'+str(sp))
 
 
 ####################################

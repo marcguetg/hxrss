@@ -560,6 +560,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def determine_setpoints(self, sp_phen):
         self.determine_mono_setpoints(self.mono2, sp_phen)
 
+    
+
     def determine_mono_setpoints_from_pitch(self, mono, sp_pitch):
         if not hasattr(mono, 'curvedata'):
             print(mono.infotxt+': no curvedata available, select curve from map')
