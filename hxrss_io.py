@@ -1,8 +1,8 @@
 # C. Lechner, European XFEL
 
-# do_doocs=True 
+# do_doocs=True
 # change to true in production
-do_doocs=False
+do_doocs=True
 
 import queue
 import threading
@@ -155,7 +155,7 @@ def insert_mono(sp):
     mcfg = hxrss_io_mono2_motors()
     mono2_prefix_xmotor = mcfg.prefix_xmotor
     # setpoints are for mono2
-    sp_in = -7.5
+    sp_in = -8.0
     sp_out = 1.0
     if sp == 'IN':
         mono_move_motor(mono2_prefix_xmotor, sp_in,  is_rot=False)
