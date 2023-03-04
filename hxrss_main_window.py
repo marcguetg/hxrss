@@ -249,6 +249,9 @@ class Ui_MainWindow(object):
         self.label_25 = QtWidgets.QLabel(self.tab)
         self.label_25.setObjectName("label_25")
         self.gridLayout.addWidget(self.label_25, 16, 5, 1, 1)
+        self.doocs_checkBox = QtWidgets.QCheckBox(self.tab)
+        self.doocs_checkBox.setObjectName("doocs_checkBox")
+        self.gridLayout.addWidget(self.doocs_checkBox, 9, 9, 1, 1)
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -424,7 +427,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "HXRSS GUI v1.0"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "HXRSS GUI v0.9"))
         self.label_37.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">Monochromator 1</span></p></body></html>"))
         self.mono2_pitch_rb_display.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"/></body></html>"))
         self.mono2_crystal_inserted_display.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"/></body></html>"))
@@ -437,7 +440,7 @@ class Ui_MainWindow(object):
         self.label_24.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt; font-weight:600;\">HXRSS Crystal Set Tool</span></p></body></html>"))
         self.display_map_button.setText(_translate("MainWindow", "Display Map"))
         self.label_38.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">Monochromator 2</span></p></body></html>"))
-        self.tableButton.setText(_translate("MainWindow", "Clear Table Selection"))
+        self.tableButton.setText(_translate("MainWindow", "Clear Selection"))
         self.apply_button.setText(_translate("MainWindow", "Apply"))
         self.label_26.setText(_translate("MainWindow", "Roll Angle [°]"))
         self.label_40.setText(_translate("MainWindow", "Pitch Angle:"))
@@ -471,6 +474,7 @@ class Ui_MainWindow(object):
         self.label_22.setText(_translate("MainWindow", "Und. Photon Energy [ev]"))
         self.label_28.setText(_translate("MainWindow", "Motor temp:"))
         self.label_25.setText(_translate("MainWindow", "Deriv [eV/deg]"))
+        self.doocs_checkBox.setText(_translate("MainWindow", "Send to DOOCS"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tool"))
         self.params_report_button.setText(_translate("MainWindow", "Report Params"))
         self.params_default_button.setText(_translate("MainWindow", "Default Params"))

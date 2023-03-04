@@ -237,7 +237,7 @@
       <item row="3" column="9">
        <widget class="QPushButton" name="tableButton">
         <property name="text">
-         <string>Clear Table Selection</string>
+         <string>Clear Selection</string>
         </property>
        </widget>
       </item>
@@ -547,6 +547,13 @@ p, li { white-space: pre-wrap; }
        <widget class="QLabel" name="label_25">
         <property name="text">
          <string>Deriv [eV/deg]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="9">
+       <widget class="QCheckBox" name="doocs_checkBox">
+        <property name="text">
+         <string>Send to DOOCS</string>
         </property>
        </widget>
       </item>

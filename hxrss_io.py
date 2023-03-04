@@ -1,8 +1,8 @@
 # C. Lechner, European XFEL
 
-# do_doocs=True 
+# do_doocs=True
 # change to true in production
-do_doocs=False
+do_doocs=True
 
 import queue
 import threading
@@ -155,7 +155,7 @@ def insert_mono(sp):
     mcfg = hxrss_io_mono2_motors()
     mono2_prefix_xmotor = mcfg.prefix_xmotor
     # setpoints are for mono2
-    sp_in = -7.5
+    sp_in = -8.0
     sp_out = 1.0
     if sp == 'IN':
         mono_move_motor(mono2_prefix_xmotor, sp_in,  is_rot=False)
@@ -192,11 +192,15 @@ def is_mono1_inserted():
 
 def set_mono(sp):
     print('set_mono was called with setpoint '+str(sp))
-    motor_speed = 80  # percent
+    motor_speed = sp.motor_speed  # percent
     mcfg = hxrss_io_mono2_motors()
     mono_move_motor(mcfg.prefix_pitch, sp.pitch, motor_speed=motor_speed)
     mono_move_motor(mcfg.prefix_roll, sp.roll,  motor_speed=motor_speed)
     return
+
+def send_doocs(sp):
+    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/PHOTON_ENERGY", sp)
+    #print('testing doocs send'+str(sp))
 
 
 ####################################
@@ -235,6 +239,8 @@ def thread_write_worker(qin, qout, dbg=False):
             insert_mono(item.setpoints.mono2_inserted)
         if hasattr(item.setpoints, 'mono2'):
             set_mono(item.setpoints.mono2)
+        if hasattr(item.setpoints, 'doocs'):
+            send_doocs(item.setpoints.doocs_phen)
 
         tend = time.time()
         dt = tend-tstart

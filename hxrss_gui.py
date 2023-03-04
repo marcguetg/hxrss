@@ -99,6 +99,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.display_map_button.setEnabled(False)
         self.tableButton.setEnabled(False)
         self.scan_checkBox.setEnabled(False)
+        self.doocs_checkBox.setEnabled(False)
         # hide HXRSS crystal reflection curve information (it will become visible once needed)
         #self.photon_energy_min_label.setVisible(False)
         #self.photon_energy_min_display.setVisible(False)
@@ -139,7 +140,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.line = None
         self.pitchconfig = None
         self.rollconfig = None
-        self.last_undulatorph = 0
         # Obtain default correction parameters for mono2
         # These describe imperfections of the system
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
@@ -153,6 +153,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2_crystal_inserted_display.setAlignment(Qt.AlignCenter)
 
         self.scan_checkBox.stateChanged.connect(self.state_changed)
+        self.doocs_checkBox.stateChanged.connect(self.send_doocs)
 
         ### THREAD FOR MACHINE I/O ###
         # thread for communication with machine: display dbg messages?
@@ -171,6 +172,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.timeout)
         self.update_timer.start(1000)
+
+        self.timer_live = QTimer()
+        self.timer_live.timeout.connect(self.send_doocs)
 
     def closeEvent(self, event):
         # send IO threads command to stop
@@ -279,10 +283,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.io_processingtime_display.setText(
             '{:.2f}'.format(1e3*msg.processing_time))
         self.io_msgage_display.setText('{:.2f}'.format(msg.age))
-        print(f'DEBUG: Queuesizes: '
-        f'read_in = {self.q_to_read.qsize()}' f'read_out = {self.q_from_read.qsize()}'
-        f'write_in = {self.q_to_write.qsize()}' f'read_out = {self.q_from_read.qsize()}'
-        )
+        #print(f'DEBUG: Queuesizes: '
+        #f'read_in = {self.q_to_read.qsize()}' f'read_out = {self.q_from_read.qsize()}'
+        #f'write_in = {self.q_to_write.qsize()}' f'read_out = {self.q_from_read.qsize()}'
+        #)
 
     def timeout(self):
         self.io_thread_dbg = self.io_threaddbg_checkbox.checkState()
@@ -304,6 +308,23 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             if got_something == False:
                 if dbg:
                     print('GUI timer: there was nothing in queue')
+
+    def send_doocs(self):
+        if self.doocs_checkBox.isChecked():
+            self.interp_from_pitch(self.mono2)
+            self.timer_live.start(1000)
+            msg = rt_get_msg(self.q_from_read, block=False)
+            phen = self.phen_from_model(self.mono2, msg.mono2_pitch_rb)
+            cmd = SimpleNamespace()
+            cmd.cmd = IO_Cmd.IO_SET
+            cmd.setpoints = SimpleNamespace()
+            cmd.setpoints.doocs_phen = phen
+            self.q_to_write.put(cmd)
+            print('Testing doocs_send ', phen)
+        else:
+            self.timer_live.stop()
+           
+
 
 ################################
 ### CRYSTAL-MAP RELATED CODE ###
@@ -346,6 +367,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.photonE.setText('{:.2f}'.format(the_info.y))
             self.pitch_angle_edit.setText('{:.4f}'.format(the_info.x))
             self.roll_angle_edit.setText('{:.3f}'.format(the_info.roll))
+            self.doocs_checkBox.setEnabled(True)
             #self.loglabel.setText('You have selected reflection '+ the_info.info_txt+'. Adjust the Photon energy and click Enter to calculate the crystal configuration.')
 
             mono = self.mono2
@@ -539,6 +561,46 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def determine_setpoints(self, sp_phen):
         self.determine_mono_setpoints(self.mono2, sp_phen)
+
+    def interp_from_pitch(self, mono):
+        if not hasattr(mono, 'curvedata'):
+            print(mono.infotxt+': no curvedata available, select curve from map')
+            return False
+        cd = mono.curvedata
+        if cd.valid != True:
+            print(mono.infotxt+': curvedata is not valid')
+            return False
+
+        self.f_interp_pitch = interpolate.interp1d(cd.phen, cd.pitch,
+                                             fill_value='extrapolate', bounds_error=False)
+        
+        
+    def phen_from_model(self, mono, sp_pitch):
+        cd = mono.curvedata
+        phen_max = np.amax(np.array(cd.phen))
+        phen_min = np.amin(np.array(cd.phen))
+        pitch_max = np.amax(np.array(cd.pitch))
+        pitch_min = np.amin(np.array(cd.pitch))
+        # find the pitch angle corresponding to the desired photon energy
+        def f(phen): return (self.f_interp_pitch(phen)-sp_pitch)
+        # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
+        phen0 = (phen_min+phen_max)/2  # start value in the center of range
+        # root finding does not support specification of bounds
+        solroot = scipy.optimize.root(f, [phen0])
+        if not solroot.success:
+            print(
+                mono.infotxt+': issue with finding the photon energy, scipy.optimize.root status:')
+            print(str(solroot))
+            return -1        
+        # Verify that determined setpoint is not the result of extrapolation process
+        setpoint_phen = solroot.x[0]
+        is_interpolation = (phen_min <= setpoint_phen) and (
+            setpoint_phen <= phen_max)
+        if not is_interpolation:
+            return -1
+        return setpoint_phen
+
+       
 
     def determine_mono_setpoints_from_pitch(self, mono, sp_pitch):
         if not hasattr(mono, 'curvedata'):
@@ -890,36 +952,43 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def state_changed(self, int):
         if self.scan_checkBox.isChecked():
-            print("CHECKED!")
+            self.on_calc_photon_energy_enter()
             self.label_22.setVisible(True)
             self.label_28.setVisible(True)
             self.temp.setVisible(True)
             self.undulatorph.setVisible(True)
             self.apply_button.setEnabled(False)
+            self.photonE.setEnabled(False)
+            self.pitch_angle_edit.setEnabled(False)
+            self.roll_angle_edit.setEnabled(False)
             self.difference = self.undulatorph.value() - self.phen_calc
             self.logbookstring = []
             self.logbookstring.append(datetime.now().isoformat(
             )+': Started scanning reflection ' + self.reflection_chosen + ' at ' + str(self.phen_calc) + ' eV.\n')
             self.undulatorph.valueChanged.connect(self.sync_phen)
         else:
-            print("UNCHECKED!")
             self.label_22.setVisible(False)
             self.label_28.setVisible(False)
             self.temp.setVisible(False)
             self.undulatorph.setVisible(False)
             self.apply_button.setEnabled(True)
+            self.photonE.setEnabled(True)
+            self.pitch_angle_edit.setEnabled(True)
+            self.roll_angle_edit.setEnabled(True)
             s = ''.join(self.logbookstring)
             if len(s) > 85:
                 self.on_logbook_button(s)
             print(s)
             
     def motor_temp_scan_shutdown(self):
-        if self.temp.value() > 100:
+        if self.temp.value() > 80:
             self.scan_checkBox.setChecked(False)
             self.label_22.setVisible(False)
             self.label_28.setVisible(False)
             self.temp.setVisible(False)
             self.undulatorph.setVisible(False)
+            self.photonE.setEnabled(True)
+            self.pitch_angle_edit.setEnabled(True)
             self.apply_button.setEnabled(True)
             self.logbookstring.append(datetime.now().isoformat()+'Scan mode shut down: motor temperature above threshold')
             self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
@@ -946,7 +1015,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
         cmd.setpoints.mono2.roll = self.mono2.setpoint.roll
         cmd.setpoints.mono2.valid = True
-        self.last_undulatorph = self.undulatorph.value()
+        cmd.setpoints.mono2.motor_speed = 80
         if self.scan_checkBox.isChecked():
             self.scanlabel.setText('Scan mode activated: setpoint updated to pitch: ' + str(
                 np.round(self.mono2.setpoint.pitch, 4)) + '° at model phen: ' + str(self.phen_sp) + ' eV')
@@ -955,6 +1024,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 self.mono2.setpoint.pitch, 4)) + '° and roll: ' + str(self.mono2.setpoint.roll)+'°.')
             self.scan_checkBox.setEnabled(True)
         self.q_to_write.put(cmd)
+        ########print('TEST writing:', cmd.setpoints)
 
     def on_mono2_crystal_insert_button(self):
         print('crystal2 insert button')
@@ -963,6 +1033,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.mono2_inserted = 'IN'
         self.q_to_write.put(cmd)
+        ########print('TEST inserting:', cmd.setpoints)
 
     def on_mono2_crystal_park_button(self):
         print('crystal2 park button')
@@ -971,6 +1042,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.mono2_inserted = 'OUT'
         self.q_to_write.put(cmd)
+        ########print('TEST parking:', cmd.setpoints)
 
 
 if __name__ == "__main__":
