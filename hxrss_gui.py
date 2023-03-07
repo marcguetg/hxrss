@@ -313,8 +313,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         if self.doocs_checkBox.isChecked():
             self.interp_from_pitch(self.mono2)
             self.timer_live.start(1000)
-            msg = rt_get_msg(self.q_from_read, block=False)
-            phen = self.phen_from_model(self.mono2, msg.mono2_pitch_rb)
+            #msg = rt_get_msg(self.q_from_read, block=False)
+            phen = self.phen_from_model(self.mono2, float(self.mono2_pitch_rb_display.text()))
             cmd = SimpleNamespace()
             cmd.cmd = IO_Cmd.IO_SET
             cmd.setpoints = SimpleNamespace()
