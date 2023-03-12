@@ -504,6 +504,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
             stt_phen_list = stt_r.phen_list
             stt_pangle_list = stt_r.p_angle_list
+            #print(stt_phen_list)
+            #print(stt_pangle_list)
             # FIXME: implementation still not finalized since unclear what offset is needed for these values
             stt_rangle_list = stt_r.r_angle_list
             stt_gid_list = stt_r.gid_list
