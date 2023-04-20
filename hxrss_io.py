@@ -202,6 +202,14 @@ def send_doocs(sp):
     pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/PHOTON_ENERGY", sp)
     #print('testing doocs send'+str(sp))
 
+def send_model(sp):
+    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A4", sp[0])
+    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A3", sp[1])
+    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A2", sp[2])
+    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A1", sp[3])
+    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A0", sp[4])
+    print('updated crystal model in DOOCS: ', str(sp))
+
 
 ####################################
 ### READ THREAD AND WRITE THREAD ###
@@ -241,6 +249,8 @@ def thread_write_worker(qin, qout, dbg=False):
             set_mono(item.setpoints.mono2)
         if hasattr(item.setpoints, 'doocs'):
             send_doocs(item.setpoints.doocs_phen)
+        if hasattr(item.setpoints, 'model'):
+            send_model(item.setpoints.model)
 
         tend = time.time()
         dt = tend-tstart

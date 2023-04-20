@@ -72,6 +72,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.display_map_button.clicked.connect(self.on_show_map_button)
         self.apply_button.clicked.connect(self.on_apply_button)
+        self.fit_model.clicked.connect(self.on_fit_model)
         self.photon_energy_edit.returnPressed.connect(
             self.on_photon_energy_enter)
         self.photonE.returnPressed.connect(self.on_calc_photon_energy_enter)
@@ -100,6 +101,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.tableButton.setEnabled(False)
         self.scan_checkBox.setEnabled(False)
         self.doocs_checkBox.setEnabled(False)
+        self.fit_model.setEnabled(False)
         # hide HXRSS crystal reflection curve information (it will become visible once needed)
         #self.photon_energy_min_label.setVisible(False)
         #self.photon_energy_min_display.setVisible(False)
@@ -113,6 +115,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.temp.setVisible(False)
         self.label_23.setVisible(False)
         self.label_25.setVisible(False)
+        self.fit_model.setEnabled(False)
         self.loglabel.setText('Insert the desired Photon Energy value')
         self.model = QtGui.QStandardItemModel(self)
         self.logbookstring = []
@@ -687,6 +690,26 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print('*** Crystal setpoint values updated ***')
         return True
         
+    def fit_model_to_curve(self, difference):
+        if not hasattr(self.mono2, 'curvedata'):
+            print(self.mono2.infotxt+': no curvedata available, select curve from map')
+            return False
+        cd = self.mono2.curvedata
+        if cd.valid != True:
+            print(self.mono2.infotxt+': curvedata is not valid')
+            return False
+
+        phen_max = np.amax(np.array(cd.phen))
+        phen_min = np.amin(np.array(cd.phen))
+        pitch_max = np.amax(np.array(cd.pitch))
+        pitch_min = np.amin(np.array(cd.pitch))
+
+        phen = np.array(cd.phen)+difference
+        print(difference)
+        pitch = np.array(cd.pitch)
+        z = np.polyfit(phen, pitch, 4)
+        print(z)
+        return z
 
     def determine_mono_setpoints(self, mono, sp_phen):
         if not hasattr(mono, 'curvedata'):
@@ -997,13 +1020,28 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def sync_phen(self):
         #if self.undulatorph.value() != self.last_undulatorph:
+        self.base_undulator_ph = self.undulatorph.value()-self.difference
         self.determine_setpoints(self.undulatorph.value()-self.difference)
         # Check motor temperature, if it is over 100 degrees then the scan is stopped
         self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
         self.on_apply_button()
         #else:
         #print('False trigger; no difference in photon energy from the last setpoint')
-                    
+
+    def on_fit_model(self):
+        self.on_calc_photon_energy_enter()
+        self.difference = self.undulatorph.value() - self.phen_calc
+        model = self.fit_model_to_curve(self.difference)
+        model_list = model.tolist()
+        p = np.poly1d(model)
+        print(p(11042))
+
+        cmd = SimpleNamespace()
+        cmd.cmd = IO_Cmd.IO_SET
+        cmd.setpoints = SimpleNamespace()
+        cmd.setpoints.model = model_list
+        self.q_to_write.put(cmd)
+
 
 ################################
 
@@ -1025,6 +1063,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.calclabel.setText('Crystal setpoint updated: pitch: ' + str(np.round(
                 self.mono2.setpoint.pitch, 4)) + '° and roll: ' + str(self.mono2.setpoint.roll)+'°.')
             self.scan_checkBox.setEnabled(True)
+        self.fit_model.setEnabled(True)
         self.q_to_write.put(cmd)
         ########print('TEST writing:', cmd.setpoints)
 
