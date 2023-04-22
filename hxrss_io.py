@@ -247,7 +247,7 @@ def thread_write_worker(qin, qout, dbg=False):
             insert_mono(item.setpoints.mono2_inserted)
         if hasattr(item.setpoints, 'mono2'):
             set_mono(item.setpoints.mono2)
-        if hasattr(item.setpoints, 'doocs'):
+        if hasattr(item.setpoints, 'doocs_phen'):
             send_doocs(item.setpoints.doocs_phen)
         if hasattr(item.setpoints, 'model'):
             send_model(item.setpoints.model)

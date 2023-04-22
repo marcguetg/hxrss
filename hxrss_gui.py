@@ -1034,7 +1034,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         model = self.fit_model_to_curve(self.difference)
         model_list = model.tolist()
         p = np.poly1d(model)
-        print(p(11042))
 
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
