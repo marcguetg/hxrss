@@ -299,7 +299,7 @@ def thread_read_worker(qin, qout, dbg=False):
         r.mono2_motemp_rb = simple_doocs_read(
             'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2307.SA2/MOTEMP')
         r.global_color_rb = simple_doocs_read(
-            'XFEL.UTIL/HIGH_LEVEL_STATUS/PHOTON_ENERGY.SA2/PHOTON_ENERGY_OUTPUT')
+            'XFEL.UTIL/HIGH_LEVEL_STATUS/PHOTON_ENERGY.SA2/PHOTON_ENERGY_INPUT_1')
         r.mono1_pitch_rb = simple_doocs_read(
             'XFEL.FEL/UNDULATOR.SASE2/MONOPA.2252.SA2/ANGLE')
         r.mono1_pitch_sp = simple_doocs_read(
