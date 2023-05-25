@@ -134,8 +134,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2.valid = False
         self.mono2.setpoint.pitch = 100
         print('assuming roll=1.58')
-        self.mono2.setpoint.roll = 1.58
-        self.roll_angle_edit.setText('{:.3f}'.format(self.mono2.setpoint.roll))
+        self.mono2.setpoint.roll = 0.8904
+        #self.roll_angle_edit.setText('{:.3f}'.format(self.mono2.setpoint.roll))
         # [deg], min/max values from mono control panel
         self.mono2.pitch_min = 29.88
         self.mono2.pitch_max = 120.06
@@ -238,8 +238,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono1_motemp_rb_display.setText(str_ph_energy(msg.mono1_motemp_rb))
         self.mono2_motemp_rb_display.setText(str_ph_energy(msg.mono2_motemp_rb))
         self.undulatorph.setValue(msg.global_color_rb)
-        self.pitch_angle_edit.setText(str_pitch_angle(msg.mono2_pitch_sp))
-        self.roll_angle_edit.setText(str_roll_angle(msg.mono2_roll_rb))
+        
         self.temp.setValue(msg.mono2_motemp_rb)
         #self.undulatorph.setValue(msg.mono1_pitch_rb)
         str_mono1_crystal_status = 'parked'
@@ -370,8 +369,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.reflection_display.setText(the_info.info_txt)
             self.reflection_chosen = the_info.info_txt
             self.photonE.setText('{:.2f}'.format(the_info.y))
-            #self.pitch_angle_edit.setText('{:.4f}'.format(the_info.x))
-            #self.roll_angle_edit.setText('{:.3f}'.format(the_info.roll))
+            #self.pitch_angle_edit.setText(str_pitch_angle(msg.mono2_pitch_sp))
+            #self.roll_angle_edit.setText(str_roll_angle(msg.mono2_roll_rb))
+            self.pitch_angle_edit.setText(self.mono2_pitch_rb_display.text())
+            self.roll_angle_edit.setText(self.mono2_roll_rb_display.text())
+            self.mono2.setpoint.pitch = float(self.mono2_pitch_rb_display.text())
+            self.mono2.setpoint.roll =  float(self.mono2_roll_rb_display.text())
             self.doocs_checkBox.setEnabled(True)
             #self.loglabel.setText('You have selected reflection '+ the_info.info_txt+'. Adjust the Photon energy and click Enter to calculate the crystal configuration.')
 
