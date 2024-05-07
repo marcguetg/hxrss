@@ -92,41 +92,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.on_params_default_button)
         self.tableButton.clicked.connect(self.on_table_clear_click)
         self.update_table_button.clicked.connect(self.on_update_table_button)
-
-        # set initial photon energy value (currently SASE2 color1 setpoint)
-        self.photon_energy_edit.setText(
-            '{:.2f}'.format(get_initial_photon_energy_value()))
-        self.apply_button.setEnabled(False)
-        self.display_map_button.setEnabled(False)
-        self.tableButton.setEnabled(False)
-        self.scan_checkBox.setEnabled(False)
-        self.doocs_checkBox.setEnabled(False)
-        self.fit_model.setEnabled(False)
-        # hide HXRSS crystal reflection curve information (it will become visible once needed)
-        #self.photon_energy_min_label.setVisible(False)
-        #self.photon_energy_min_display.setVisible(False)
-        #self.photon_energy_max_label.setVisible(False)
-        #self.photon_energy_max_display.setVisible(False)
-        self.label_2.setVisible(False)
-        self.reflection_display.setVisible(False)
-        self.label_22.setVisible(False)
-        self.undulatorph.setVisible(False)
-        self.label_28.setVisible(False)
-        self.temp.setVisible(False)
-        self.label_23.setVisible(False)
-        self.label_25.setVisible(False)
-        self.fit_model.setEnabled(False)
-        self.loglabel.setText('Insert the desired Photon Energy value')
-        self.model = QtGui.QStandardItemModel(self)
-        self.logbookstring = []
-
-        # TableView
-        self.tableView.setModel(self.model)
-        self.tableView.horizontalHeader().setSectionResizeMode(1)
-        self.tableView.clicked.connect(self.viewClicked)
-        self.tableView.setSelectionBehavior(qtw.QTableView.SelectRows)
-        self.tableView.doubleClicked.connect(self.on_row_double_click)
-        self.filename = script_dir+'/table_data/machine_status.csv'
+        
+        # Initialize UI elements
+        self.init_ui_elements()
+        
+        
 
         self.mono2 = SimpleNamespace()
         self.mono2.infotxt = 'Crystal 2'
@@ -143,43 +113,89 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.line = None
         self.pitchconfig = None
         self.rollconfig = None
+        self.set_label_alignment()
         # Obtain default correction parameters for mono2
         # These describe imperfections of the system
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
-        self.mono1_roll_rb_display.setAlignment(Qt.AlignCenter)
-        self.mono2_roll_rb_display.setAlignment(Qt.AlignCenter)
-        self.mono1_pitch_rb_display.setAlignment(Qt.AlignCenter)
-        self.mono2_pitch_rb_display.setAlignment(Qt.AlignCenter)
-        self.mono1_motemp_rb_display.setAlignment(Qt.AlignCenter)
-        self.mono2_motemp_rb_display.setAlignment(Qt.AlignCenter)
-        self.mono1_crystal_inserted_display.setAlignment(Qt.AlignCenter)
-        self.mono2_crystal_inserted_display.setAlignment(Qt.AlignCenter)
+
 
         self.scan_checkBox.stateChanged.connect(self.state_changed)
         self.doocs_checkBox.stateChanged.connect(self.send_doocs)
 
-        ### THREAD FOR MACHINE I/O ###
-        # thread for communication with machine: display dbg messages?
+        # Setup IO threads and timer
+        self.setup_io_threads()
+    
+    def init_ui_elements(self):
+        """Initialize UI elements."""
+        # set initial photon energy value (currently SASE2 color1 setpoint)
+        self.photon_energy_edit.setText(
+                '{:.2f}'.format(get_initial_photon_energy_value()))
+        self.apply_button.setEnabled(False)
+        self.display_map_button.setEnabled(False)
+        self.tableButton.setEnabled(False)
+        self.scan_checkBox.setEnabled(False)
+        self.doocs_checkBox.setEnabled(False)
+        self.fit_model.setEnabled(False)
+        
+        # Hiding elements initially
+        self.hide_elements()
+
+        self.loglabel.setText('Insert the desired Photon Energy value')
+        self.model = QtGui.QStandardItemModel(self)
+        self.logbookstring = []
+
+        # TableView
+        self.tableView.setModel(self.model)
+        self.tableView.horizontalHeader().setSectionResizeMode(1)
+        self.tableView.clicked.connect(self.viewClicked)
+        self.tableView.setSelectionBehavior(qtw.QTableView.SelectRows)
+        self.tableView.doubleClicked.connect(self.on_row_double_click)
+        self.filename = script_dir+'/table_data/machine_status.csv'
+
+    def hide_elements(self):
+        """Hide elements."""
+        self.label_2.setVisible(False)
+        self.reflection_display.setVisible(False)
+        self.label_22.setVisible(False)
+        self.undulatorph.setVisible(False)
+        self.label_28.setVisible(False)
+        self.temp.setVisible(False)
+        self.label_23.setVisible(False)
+        self.label_25.setVisible(False)
+        self.fit_model.setEnabled(False)
+        self.loglabel.setText('Insert the desired Photon Energy value')
+
+    def set_label_alignment(self):
+        """Set alignment for display labels."""
+        labels = [self.mono1_roll_rb_display, self.mono2_roll_rb_display,
+                  self.mono1_pitch_rb_display, self.mono2_pitch_rb_display,
+                  self.mono1_motemp_rb_display, self.mono2_motemp_rb_display,
+                  self.mono1_crystal_inserted_display,
+                  self.mono2_crystal_inserted_display]
+        for label in labels:
+            label.setAlignment(Qt.AlignCenter)
+
+    def setup_io_threads(self):
+        """Setup IO threads and timer."""
         self.io_thread_dbg = False
-        # queue for communication to machine
         self.q_to_read = queue.Queue(maxsize=1000)
         self.q_from_read = queue.Queue(maxsize=1000)
         self.q_to_write = queue.Queue(maxsize=1000)
         self.q_from_write = queue.Queue(maxsize=1000)
-        # start machine communication threads (specify daemon=True when the thread should automatically be terminated -> we don't do that)
         threading.Thread(target=thread_read_worker, args=(
-            self.q_to_read, self.q_from_read, self.io_thread_dbg), name='read thread').start()
+            self.q_to_read, self.q_from_read, self.io_thread_dbg),
+            name='read thread').start()
         threading.Thread(target=thread_write_worker, args=(
-            self.q_to_write, self.q_from_write, self.io_thread_dbg), name='write thread').start()
-        # setup Qt timer for machine IO (for updating current status)
+            self.q_to_write, self.q_from_write, self.io_thread_dbg),
+            name='write thread').start()
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self.timeout)
         self.update_timer.start(1000)
-
         self.timer_live = QTimer()
         self.timer_live.timeout.connect(self.send_doocs)
 
     def closeEvent(self, event):
+        """Handle close event."""
         # send IO threads command to stop
         print('got close event, stopping IO thread')
         cmd = SimpleNamespace()
@@ -194,10 +210,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         event.accept()
         # to ignore this event: event.ignore()
 
-    # Data was received from IO thread
-    # ==> update displayed readback values
 
     def update_readbacks(self, msg):
+        """Update displayed readback values."""
         def str_ph_energy(q_):
             return f'{q_:.1f}'
 
@@ -240,7 +255,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.undulatorph.setValue(msg.global_color_rb)
         
         self.temp.setValue(msg.mono2_motemp_rb)
-        #self.undulatorph.setValue(msg.mono1_pitch_rb)
         str_mono1_crystal_status = 'parked'
         str_mono2_crystal_status = 'parked'
         if msg.mono1_is_inserted:
@@ -269,30 +283,16 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                     self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
                 self.mono2_crystal_insert_button.setEnabled(True)
                 self.mono2_crystal_park_button.setEnabled(True)
-        #if msg.mono1_is_inserted == False and msg.mono1_insert_busy == True:
-        #    update_busy_indicator(
-        #        self.mono1_crystal_inserted_display, msg.mono1_insert_busy)
-        #    str_mono1_crystal_status = 'moving...'
-        #    self.mono1_crystal_insert_button.setEnabled(False)
-        #    self.mono1_crystal_park_button.setEnabled(False)
-        #if msg.mono2_is_inserted == False and msg.mono2_insert_busy == True:
-        #    update_busy_indicator(
-        #        self.mono2_crystal_inserted_display, msg.mono2_insert_busy)
-        #    str_mono2_crystal_status = 'moving...'
-        #    self.mono2_crystal_insert_button.setEnabled(False)
-        #    self.mono2_crystal_park_button.setEnabled(False)
+
         self.mono1_crystal_inserted_display.setText(str_mono1_crystal_status)
         self.mono2_crystal_inserted_display.setText(str_mono2_crystal_status)
         self.io_msgtag_display.setText(str(msg.tag))
         self.io_processingtime_display.setText(
             '{:.2f}'.format(1e3*msg.processing_time))
         self.io_msgage_display.setText('{:.2f}'.format(msg.age))
-        #print(f'DEBUG: Queuesizes: '
-        #f'read_in = {self.q_to_read.qsize()}' f'read_out = {self.q_from_read.qsize()}'
-        #f'write_in = {self.q_to_write.qsize()}' f'read_out = {self.q_from_read.qsize()}'
-        #)
 
     def timeout(self):
+        """Handle timer timeout."""
         self.io_thread_dbg = self.io_threaddbg_checkbox.checkState()
         dbg = self.io_thread_dbg
         rt_request_update(self.q_to_read, dbg)
@@ -314,6 +314,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                     print('GUI timer: there was nothing in queue')
 
     def send_doocs(self):
+        """Send data to DOOCS."""
         if self.doocs_checkBox.isChecked():
             self.interp_from_pitch(self.mono2)
             self.timer_live.start(1000)
@@ -334,6 +335,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 ### CRYSTAL-MAP RELATED CODE ###
 ################################
     def on_show_map_button(self):
+        """Callback function for the 'Show Map' button click."""
         roi = SimpleNamespace()
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
         roi.minE = self.phen-1500
@@ -357,6 +359,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.crystal_plot = blah
 
     def on_crystal_map_linepicked(self, the_info):
+        """Callback function for crystal map line selection."""
         print('### CRYSTAL MAP CALLBACK ###')
         print(str(the_info))
         if the_info.valid:
@@ -512,8 +515,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
             stt_phen_list = stt_r.phen_list
             stt_pangle_list = stt_r.p_angle_list
-            #print(stt_phen_list)
-            #print(stt_pangle_list)
+
             # FIXME: implementation still not finalized since unclear what offset is needed for these values
             stt_rangle_list = stt_r.r_angle_list
             stt_gid_list = stt_r.gid_list
@@ -546,20 +548,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print('  pitch angle   '+str_minmax(stt_pangle_list))
             print('  roll angle    '+str_minmax(stt_rangle_list))
             print('  photon energy '+str_minmax(stt_phen_list))
-            #display_phen_max=False
-            #self.photon_energy_min_display.setText(str(np.amin(np.array(stt_phen_list))))
-            #self.photon_energy_min_label.setVisible(False)
-            #self.photon_energy_min_display.setVisible(False)
-            #if display_phen_max:
-            #    self.photon_energy_max_display.setText(str(np.amax(np.array(stt_phen_list))))
-            ##    self.photon_energy_max_label.setVisible(False)
-            #    self.photon_energy_max_display.setVisible(False)
+
             self.calclabel.setText('Insert an energy value between ' + str(np.round(np.amin(np.array(stt_phen_list)), 1))
                                    + ' eV and '+str(np.round(np.amax(np.array(stt_phen_list)), 1))+' eV. Press Enter to calculate setpoint.')
-
-            # dbg: pitch angle offset between input array and output array
-            # print(str(stt_pangle_list[0]))
-            # print(str(stt_thplist[0]))
 
             self.mono2.curvedata = SimpleNamespace()
             self.mono2.curvedata.pitch = stt_pangle_list
@@ -567,12 +558,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.mono2.curvedata.phen = stt_phen_list
             self.mono2.curvedata.valid = True
 
-################################
-
     def determine_setpoints(self, sp_phen):
+        """Determines the setpoints based on the specified photon energy."""
         self.determine_mono_setpoints(self.mono2, sp_phen)
 
     def interp_from_pitch(self, mono):
+        """Interpolates the photon energy from the pitch angle."""
         if not hasattr(mono, 'curvedata'):
             print(mono.infotxt+': no curvedata available, select curve from map')
             return False
@@ -586,11 +577,13 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         
         
     def phen_from_model(self, mono, sp_pitch):
+        """Determines the photon energy from the model."""
         cd = mono.curvedata
         phen_max = np.amax(np.array(cd.phen))
         phen_min = np.amin(np.array(cd.phen))
         pitch_max = np.amax(np.array(cd.pitch))
         pitch_min = np.amin(np.array(cd.pitch))
+
         # find the pitch angle corresponding to the desired photon energy
         def f(phen): return (self.f_interp_pitch(phen)-sp_pitch)
         # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
@@ -613,6 +606,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
        
 
     def determine_mono_setpoints_from_pitch(self, mono, sp_pitch):
+        """Determines mono setpoints from pitch."""
         if not hasattr(mono, 'curvedata'):
             print(mono.infotxt+': no curvedata available, select curve from map')
             return False
@@ -696,6 +690,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         return True
         
     def fit_model_to_curve(self, difference):
+        """Fits a model to the curve data with the specified difference."""
         if not hasattr(self.mono2, 'curvedata'):
             print(self.mono2.infotxt+': no curvedata available, select curve from map')
             return False
@@ -717,6 +712,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         return z
 
     def determine_mono_setpoints(self, mono, sp_phen):
+        """Determines mono setpoints based on the specified photon energy."""
         if not hasattr(mono, 'curvedata'):
             print(mono.infotxt+': no curvedata available, select curve from map')
             return False
@@ -842,6 +838,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         return True
 
     def on_photon_energy_enter(self):
+        """Handles the [Enter] event in the photon energy edit field."""
         print('photon energy edit: [enter] detected')
         phen_str = self.photon_energy_edit.text()
         # convert string to number, continue only if this works
@@ -861,6 +858,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         #self.determine_setpoints(self.phen)
 
     def on_calc_photon_energy_enter(self):
+        """Handles the [Enter] event in the calculated photon energy edit field."""
         print('photon energy edit: [enter] detected')
         phen_str = self.photonE.text()
         # convert string to number, continue only if this works
@@ -872,6 +870,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.determine_setpoints(self.phen_calc)
 
     def on_calc_pitch_angle_enter(self):
+        """Handles the [Enter] event in the calculated pitch angle edit field."""
         print('pitch angle edit: [enter] detected')
         pitch_str = self.pitch_angle_edit.text()
         # convert string to number, continue only if this works
@@ -883,6 +882,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.determine_mono_setpoints_from_pitch(self.mono2, self.pitch_calc)
 
     def on_calc_roll_angle_enter(self):
+        """Handles the [Enter] event in the calculated roll angle edit field."""
         print('roll angle edit: [enter] detected')
         roll_str = self.roll_angle_edit.text()
         # convert string to number, continue only if this works
@@ -895,21 +895,25 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.on_calc_pitch_angle_enter()
 
     def on_params_report_button(self):
+        """Prints correction parameters."""
         print('reporting correction parameters: ' + str(self.mono2.corrparams))
 
     def on_params_fromDOOCS_button(self):
+        """Loads correction parameters from DOOCS."""
         print('previous correction parameters: ' + str(self.mono2.corrparams))
         self.mono2.corrparams = hxrss_io_crystal_parameters_fromDOOCS()
         print('loaded correction parameters from DOOCS:'
               + str(self.mono2.corrparams))
 
     def on_params_default_button(self):
+        """Loads default correction parameters."""
         print('previous correction parameters: ' + str(self.mono2.corrparams))
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
         print('loaded default correction parameters:'
               + str(self.mono2.corrparams))
 
     def on_update_table_button(self):
+        """Updates the table."""
         print('Updating table')
         try:
             update_table()
@@ -919,21 +923,33 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print('Table updated successfully.')
 
     def loadCsv(self):
-        df = pd.read_csv(self.filename)
-        cols = df.columns.tolist()
-        cols = ['date', 'SA2 Color 1 EPH', 'Mono 2 PA', 'Mono 2 RA']
-        enfilt = (df['SA2 Color 1 EPH'] > self.phen
-                  - 1000) & (df['SA2 Color 1 EPH'] < self.phen+1000)
-        df = df[enfilt]
-        df = df.sort_values(by="date", ascending=False)
-        model = pandasModel(df[cols])
-        self.tableView.setModel(model)
+        """
+        Loads data from a CSV file into the table view.
+        """
+        try:
+            df = pd.read_csv(self.filename)
+            cols = df.columns.tolist()
+            cols = ['date', 'SA2 Color 1 EPH', 'Mono 2 PA', 'Mono 2 RA']
+            enfilt = (df['SA2 Color 1 EPH'] > self.phen
+                    - 1000) & (df['SA2 Color 1 EPH'] < self.phen+1000)
+            df = df[enfilt]
+            df = df.sort_values(by="date", ascending=False)
+            model = pandasModel(df[cols])
+            self.tableView.setModel(model)
+        except:
+            print('File not found')
 
     def viewClicked(self, clickedIndex):
+        """
+        Handles a click event on the table view.
+        """
         row = clickedIndex.row()
         model = clickedIndex.model()
 
     def on_row_double_click(self):
+        """
+        Handles a double click event on a table row.
+        """
         self.tableButton.setEnabled(True)
         for idx in self.tableView.selectionModel().selectedIndexes():
             row_number = idx.row()
@@ -947,6 +963,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.roll_angle_edit.setText('{:.3f}'.format(self.rollconfig))
 
     def on_table_clear_click(self):
+        """
+        Clears the table selection.
+        """
         self.tableView.clearSelection()
         self.loglabel.setText(
             'Select a configuration from the table or click Display Map.')
@@ -956,9 +975,15 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         #print(value)
 
     def on_logbook_button(self, msg_text):
+        """
+        Logs a message to the logbook.
+        """
         self.logbook_entry(widget=self.tab, text=msg_text)
 
     def get_screenshot(self, window_widget):
+        """
+        Captures a screenshot of a widget.
+        """
         screenshot_tmp = QtCore.QByteArray()
         screeshot_buffer = QtCore.QBuffer(screenshot_tmp)
         screeshot_buffer.open(QtCore.QIODevice.WriteOnly)
@@ -981,6 +1006,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 'Finished scan! Error during eLogBook sending.')
 
     def state_changed(self, int):
+        """
+        Handles state changes.
+        """
         if self.scan_checkBox.isChecked():
             self.on_calc_photon_energy_enter()
             self.label_22.setVisible(True)
@@ -1011,6 +1039,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             print(s)
             
     def motor_temp_scan_shutdown(self):
+        """
+        Shuts down the scan mode if the motor temperature is above the threshold.
+        """
         if self.temp.value() > 80:
             self.scan_checkBox.setChecked(False)
             self.label_22.setVisible(False)
@@ -1024,16 +1055,18 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.scanlabel.setText('Scan mode shut down: motor temperature above threshold. Please restart when temperature is below the threshold.')
 
     def sync_phen(self):
-        #if self.undulatorph.value() != self.last_undulatorph:
-        self.base_undulator_ph = self.undulatorph.value()-self.difference
-        self.determine_setpoints(self.undulatorph.value()-self.difference)
-        # Check motor temperature, if it is over 100 degrees then the scan is stopped
+        """
+        Syncs the photon energy.
+        """
+        self.base_undulator_ph = self.undulatorph.value() - self.difference
+        self.determine_setpoints(self.undulatorph.value() - self.difference)
         self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
         self.on_apply_button()
-        #else:
-        #print('False trigger; no difference in photon energy from the last setpoint')
 
     def on_fit_model(self):
+        """
+        Fits a model to the data.
+        """
         self.on_calc_photon_energy_enter()
         self.difference = self.undulatorph.value() - self.phen_calc
         model = self.fit_model_to_curve(self.difference)
@@ -1050,6 +1083,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 ################################
 
     def on_apply_button(self):
+        """
+        Handles the apply button click event.
+        """
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
@@ -1072,22 +1108,26 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         ########print('TEST writing:', cmd.setpoints)
 
     def on_mono2_crystal_insert_button(self):
+        """
+        Handles the crystal insert button click event.
+        """
         print('crystal2 insert button')
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.mono2_inserted = 'IN'
         self.q_to_write.put(cmd)
-        ########print('TEST inserting:', cmd.setpoints)
 
     def on_mono2_crystal_park_button(self):
+        """
+        Handles the crystal park button click event.
+        """
         print('crystal2 park button')
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.mono2_inserted = 'OUT'
         self.q_to_write.put(cmd)
-        ########print('TEST parking:', cmd.setpoints)
 
 
 if __name__ == "__main__":
