@@ -34,7 +34,7 @@ from HXRSS_Bragg_max_generator import HXRSS_Bragg_max_generator
 import re
 
 from spectr_gui import send_to_desy_elog
-from data.update_table import update_table
+from table_data.updatetable import update_table
 from datetime import datetime
 
 
@@ -126,7 +126,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.tableView.clicked.connect(self.viewClicked)
         self.tableView.setSelectionBehavior(qtw.QTableView.SelectRows)
         self.tableView.doubleClicked.connect(self.on_row_double_click)
-        self.filename = script_dir+'/data/machine_status.csv'
+        self.filename = script_dir+'/table_data/machine_status.csv'
 
         self.mono2 = SimpleNamespace()
         self.mono2.infotxt = 'Crystal 2'

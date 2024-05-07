@@ -2,7 +2,7 @@
 
 # do_doocs=True
 # change to true in production
-do_doocs=True
+do_doocs=False
 
 import queue
 import threading
