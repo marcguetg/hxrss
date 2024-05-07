@@ -9,7 +9,6 @@ script_dir = os.path.dirname(script_path)
 hxrss_toolbox_dir = script_dir+'/Crystal pitch angle model'
 sys.path.append(hxrss_toolbox_dir)
 
-
 from hxrss_main_window import Ui_MainWindow
 from PyQt5 import QtWidgets as qtw
 from PyQt5 import QtCore as qtc
@@ -20,7 +19,6 @@ import threading,queue
 import time
 from types import SimpleNamespace
 from copy import deepcopy
-
 from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, IO_Cmd
 from hxrss_io_crystal_params import hxrss_io_crystal_parameters_default, hxrss_io_crystal_parameters_fromDOOCS
 
@@ -37,29 +35,31 @@ from spectr_gui import send_to_desy_elog
 from table_data.updatetable import update_table
 from datetime import datetime
 
-
-
-
-# for development of crystal control code
-
 class pandasModel(QAbstractTableModel):
+    """Model for pandas DataFrame."""
+
     def __init__(self, data):
+        """Initialize pandasModel."""
         QAbstractTableModel.__init__(self)
         self._data = data
 
     def rowCount(self, parent=None):
+        """Return row count."""
         return self._data.shape[0]
 
     def columnCount(self, parnet=None):
+        """Return column count."""
         return self._data.shape[1]
 
     def data(self, index, role=Qt.DisplayRole):
+        """Return data at index."""
         if index.isValid():
             if role == Qt.DisplayRole:
                 return str(self._data.iloc[index.row(), index.column()])
         return None
 
     def headerData(self, col, orientation, role):
+        """Return header data."""
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self._data.columns[col]
         return None
