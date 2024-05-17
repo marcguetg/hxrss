@@ -1,4 +1,4 @@
-do_doocs=False
+do_doocs=True
 
 import queue
 import threading
