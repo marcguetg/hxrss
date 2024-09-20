@@ -696,6 +696,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         return True
         
     def fit_model_to_curve(self, difference):
+        #that is not working correctly, as fitting a sine curve to a plolynomial will introduce a lot of errors --> depreciated
         if not hasattr(self.mono2, 'curvedata'):
             print(self.mono2.infotxt+': no curvedata available, select curve from map')
             return False
@@ -712,9 +713,65 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         phen = np.array(cd.phen)+difference
         print(difference)
         pitch = np.array(cd.pitch)
+
+        #do the fit in a narrow range around the current photon energy (+-400eV)
+
+
         z = np.polyfit(phen, pitch, 4)
         print(z)
         return z
+    
+
+
+    def pitch_from_phen(self,mono,phen_req):
+        if not hasattr(mono, 'curvedata'):
+            print(mono.infotxt+': no curvedata available, select curve from map')
+            return False
+        cd = mono.curvedata
+        if cd.valid != True:
+            print(mono.infotxt+': curvedata is not valid')
+            return False
+        
+        # some information about crystal curve data used for interpolation
+        phen_max = np.amax(np.array(cd.phen))
+        phen_min = np.amin(np.array(cd.phen))
+        pitch_max = np.amax(np.array(cd.pitch))
+        pitch_min = np.amin(np.array(cd.pitch))
+
+        
+        if np.any(np.logical_not(np.logical_and((phen_min <= phen_req),(phen_req <= phen_max)))):
+            print(
+                mono.infotxt+f': requested photon energy is outside of possible range {phen_min}..{phen_max}')
+            self.calclabel.setText('Requested photon energy is outside of possible range ' + str(
+                np.round(phen_min, 1)) + ' eV and '+str(np.round(phen_max, 1))+' eV.')
+            self.phen = phen_req
+            self.on_show_map_button()
+            return False
+        
+        f_interp_pitch = interpolate.interp1d(cd.phen, cd.pitch,
+                                             fill_value='extrapolate', bounds_error=False)
+        pitch_req = f_interp_pitch(phen_req)
+
+        is_interpolation = np.logical_and((pitch_min <= pitch_req), (
+            pitch_req <= pitch_max))
+        if np.any(np.logical_not(is_interpolation)):
+            print(mono.infotxt+': determined pitch setpoint is extrapolation of crystal curve data set, this is an error.')
+            return False
+
+        # Check that the determined setpoint is within the travel range of the actuator
+        # Don't use the full travel range (note that 'abs' was used to guard against
+        # negative safety margin values)
+        setpoint_pitch_inrange = np.logical_and((mono.pitch_min+abs(mono.pitch_minmax_safetymargin) <= pitch_req),(
+            pitch_req <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin)))
+        if np.any(np.logical_not(setpoint_pitch_inrange)):
+            print(
+                mono.infotxt+f': determined pitch setpoint {pitch_req} not in allowed travel range (min={mono.pitch_min}, max={mono.pitch_max}, safety_margin={mono.pitch_minmax_safetymargin}')
+            return False
+        return pitch_req
+        
+
+
+
 
     def determine_mono_setpoints(self, mono, sp_phen):
         if not hasattr(mono, 'curvedata'):
@@ -724,7 +781,6 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         if cd.valid != True:
             print(mono.infotxt+': curvedata is not valid')
             return False
-
         print(mono.infotxt
               + f': computing setpoint for requested photon energy {sp_phen} and roll angle {self.rollconfig}')
 
@@ -1036,7 +1092,20 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
     def on_fit_model(self):
         self.on_calc_photon_energy_enter()
         self.difference = self.undulatorph.value() - self.phen_calc
-        model = self.fit_model_to_curve(self.difference)
+
+        phen_req = np.linspace(-300,300,num=1001)+self.phen_calc
+
+        #restrict to bounds
+        cd = self.mono2.curvedata #in on_calc_photon_energy_enter it was checked that mono2 has curvedata selected
+        phen_req = phen_req[np.logical_and(phen_req>=np.amin(np.array(cd.phen)),phen_req<=np.amax(np.array(cd.phen)))]
+
+        pitch_req = self.pitch_from_phen(self.mono2,phen_req)
+
+        phen_fit = phen_req + self.difference
+
+        model = np.polyfit(phen_fit,pitch_req,deg=4)
+
+        #model = self.fit_model_to_curve(self.difference)
         model_list = model.tolist()
         p = np.poly1d(model)
 
@@ -1045,6 +1114,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints = SimpleNamespace()
         cmd.setpoints.model = model_list
         self.q_to_write.put(cmd)
+
+    def goodness_of_fit_plot(self,mono,phen_fit,model):
+        pass
 
 
 ################################
