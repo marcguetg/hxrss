@@ -188,13 +188,18 @@ def send_model(sp):
     """
     Sends crystal model data to DOOCS.
     """
-    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A4", sp[0])
-    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A3", sp[1])
-    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A2", sp[2])
-    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A1", sp[3])
-
-
-    pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A0", sp[4])
+    if len(sp)==4: #old polynomial model
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A4", sp[0])
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A3", sp[1])
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A2", sp[2])
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A1", sp[3])    
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A0", sp[4])
+    else:
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A0", sp[0])
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A1", sp[1])
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A2", sp[2])
+        pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A3", sp[3])    
+    
     print('updated crystal model in DOOCS: ', str(sp))
 
 def thread_write_worker(qin, qout, dbg=False):

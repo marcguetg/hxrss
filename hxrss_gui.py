@@ -649,24 +649,26 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.on_show_map_button()
             return False
         
-        f_interp_pitch = interpolate.interp1d(cd.phen, cd.pitch,
+        f_interp_phen = interpolate.interp1d( cd.phen,cd.phen,
                                              fill_value='extrapolate', bounds_error=False)
+        
+
 
         # find the pitch angle corresponding to the desired photon energy
-        def f(phen): return (f_interp_pitch(phen)-sp_pitch)
-        # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
-        phen0 = (phen_min+phen_max)/2  # start value in the center of range
-        # root finding does not support specification of bounds
-        solroot = scipy.optimize.root(f, [phen0])
-        if not solroot.success:
-            print(
-                mono.infotxt+': issue with finding the photon energy, scipy.optimize.root status:')
-            print(str(solroot))
-            return False
+        # def f(phen): return (f_interp_pitch(phen)-sp_pitch)
+        # # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
+        # phen0 = (phen_min+phen_max)/2  # start value in the center of range
+        # # root finding does not support specification of bounds
+        # solroot = scipy.optimize.root(f, [phen0])
+        # if not solroot.success:
+        #     print(
+        #         mono.infotxt+': issue with finding the photon energy, scipy.optimize.root status:')
+        #     print(str(solroot))
+        #     return False
 
         
-        # Verify that determined setpoint is not the result of extrapolation process
-        setpoint_phen = solroot.x[0]
+        # # Verify that determined setpoint is not the result of extrapolation process
+        # setpoint_phen = solroot.x[0]
         is_interpolation = (phen_min <= setpoint_phen) and (
             setpoint_phen <= phen_max)
         if not is_interpolation:
@@ -709,12 +711,44 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         pitch_max = np.amax(np.array(cd.pitch))
         pitch_min = np.amin(np.array(cd.pitch))
 
+
+
         phen = np.array(cd.phen)+difference
         print(difference)
         pitch = np.array(cd.pitch)
         z = np.polyfit(phen, pitch, 4)
         print(z)
+        
+
         return z
+
+    def fit_asinmodel_to_curve(self, difference):
+        if not hasattr(self.mono2, 'curvedata'):
+            print(self.mono2.infotxt+': no curvedata available, select curve from map')
+            return False
+        cd = self.mono2.curvedata
+        if cd.valid != True:
+            print(self.mono2.infotxt+': curvedata is not valid')
+            return False
+
+
+        d_H = cd.d_H[0]
+
+        phen = np.array(cd.phen)#+difference
+        pitch = np.array(cd.pitch)
+
+        def asin_func(a,x):
+            return np.arcsin(a[0]/(x-a[1]))*a[2]+a[3]
+        def fun(a,x,y):
+            return np.rad2deg(asin_func(a,x))-y
+        guess = [0.5*scipy.constants.physical_constants['Planck constant in eV s'][0]*scipy.constants.speed_of_light/d_H,difference,1, 0]
+        res = scipy.optimize.least_squares(fun, guess, args=(phen+difference, pitch))
+        print(difference)
+        print(res.x)
+        
+
+        return res.x
+
 
     def determine_mono_setpoints(self, mono, sp_phen):
         if not hasattr(mono, 'curvedata'):
@@ -775,21 +809,25 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                                              fill_value='extrapolate', bounds_error=False)
 
         # find the pitch angle corresponding to the desired photon energy
-        def f(pitch): return (f_interp_phen(pitch)-sp_phen)
-        # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
-        pitch0 = (pitch_min+pitch_max)/2  # start value in the center of range
-        # root finding does not support specification of bounds
-        solroot = scipy.optimize.root(f, [pitch0])
-        if not solroot.success:
-            print(
-                mono.infotxt+': issue with finding the pitch angle, scipy.optimize.root status:')
-            print(str(solroot))
-            return False
+        # def f(pitch): return (f_interp_phen(pitch)-sp_phen)
+        # # f = lambda pitch: (f_interp_phen(pitch)-sp_phen)
+        # pitch0 = (pitch_min+pitch_max)/2  # start value in the center of range
+        # # root finding does not support specification of bounds
+        # solroot = scipy.optimize.root(f, [pitch0])
+        # if not solroot.success:
+        #     print(
+        #         mono.infotxt+': issue with finding the pitch angle, scipy.optimize.root status:')
+        #     print(str(solroot))
+        #     return False
 
-        # Verify that determined setpoint is not the result of extrapolation process
-        setpoint_pitch = solroot.x[0]
+        # # Verify that determined setpoint is not the result of extrapolation process
+        # setpoint_pitch = solroot.x[0]
+        f_interp_pangle = interpolate.interp1d(cd.phen, cd.pitch,
+                                             fill_value='extrapolate', bounds_error=False)
+        setpoint_pitch = f_interp_pangle(sp_phen)
         is_interpolation = (pitch_min <= setpoint_pitch) and (
             setpoint_pitch <= pitch_max)
+        
         if not is_interpolation:
             print(mono.infotxt+': determined pitch setpoint is extrapolation of crystal curve data set, this is an error.')
             print(str(solroot))
@@ -811,9 +849,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                  - f_interp_phen(setpoint_pitch-d_pitch/2))/d_pitch
 
         # determine roll setpoint
-        f_interp_roll = interpolate.interp1d(cd.pitch, cd.roll)
-        setpoint_roll = f_interp_roll(setpoint_pitch)
-        setpoint_roll *= 180/np.pi  # rad=>deg
+        # f_interp_roll = interpolate.interp1d(cd.pitch, cd.roll)
+        # setpoint_roll = f_interp_roll(setpoint_pitch)
+        # setpoint_roll *= 180/np.pi  # rad=>deg
         # NOTE: currently not using this setpoint as additional considerations are needed
 
         print(mono.infotxt
@@ -1031,14 +1069,27 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.temp.valueChanged.connect(self.motor_temp_scan_shutdown)
         self.on_apply_button()
         #else:
-        #print('False trigger; no difference in photon energy from the last setpoint')
+        #print('False trigger; no difference i  photon energy from the last setpoint')
 
-    def on_fit_model(self):
+    def on_fit_model_old(self):
         self.on_calc_photon_energy_enter()
         self.difference = self.undulatorph.value() - self.phen_calc
         model = self.fit_model_to_curve(self.difference)
         model_list = model.tolist()
-        p = np.poly1d(model)
+        #p = np.poly1d(model)
+
+        cmd = SimpleNamespace()
+        cmd.cmd = IO_Cmd.IO_SET
+        cmd.setpoints = SimpleNamespace()
+        cmd.setpoints.model = model_list
+        self.q_to_write.put(cmd)
+
+    def on_fit_model(self):
+        self.on_calc_photon_energy_enter()
+        self.difference = self.undulatorph.value() - self.phen_calc
+        model = self.fit_asinmodel_to_curve(self.difference)
+        model_list = model.tolist()
+        #p = np.poly1d(model)
 
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
@@ -1056,7 +1107,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         cmd.setpoints.mono2 = SimpleNamespace()
         cmd.setpoints.mono2.pitch = self.mono2.setpoint.pitch
         #print('assuming roll=1.58')
-        # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however)
+        # FIXME: current standard value in HXRSS_Bragg_max_generator for mono2, need to introduce actual roll angle set points (changes are small, however) 
         cmd.setpoints.mono2.roll = self.mono2.setpoint.roll
         cmd.setpoints.mono2.valid = True
         cmd.setpoints.mono2.motor_speed = 80
