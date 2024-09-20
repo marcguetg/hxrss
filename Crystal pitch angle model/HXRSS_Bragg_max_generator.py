@@ -27,6 +27,7 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     p_angle_list = []
     phen_list = []
     r_angle_list = []
+    d_H_list = []
     label_list = []
     linestyle_list = []
     gid_list = []
@@ -79,9 +80,12 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
         r3 = rotm3(thr, rollax3)
         return r3.dot(r2.dot(r1.dot(n0)))
 
+
+    def d_H(h,k,l,a):
+        return a/np.sqrt(h**2+k**2+l**2)
     # !!! here 'thp' is in radians !!!
     def phev(fact, n, h, k, l, a, thp, thy, thr, n0, pitchax, rollax, yawax):
-        d = a/np.sqrt(h**2+k**2+l**2)
+        d = d_H(h,k,l,a)
         return fact*np.sqrt(h**2+k**2+l**2)/(2*d*n*np.linalg.norm(kirot(thp, thy, thr, n0, pitchax, rollax, yawax).dot((h, k, l))))
 
 #####
@@ -340,6 +344,8 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
                     p_angle_list.append(list(p_angle_lim))
                     gid_list.append(str(gid))
                     r_angle_list.append(list(roll_angle_lim)) # FIXME: check if correct angle
+                    d_H_list.append(d_H(h,k,l,a))
+
                     #print(f'hkl=({h},{k},{l}): done')
            #else:
                 #print(f'hkl=({h},{k},{l}): not allowed')
