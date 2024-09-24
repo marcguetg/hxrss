@@ -65,7 +65,7 @@ def simple_doocs_read(addr):
         x = pydoocs.read(addr)
         v = x['data']
     else:
-        v = 42
+        v = 2
     return v
 
 def mono_motor_busy(doocs_prefix):
@@ -350,8 +350,9 @@ def get_roll_value(mono="mono2"):
         r = hxrss_io_mono2_motors()
     elif mono=="mono1":
         r = hxrss_io_mono1_motors()
+    print(r.prefix_roll)
     value = simple_doocs_read(
-        r.prefix_roll+"/Angle")
+        r.prefix_roll+"ANGLE")
     return value
 
 

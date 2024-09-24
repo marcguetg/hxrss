@@ -150,7 +150,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print('assuming roll=1.58')
         self.LogBox.setPlainText('assuming roll=1.58')
         self.mono2.setpoint.roll = get_roll_value()
-
+        self.mono2.corrparams.roll_list = [get_roll_value()]
 
         self.mono1_roll_rb_display.setAlignment(Qt.AlignCenter)
         self.mono2_roll_rb_display.setAlignment(Qt.AlignCenter)
