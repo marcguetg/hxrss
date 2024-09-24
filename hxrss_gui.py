@@ -1082,11 +1082,35 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         #print('False trigger; no difference i  photon energy from the last setpoint')
 
     def on_fit_model_old(self):
+        # self.on_calc_photon_energy_enter()
+        # self.difference = self.undulatorph.value() - self.phen_calc
+        # model = self.fit_model_to_curve(self.difference)
+        # model_list = model.tolist()
+        # #p = np.poly1d(model)
+
+        # cmd = SimpleNamespace()
+        # cmd.cmd = IO_Cmd.IO_SET
+        # cmd.setpoints = SimpleNamespace()
+        # cmd.setpoints.model = model_list
+        # self.q_to_write.put(cmd)
         self.on_calc_photon_energy_enter()
         self.difference = self.undulatorph.value() - self.phen_calc
-        model = self.fit_model_to_curve(self.difference)
+
+        phen_req = np.linspace(-300,300,num=1001)+self.phen_calc
+
+        #restrict to bounds
+        cd = self.mono2.curvedata #in on_calc_photon_energy_enter it was checked that mono2 has curvedata selected
+        phen_req = phen_req[np.logical_and(phen_req>=np.amin(np.array(cd.phen)),phen_req<=np.amax(np.array(cd.phen)))]
+
+        pitch_req = self.pitch_from_phen(self.mono2,phen_req)
+
+        phen_fit = phen_req + self.difference
+
+        model = np.polyfit(phen_fit,pitch_req,deg=4)
+
+        #model = self.fit_model_to_curve(self.difference)
         model_list = model.tolist()
-        #p = np.poly1d(model)
+        p = np.poly1d(model)
 
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
