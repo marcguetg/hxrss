@@ -8,6 +8,7 @@ import enum
 from types import SimpleNamespace
 from datetime import datetime
 import time
+import logging
 
 if do_doocs:
     try: 
@@ -87,7 +88,7 @@ def mono_motor_wait(doocs_prefix):
             break
         try:
             os.remove(fn_abort_file)
-            print(f'user requested to leave wait loop (magic file detected and deleted)')
+            logging.warning(f'user requested to leave wait loop (magic file detected and deleted)')
             break
         except FileNotFoundError:
             pass
@@ -103,7 +104,7 @@ def mono_move_motor(doocs_prefix, sp, *, motor_speed=None, is_rot=True):
             timestr() + f' requested update of motor channel {doocs_prefix} to {sp}\n')
 
     if not machine_writes_enabled():
-        print(
+        logging.warning(
             f'mono_move_motor function is disabled (would move motor {doocs_prefix} to setpoint {sp}')
         return
 
@@ -131,7 +132,7 @@ def insert_mono(sp):
         f.write(f'insert_mono function called')
 
     if not machine_writes_enabled():
-        print('insert_mono function disabled')
+        logging.warning('insert_mono function disabled')
         return
     
     mcfg = hxrss_io_mono2_motors()
@@ -143,7 +144,7 @@ def insert_mono(sp):
     elif sp == 'OUT':
         mono_move_motor(mono2_prefix_xmotor, sp_out, is_rot=False)
     else:
-        print(
+        logging.error(
             f'insert_mono: unknown setpoint {sp}, supported values are IN and OUT.')
 
 def is_mono2_inserted():
@@ -174,7 +175,7 @@ def set_mono(sp):
     """
     Sets the monochromator based on the provided setpoint.
     """
-    print('set_mono was called with setpoint '+str(sp))
+    logging.info('set_mono was called with setpoint '+str(sp))
     motor_speed = sp.motor_speed
     mcfg = hxrss_io_mono2_motors()
     mono_move_motor(mcfg.prefix_pitch, sp.pitch, motor_speed=motor_speed)
@@ -203,7 +204,7 @@ def send_model(sp):
         pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A2", sp[2])
         pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A3", sp[3])    
     
-    print('updated crystal model in DOOCS: ', str(sp))
+    logging.info('updated crystal model in DOOCS: ', str(sp))
 
 def thread_write_worker(qin, qout, dbg=False):
     """
@@ -216,13 +217,13 @@ def thread_write_worker(qin, qout, dbg=False):
         if hasattr(item, 'io_dbg'):
             dbg = item.io_dbg
         if dbg:
-            print('write thread: got task from queue')
+            logging.debug('write thread: got task from queue')
         if item.cmd == IO_Cmd.IO_QUIT:
-            print('write thread: got QUIT cmd ==> leaving')
+            logging.warning('write thread: got QUIT cmd ==> leaving')
             break
         tstart = time.time()
         if item.cmd != IO_Cmd.IO_SET:
-            print('ERROR: write thread: got unsupported command')
+            logging.error('ERROR: write thread: got unsupported command')
             continue
 
         r = SimpleNamespace()
@@ -242,15 +243,15 @@ def thread_write_worker(qin, qout, dbg=False):
         dt = tend-tstart
         r.processing_time = dt
         if dbg:
-            print('write thread: finishing item, processing time: {}'.format(dt))
+            logging.debug('write thread: finishing item, processing time: {}'.format(dt))
         else:
             if dt > processing_time_warn:
-                print(
+                logging.warning(
                     'write thread: finishing item, excessive processing time was: {}'.format(dt))
         qin.task_done()
         qout.put(r)
         message_counter += 1
-    print('write thread is finishing')
+    logging.info('write thread is finishing')
 
 def thread_read_worker(qin, qout, dbg=False):
     """
@@ -263,14 +264,14 @@ def thread_read_worker(qin, qout, dbg=False):
         if hasattr(item, 'io_dbg'):
             dbg = item.io_dbg
         if dbg:
-            print('read thread: got task from queue')
+            logging.debug('read thread: got task from queue')
         if item.cmd == IO_Cmd.IO_QUIT:
-            print('read thread: got QUIT cmd ==> leaving')
+            logging.warning('read thread: got QUIT cmd ==> leaving')
             break
         tstart = time.time()
 
         if item.cmd != IO_Cmd.IO_JUSTREAD:
-            print('ERROR: read thread: got unsupported command')
+            logging.error('ERROR: read thread: got unsupported command')
             continue
 
         r = SimpleNamespace()
@@ -324,15 +325,15 @@ def thread_read_worker(qin, qout, dbg=False):
         dt = tend-tstart
         r.processing_time = dt
         if dbg:
-            print('read thread: finishing item, processing time: {}'.format(dt))
+            logging.debug('read thread: finishing item, processing time: {}'.format(dt))
         else:
             if dt > processing_time_warn:
-                print(
+                logging.warning(
                     'read thread: finishing item, excessive processing time was: {}'.format(dt))
         qin.task_done()
         qout.put(r)
         message_counter += 1
-    print('read thread is finishing')
+    logging.info('read thread is finishing')
 
 def get_initial_photon_energy_value():
     """
@@ -345,7 +346,7 @@ def get_initial_photon_energy_value():
 
 
 def get_roll_value(mono="mono2"):
-    print(f"Reading roll value at {mono}")
+    logging.info(f"Reading roll value at {mono}")
     if mono=="mono2":
         r = hxrss_io_mono2_motors()
     elif mono=="mono1":

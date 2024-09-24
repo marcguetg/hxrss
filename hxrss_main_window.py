@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from QLogger import *
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -278,12 +278,16 @@ class Ui_MainWindow(object):
         self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_2.setObjectName("line_2")
         self.gridLayout.addWidget(self.line_2, 6, 0, 1, 10)
-        self.LogBox = QtWidgets.QPlainTextEdit(self.tab)
-        self.LogBox.setEnabled(False)
+        self.LogBox = QTextEditLogger(self.tab)
+        #self.LogBox.setEnabled(False)
+        self.LogBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        #logging.getLogger().addHandler(self.LogBox)
+        # You can control the logging level
+        #logging.getLogger().setLevel(logging.DEBUG)
         self.LogBox.setMinimumSize(QtCore.QSize(700, 0))
         self.LogBox.setMaximumSize(QtCore.QSize(16777215, 50))
         self.LogBox.setObjectName("LogBox")
-        self.gridLayout.addWidget(self.LogBox, 19, 1, 1, 1)
+        self.gridLayout.addWidget(self.LogBox.widget, 19, 1, 1, 1)
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
