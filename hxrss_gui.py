@@ -161,6 +161,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
         #logging.info('assuming roll=1.58')
         self.mono2.setpoint.roll = get_roll_value()
+        self.mono2.corrparams.roll_list = [get_roll_value()]      
         logging.info(f'assuming roll={self.mono2.setpoint.roll}')
 
         self.mono1_roll_rb_display.setAlignment(Qt.AlignCenter)
