@@ -74,7 +74,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         root = logging.getLogger()
         root.addHandler(self.LogBox)
         # You can control the logging level
-        root.setLevel(logging.DEBUG)
+        root.setLevel(logging.INFO)
 
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(root.level)
@@ -535,6 +535,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             # FIXME: implementation still not finalized since unclear what offset is needed for these values
             stt_rangle_list = stt_r.r_angle_list
             stt_gid_list = stt_r.gid_list
+            stt_d_H_list = stt_r.d_H_list
 
             # !!! there is an angle offset between input pitch angles and
             #     angles returned as second return argument !!!
@@ -543,6 +544,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             stt_phen_list = stt_phen_list[0]
             stt_pangle_list = stt_pangle_list[0]
             stt_rangle_list = stt_rangle_list[0]
+            stt_d_H_list = stt_d_H_list[0]
 
             # indicate the data points
             indicate_loaded_data = True
@@ -564,6 +566,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             logging.info('  pitch angle   '+str_minmax(stt_pangle_list))
             logging.info('  roll angle    '+str_minmax(stt_rangle_list))
             logging.info('  photon energy '+str_minmax(stt_phen_list))
+            logging.info('  photon energy '+str_minmax(stt_phen_list))
             #display_phen_max=False
             #self.photon_energy_min_display.setText(str(np.amin(np.array(stt_phen_list))))
             #self.photon_energy_min_label.setVisible(False)
@@ -583,6 +586,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.mono2.curvedata.pitch = stt_pangle_list
             self.mono2.curvedata.roll = stt_rangle_list
             self.mono2.curvedata.phen = stt_phen_list
+            self.mono2.curvedata.d_H = stt_d_H_list
             self.mono2.curvedata.valid = True
 
 ################################
@@ -750,7 +754,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             return False
 
 
-        d_H = cd.d_H[0]
+        d_H = cd.d_H
 
         phen = np.array(cd.phen)#+difference
         pitch = np.array(cd.pitch)

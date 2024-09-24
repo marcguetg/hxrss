@@ -353,7 +353,7 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
 
 
     if return_obj==False:
-        return phen_list, p_angle_list, gid_list
+        return phen_list, p_angle_list, gid_list, d_H
 
     # new style, flexibility when adding new information to return
     r = SimpleNamespace()
@@ -361,6 +361,7 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
     r.p_angle_list = p_angle_list
     r.r_angle_list = r_angle_list
     r.gid_list = gid_list
+    r.d_H_list = d_H_list
     if analyze_curves_complete:
         r.analysis_result_list = analysis_result_list
     elif analyze_curves:
