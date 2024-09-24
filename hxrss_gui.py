@@ -21,7 +21,7 @@ import time
 from types import SimpleNamespace
 from copy import deepcopy
 
-from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, IO_Cmd
+from hxrss_io import thread_read_worker, rt_request_update, rt_get_msg, thread_write_worker, get_initial_photon_energy_value, get_roll_value,IO_Cmd
 from hxrss_io_crystal_params import hxrss_io_crystal_parameters_default, hxrss_io_crystal_parameters_fromDOOCS
 
 import do_crystal_plot
@@ -70,6 +70,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         super().__init__(*args, **kwargs)
 
         self.setupUi(self)
+        self.LogBox.setPlainText("Starting GUI")
         self.display_map_button.clicked.connect(self.on_show_map_button)
         self.apply_button.clicked.connect(self.on_apply_button)
         self.fit_model.clicked.connect(self.on_fit_model)
@@ -133,7 +134,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.mono2.setpoint = SimpleNamespace()
         self.mono2.valid = False
         self.mono2.setpoint.pitch = 100
-        print('assuming roll=1.58')
+        
         self.mono2.setpoint.roll = 0.8904
         #self.roll_angle_edit.setText('{:.3f}'.format(self.mono2.setpoint.roll))
         # [deg], min/max values from mono control panel
@@ -146,6 +147,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # Obtain default correction parameters for mono2
         # These describe imperfections of the system
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
+        print('assuming roll=1.58')
+        self.LogBox.setPlainText('assuming roll=1.58')
+        self.mono2.setpoint.roll = get_roll_value()
+
+
         self.mono1_roll_rb_display.setAlignment(Qt.AlignCenter)
         self.mono2_roll_rb_display.setAlignment(Qt.AlignCenter)
         self.mono1_pitch_rb_display.setAlignment(Qt.AlignCenter)
@@ -957,15 +963,19 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         print('Table updated successfully.')
 
     def loadCsv(self):
-        df = pd.read_csv(self.filename)
-        cols = df.columns.tolist()
-        cols = ['date', 'SA2 Color 1 EPH', 'Mono 2 PA', 'Mono 2 RA']
-        enfilt = (df['SA2 Color 1 EPH'] > self.phen
-                  - 1000) & (df['SA2 Color 1 EPH'] < self.phen+1000)
-        df = df[enfilt]
-        df = df.sort_values(by="date", ascending=False)
-        model = pandasModel(df[cols])
-        self.tableView.setModel(model)
+        try:
+            df = pd.read_csv(self.filename)
+            cols = df.columns.tolist()
+            cols = ['date', 'SA2 Color 1 EPH', 'Mono 2 PA', 'Mono 2 RA']
+            enfilt = (df['SA2 Color 1 EPH'] > self.phen
+                    - 1000) & (df['SA2 Color 1 EPH'] < self.phen+1000)
+            df = df[enfilt]
+            df = df.sort_values(by="date", ascending=False)
+            model = pandasModel(df[cols])
+            self.tableView.setModel(model)
+        except:
+            print("No machine_status file")
+            self.LogBox.setPlainText("No machine_status file")
 
     def viewClicked(self, clickedIndex):
         row = clickedIndex.row()

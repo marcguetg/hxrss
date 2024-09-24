@@ -10,7 +10,10 @@ from datetime import datetime
 import time
 
 if do_doocs:
-    import pydoocs
+    try: 
+        import pydoocs
+    except:
+        do_doocs = False
 
 class IO_Cmd(enum.Enum):
     """
@@ -339,6 +342,18 @@ def get_initial_photon_energy_value():
     value = simple_doocs_read(
         'XFEL.FEL/WAVELENGTHCONTROL.SA2/XFEL.SA2.COLOR1/E_PHOTON')
     return value
+
+
+def get_roll_value(mono="mono2"):
+    print(f"Reading roll value at {mono}")
+    if mono=="mono2":
+        r = hxrss_io_mono2_motors()
+    elif mono=="mono1":
+        r = hxrss_io_mono1_motors()
+    value = simple_doocs_read(
+        r.prefix_roll+"/Angle")
+    return value
+
 
 def rt_request_update(queue, dbg):
     """
