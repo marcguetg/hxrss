@@ -64,6 +64,32 @@ class pandasModel(QAbstractTableModel):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self._data.columns[col]
         return None
+    
+class CustomFormatter(logging.Formatter):
+
+    grey = "\x1b[38;20m"
+    black = ""
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    bold_black = "\x1b[30;1m"
+    reset = "\x1b[0m"
+    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s (%(filename)s:%(lineno)d)"
+
+    FORMATS = {
+        logging.DEBUG: grey + format + reset,
+        logging.INFO: black + format + reset,
+        logging.WARNING: yellow + format + reset,
+        logging.ERROR: red + format + reset,
+        logging.CRITICAL: bold_red + format + reset,
+        25: bold_black + format + reset
+    }
+
+    def format(self, record):
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt,datefmt='%Y-%m-%d %H:%M')
+        return formatter.format(record) 
+
 
 
 class MainWindow(qtw.QMainWindow, Ui_MainWindow):
@@ -71,18 +97,28 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         super().__init__(*args, **kwargs)
 
         self.setupUi(self)
-        root = logging.getLogger()
-        root.addHandler(self.LogBox)
+        self.logger = logging.getLogger()
+        HIGHLIGHT_LEVEL_NUM = 25 
+        logging.addLevelName(HIGHLIGHT_LEVEL_NUM, "HIGHLIGHT")
+        def highlight(self,message, *args, **kws):
+            if self.isEnabledFor(HIGHLIGHT_LEVEL_NUM):
+                # Yes, logger takes its '*args' as 'args'.
+                self._log(HIGHLIGHT_LEVEL_NUM, message, args, **kws) 
+        logging.Logger.highlight = highlight
+        self.logger.addHandler(self.LogBox)
+
+
+        self.LogBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M'))
         # You can control the logging level
-        root.setLevel(logging.INFO)
+        self.logger.setLevel(logging.INFO)
 
         handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(root.level)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        root.addHandler(handler)
+        handler.setLevel(self.logger.level)
+        # formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s',datefmt='%Y-%m-%d %H:%M')
+        handler.setFormatter(CustomFormatter())
+        self.logger.addHandler(handler)
 
-        logging.info("Starting GUI")
+        self.logger.highlight("Starting GUI")
         self.display_map_button.clicked.connect(self.on_show_map_button)
         self.apply_button.clicked.connect(self.on_apply_button)
         self.fit_model.clicked.connect(self.on_fit_model)
@@ -159,10 +195,10 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # Obtain default correction parameters for mono2
         # These describe imperfections of the system
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
-        #logging.info('assuming roll=1.58')
+        #self.logger.info('assuming roll=1.58')
         self.mono2.setpoint.roll = get_roll_value()
         self.mono2.corrparams.roll_list = [get_roll_value()]      
-        logging.info(f'assuming roll={self.mono2.setpoint.roll}')
+        self.logger.info(f'assuming roll={self.mono2.setpoint.roll}')
 
         self.mono1_roll_rb_display.setAlignment(Qt.AlignCenter)
         self.mono2_roll_rb_display.setAlignment(Qt.AlignCenter)
@@ -375,8 +411,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         self.crystal_plot = blah
 
     def on_crystal_map_linepicked(self, the_info):
-        logging.info('### CRYSTAL MAP CALLBACK ###')
-        logging.info(str(the_info))
+        self.logger.info('### CRYSTAL MAP CALLBACK ###')
+        self.logger.info(str(the_info))
         if the_info.valid:
             self.apply_button.setEnabled(True)
             self.label_2.setVisible(True)
@@ -403,7 +439,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             click_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin) <= the_info.x) and (
                 the_info.x <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
             if not click_inrange:
-                logging.error('ERROR: you need to click within the pitch angle range: '
+                self.logger.error('ERROR: you need to click within the pitch angle range: '
                       + str(mono.pitch_min
                             + abs(mono.pitch_minmax_safetymargin)) + ' and '
                       + str(mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
@@ -419,7 +455,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                     matchresult[2]), int(matchresult[3]))
             else:
                 # could not match the string
-                logging.warning('Warning: could not extract crystal orientation from '
+                self.logger.warning('Warning: could not extract crystal orientation from '
                       + the_info.info_txt+', using hkl=(1,1,1)')
                 hkl = (1, 1, 1)
 
@@ -456,14 +492,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             # Remember that HXRSS_Bragg_max_generator returns lists containing lists,
             # as it is designed to handle multiple curve traces simultaneously
             workspace_range_analysis = deepcopy(stt_r.analysis_result_list[0])
-            logging.info('*** STEP 1: result of analysis procedure ***')
-            logging.info(str(workspace_range_analysis))
-            logging.info('*** STEP 2: add travel min/max and click pos ***')
+            self.logger.highlight('*** STEP 1: result of analysis procedure ***')
+            self.logger.info(str(workspace_range_analysis))
+            self.logger.highlight('*** STEP 2: add travel min/max and click pos ***')
             workspace_range_analysis.append((mono.pitch_min, -1, 'travel_min'))
             workspace_range_analysis.append((mono.pitch_max, -1, 'travel_max'))
             key_click = 'click_pos'
             workspace_range_analysis.append((the_info.x, -1, key_click))
-            logging.info(str(workspace_range_analysis))
+            self.logger.info(str(workspace_range_analysis))
 
             def my_cmp(x_, y_):
                 # print('compare '+str(x_)+' and '+str(y_))
@@ -472,9 +508,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             import functools
             workspace_range_analysis = sorted(workspace_range_analysis,
                                               key=functools.cmp_to_key(my_cmp))  # docu: https://docs.python.org/3/library/functools.html#functools.cmp_to_key
-            logging.info('*** STEP 3: sort pitch angles in ascending order ***')
-            logging.info(str(workspace_range_analysis))
-            logging.info('*** DONE ***')
+            self.logger.highlight('*** STEP 3: sort pitch angles in ascending order ***')
+            self.logger.info(str(workspace_range_analysis))
+            self.logger.highlight('*** DONE ***')
 
             # Let's assume that there are no curve features (pole,minimum),
             # still the clicked point (if between travel_min and travel_max)
@@ -488,12 +524,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                     break
 
             if (idx_click == 0) or (idx_click == len(workspace_range_analysis)-1) or (idx_click_valid == False):
-                logging.error('ERROR: click outside of motor travel range?')
+                self.logger.error('ERROR: click outside of motor travel range?')
                 return
 
-            logging.info('idx_click-1: '+str(workspace_range_analysis[idx_click-1]))
-            logging.info('idx_click:   '+str(workspace_range_analysis[idx_click]))
-            logging.info('idx_click+1: '+str(workspace_range_analysis[idx_click+1]))
+            self.logger.info('idx_click-1: '+str(workspace_range_analysis[idx_click-1]))
+            self.logger.info('idx_click:   '+str(workspace_range_analysis[idx_click]))
+            self.logger.info('idx_click+1: '+str(workspace_range_analysis[idx_click+1]))
             idx_scanrange_min = idx_click-1
             idx_scanrange_max = idx_click+1
 
@@ -507,14 +543,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
             # FIXME: workaround for the fact that the pitch scan range specified to HXRSS_Bragg_max_generator
             workaround = 0.5
-            logging.info('WORKAROUND: reduce determined range by {workaround}')
+            self.logger.info('WORKAROUND: reduce determined range by {workaround}')
             scanrange_min += workaround
             scanrange_max -= workaround
             if scanrange_min > scanrange_max:
-                logging.error('ERROR: scan range is too small. Pick different line.')
+                self.logger.error('ERROR: scan range is too small. Pick different line.')
                 return
 
-            logging.info(
+            self.logger.info(
                 f'*** DONE: going to load pitch angle scan range {scanrange_min} -- {scanrange_max} degrees ***')
 
             ##############################################
@@ -562,11 +598,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 s = 'min={:f} max={:f}'.format(np.amin(q), np.amax(q))
                 return s
 
-            logging.info('Information on curve data obtained for hkl='+str(hkl))
-            logging.info('  pitch angle   '+str_minmax(stt_pangle_list))
-            logging.info('  roll angle    '+str_minmax(stt_rangle_list))
-            logging.info('  photon energy '+str_minmax(stt_phen_list))
-            logging.info('  photon energy '+str_minmax(stt_phen_list))
+            self.logger.info('Information on curve data obtained for hkl='+str(hkl))
+            self.logger.info('  pitch angle   '+str_minmax(stt_pangle_list))
+            self.logger.info('  roll angle    '+str_minmax(stt_rangle_list))
+            self.logger.info('  photon energy '+str_minmax(stt_phen_list))
+            self.logger.info('  photon energy '+str_minmax(stt_phen_list))
             #display_phen_max=False
             #self.photon_energy_min_display.setText(str(np.amin(np.array(stt_phen_list))))
             #self.photon_energy_min_label.setVisible(False)
@@ -596,11 +632,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def interp_from_pitch(self, mono):
         if not hasattr(mono, 'curvedata'):
-            logging.warning(mono.infotxt+': no curvedata available, select curve from map')
+            self.logger.warning(mono.infotxt+': no curvedata available, select curve from map')
             return False
         cd = mono.curvedata
         if cd.valid != True:
-            logging.error(mono.infotxt+': curvedata is not valid')
+            self.logger.error(mono.infotxt+': curvedata is not valid')
             return False
 
         self.f_interp_pitch = interpolate.interp1d(cd.phen, cd.pitch,
@@ -620,9 +656,9 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # root finding does not support specification of bounds
         solroot = scipy.optimize.root(f, [phen0])
         if not solroot.success:
-            logging.warning(
+            self.logger.warning(
                 mono.infotxt+': issue with finding the photon energy, scipy.optimize.root status:')
-            logging.warning(str(solroot))
+            self.logger.warning(str(solroot))
             return -1        
         # Verify that determined setpoint is not the result of extrapolation process
         setpoint_phen = solroot.x[0]
@@ -636,14 +672,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def determine_mono_setpoints_from_pitch(self, mono, sp_pitch):
         if not hasattr(mono, 'curvedata'):
-            logging.warning(mono.infotxt+': no curvedata available, select curve from map')
+            self.logger.warning(mono.infotxt+': no curvedata available, select curve from map')
             return False
         cd = mono.curvedata
         if cd.valid != True:
-            logging.error(mono.infotxt+': curvedata is not valid')
+            self.logger.error(mono.infotxt+': curvedata is not valid')
             return False
 
-        logging.info(mono.infotxt
+        self.logger.info(mono.infotxt
               + f': computing setpoint for requested pitch angle {sp_pitch} and roll angle {self.rollconfig}')
         
         phen_max = np.amax(np.array(cd.phen))
@@ -654,7 +690,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         setpoint_pitch_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin) <= sp_pitch) and (
             sp_pitch <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
         if setpoint_pitch_inrange == False:
-            logging.error(
+            self.logger.error(
                 mono.infotxt+f': determined pitch setpoint {sp_pitch} not in allowed travel range (min={mono.pitch_min}, max={mono.pitch_max}, safety_margin={mono.pitch_minmax_safetymargin}')
             return False
 
@@ -663,7 +699,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                                        + ' deg and '+str(np.round(pitch_max, 2))+' deg. Press Enter to calculate setpoint.')
                 pass  # ok
         else:
-            logging.error(
+            self.logger.error(
                 mono.infotxt+f': requested pitch angle is outside of possible range {pitch_min}..{pitch_max}')
             self.calclabel.setText('Requested pitch angle is outside of possible range ' + str(
                 np.round(pitch_min, 1)) + ' eV and '+str(np.round(pitch_max, 1))+' eV.')
@@ -694,14 +730,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         is_interpolation = (phen_min <= setpoint_phen) and (
             setpoint_phen <= phen_max)
         if not is_interpolation:
-            logging.error(mono.infotxt+': determined phen setpoint is extrapolation of crystal curve data set, this is an error.')
-            logging.error(str(solroot))
+            self.logger.error(mono.infotxt+': determined phen setpoint is extrapolation of crystal curve data set, this is an error.')
+            self.logger.error(str(solroot))
             return False
 
         # determine dE_photon/dpitch
         
 
-        logging.info(mono.infotxt
+        self.logger.info(mono.infotxt
               + f': setpoint pitch={sp_pitch}, roll={self.roll_angle_edit.text()}')
 
         self.computed_pitch_angle_display.setText(
@@ -716,16 +752,16 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # 1.58 # FIXME: computed roll point is currently not used
         mono.setpoint.roll = float(self.roll_angle_edit.text())
         mono.setpoint.valid = True
-        logging.info('*** Crystal setpoint values updated ***')
+        self.logger.highlight('*** Crystal setpoint values updated ***')
         return True
         
     def fit_model_to_curve(self, difference):
         if not hasattr(self.mono2, 'curvedata'):
-            logging.warning(self.mono2.infotxt+': no curvedata available, select curve from map')
+            self.logger.warning(self.mono2.infotxt+': no curvedata available, select curve from map')
             return False
         cd = self.mono2.curvedata
         if cd.valid != True:
-            logging.error(self.mono2.infotxt+': curvedata is not valid')
+            self.logger.error(self.mono2.infotxt+': curvedata is not valid')
             return False
 
         phen_max = np.amax(np.array(cd.phen))
@@ -736,7 +772,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
 
         phen = np.array(cd.phen)+difference
-        logging.info(f"Difference between photon energy set point and model is difference {difference}")
+        self.logger.info(f"Difference between photon energy set point and model is difference {difference}")
         pitch = np.array(cd.pitch)
         z = np.polyfit(phen, pitch, 4)
         #print(z)
@@ -746,11 +782,11 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def fit_asinmodel_to_curve(self, difference):
         if not hasattr(self.mono2, 'curvedata'):
-            logging.warning(self.mono2.infotxt+': no curvedata available, select curve from map')
+            self.logger.warning(self.mono2.infotxt+': no curvedata available, select curve from map')
             return False
         cd = self.mono2.curvedata
         if cd.valid != True:
-            logging.error(self.mono2.infotxt+': curvedata is not valid')
+            self.logger.error(self.mono2.infotxt+': curvedata is not valid')
             return False
 
 
@@ -765,8 +801,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             return np.rad2deg(asin_func(a,x))-y
         guess = [0.5*scipy.constants.physical_constants['Planck constant in eV s'][0]*scipy.constants.speed_of_light/d_H,difference,1, 0]
         res = scipy.optimize.least_squares(fun, guess, args=(phen+difference, pitch))
-        logging.info(f"Difference between photon energy set point and model is difference {difference}")
-        logging.info(res.x)
+        self.logger.info(f"Difference between photon energy set point and model is difference {difference}")
+        self.logger.info(res.x)
         
 
         return res.x
@@ -774,14 +810,14 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def determine_mono_setpoints(self, mono, sp_phen):
         if not hasattr(mono, 'curvedata'):
-            logging.warning(mono.infotxt+': no curvedata available, select curve from map')
+            self.logger.warning(mono.infotxt+': no curvedata available, select curve from map')
             return False
         cd = mono.curvedata
         if cd.valid != True:
-            logging.error(mono.infotxt+': curvedata is not valid')
+            self.logger.error(mono.infotxt+': curvedata is not valid')
             return False
 
-        logging.info(mono.infotxt
+        self.logger.info(mono.infotxt
               + f': computing setpoint for requested photon energy {sp_phen} and roll angle {self.rollconfig}')
 
         # some information about crystal curve data used for interpolation
@@ -798,7 +834,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                 self.scanlabel.setText('Calculating setpoint.')
                 pass  # ok
             else:
-                logging.error(
+                self.logger.error(
                     mono.infotxt+f': requested photon energy is outside of possible range {phen_min}..{phen_max}')
                 self.scanlabel.setText('Requested photon energy is outside of possible range ' + str(
                     np.round(phen_min, 1)) + ' eV and '+str(np.round(phen_max, 1))+' eV. Stopping scan')
@@ -810,7 +846,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
                                        + ' eV and '+str(np.round(phen_max, 1))+' eV. Press Enter to calculate setpoint.')
                 pass  # ok
             else:
-                logging.error(
+                self.logger.error(
                     mono.infotxt+f': requested photon energy is outside of possible range {phen_min}..{phen_max}')
                 self.calclabel.setText('Requested photon energy is outside of possible range ' + str(
                     np.round(phen_min, 1)) + ' eV and '+str(np.round(phen_max, 1))+' eV.')
@@ -851,8 +887,8 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             setpoint_pitch <= pitch_max)
         
         if not is_interpolation:
-            logging.error(mono.infotxt+': determined pitch setpoint is extrapolation of crystal curve data set, this is an error.')
-            logging.error(str(solroot))
+            self.logger.error(mono.infotxt+': determined pitch setpoint is extrapolation of crystal curve data set, this is an error.')
+            self.logger.error(str(solroot))
             return False
 
         # Check that the determined setpoint is within the travel range of the actuator
@@ -861,7 +897,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         setpoint_pitch_inrange = (mono.pitch_min+abs(mono.pitch_minmax_safetymargin) <= setpoint_pitch) and (
             setpoint_pitch <= mono.pitch_max-abs(mono.pitch_minmax_safetymargin))
         if setpoint_pitch_inrange == False:
-            logging.error(
+            self.logger.error(
                 mono.infotxt+f': determined pitch setpoint {setpoint_pitch} not in allowed travel range (min={mono.pitch_min}, max={mono.pitch_max}, safety_margin={mono.pitch_minmax_safetymargin}')
             return False
 
@@ -876,7 +912,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # setpoint_roll *= 180/np.pi  # rad=>deg
         # NOTE: currently not using this setpoint as additional considerations are needed
 
-        logging.info(mono.infotxt
+        self.logger.info(mono.infotxt
               + f': setpoint pitch={setpoint_pitch}, roll={self.roll_angle_edit.text()}')
         if self.scan_checkBox.isChecked() == 1:
             self.scanlabel.setText(
@@ -898,18 +934,18 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         # 1.58 # FIXME: computed roll point is currently not used
         mono.setpoint.roll = float(self.roll_angle_edit.text())
         mono.setpoint.valid = True
-        logging.info('*** Crystal setpoint values updated ***')
+        self.logger.highlight('*** Crystal setpoint values updated ***')
         return True
 
     def on_photon_energy_enter(self):
-        logging.info('photon energy edit: [enter] detected')
+        self.logger.info('photon energy edit: [enter] detected')
         phen_str = self.photon_energy_edit.text()
         # convert string to number, continue only if this works
         try:
             self.phen = float(phen_str)
         except ValueError:
-            logging.error(f'photon energy cannot convert "{phen_str}" into number')
-            logging.error('Make sure the Photon Energy value is a valid number.')
+            self.logger.error(f'photon energy cannot convert "{phen_str}" into number')
+            self.logger.error('Make sure the Photon Energy value is a valid number.')
             self.loglabel.setText(
                 'Make sure the Photon Energy value is a valid number.')
             self.display_map_button.setEnabled(False)
@@ -922,62 +958,62 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         #self.determine_setpoints(self.phen)
 
     def on_calc_photon_energy_enter(self):
-        logging.info('photon energy edit: [enter] detected')
+        self.logger.info('photon energy edit: [enter] detected')
         phen_str = self.photonE.text()
         # convert string to number, continue only if this works
         try:
             self.phen_calc = float(phen_str)
         except ValueError:
-            logging.error(f'photon energy cannot convert "{phen_str}" into number')
+            self.logger.error(f'photon energy cannot convert "{phen_str}" into number')
             return
         self.determine_setpoints(self.phen_calc)
 
     def on_calc_pitch_angle_enter(self):
-        logging.info('pitch angle edit: [enter] detected')
+        self.logger.info('pitch angle edit: [enter] detected')
         pitch_str = self.pitch_angle_edit.text()
         # convert string to number, continue only if this works
         try:
             self.pitch_calc = float(pitch_str)
         except ValueError:
-            logging.error(f'pitch angle cannot convert "{pitch_str}" into number')
+            self.logger.error(f'pitch angle cannot convert "{pitch_str}" into number')
             return
         self.determine_mono_setpoints_from_pitch(self.mono2, self.pitch_calc)
 
     def on_calc_roll_angle_enter(self):
-        logging.info('roll angle edit: [enter] detected')
+        self.logger.info('roll angle edit: [enter] detected')
         roll_str = self.roll_angle_edit.text()
         # convert string to number, continue only if this works
         try:
             self.roll_calc = float(roll_str)
         except ValueError:
-            logging.error(f'roll angle cannot convert "{roll_str}" into number')
+            self.logger.error(f'roll angle cannot convert "{roll_str}" into number')
             return
         self.rollconfig = self.roll_calc
         self.on_calc_pitch_angle_enter()
 
     def on_params_report_button(self):
-        logging.info('reporting correction parameters: ' + str(self.mono2.corrparams))
+        self.logger.info('reporting correction parameters: ' + str(self.mono2.corrparams))
 
     def on_params_fromDOOCS_button(self):
-        logging.info('previous correction parameters: ' + str(self.mono2.corrparams))
+        self.logger.info('previous correction parameters: ' + str(self.mono2.corrparams))
         self.mono2.corrparams = hxrss_io_crystal_parameters_fromDOOCS()
-        logging.info('loaded correction parameters from DOOCS:'
+        self.logger.info('loaded correction parameters from DOOCS:'
               + str(self.mono2.corrparams))
 
     def on_params_default_button(self):
-        logging.info('previous correction parameters: ' + str(self.mono2.corrparams))
+        self.logger.info('previous correction parameters: ' + str(self.mono2.corrparams))
         self.mono2.corrparams = hxrss_io_crystal_parameters_default()
-        logging.info('loaded default correction parameters:'
+        self.logger.info('loaded default correction parameters:'
               + str(self.mono2.corrparams))
 
     def on_update_table_button(self):
-        logging.info('Updating table')
+        self.logger.info('Updating table')
         try:
             update_table()
         except:
-            logging.warning('Table not updated.')
+            self.logger.warning('Table not updated.')
             return
-        logging.debug('Table updated successfully.')
+        self.logger.debug('Table updated successfully.')
 
     def loadCsv(self):
         try:
@@ -991,7 +1027,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             model = pandasModel(df[cols])
             self.tableView.setModel(model)
         except:
-            logging.warning("No machine_status file")
+            self.logger.warning("No machine_status file")
 
     def viewClicked(self, clickedIndex):
         row = clickedIndex.row()
@@ -1072,7 +1108,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             s = ''.join(self.logbookstring)
             if len(s) > 85:
                 self.on_logbook_button(s)
-            logging.debug(s)
+            self.logger.debug(s)
             
     def motor_temp_scan_shutdown(self):
         if self.temp.value() > 80:
@@ -1173,7 +1209,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         ########print('TEST writing:', cmd.setpoints)
 
     def on_mono2_crystal_insert_button(self):
-        logging.info('crystal2 insert button pressed')
+        self.logger.info('crystal2 insert button pressed')
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
@@ -1183,7 +1219,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
 
     def on_mono2_crystal_park_button(self):
         print('crystal2 park button')
-        logging.info('crystal2 park button pressed')
+        self.logger.info('crystal2 park button pressed')
         cmd = SimpleNamespace()
         cmd.cmd = IO_Cmd.IO_SET
         cmd.setpoints = SimpleNamespace()
