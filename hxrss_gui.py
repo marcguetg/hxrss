@@ -671,7 +671,7 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
             self.on_show_map_button()
             return False
         
-        f_interp_phen = interpolate.interp1d( cd.phen,cd.phen,
+        f_interp_phen = interpolate.interp1d( cd.pitch,cd.phen,
                                              fill_value='extrapolate', bounds_error=False)
         
 
@@ -691,11 +691,12 @@ class MainWindow(qtw.QMainWindow, Ui_MainWindow):
         
         # # Verify that determined setpoint is not the result of extrapolation process
         # setpoint_phen = solroot.x[0]
+        setpoint_phen = f_interp_phen(sp_pitch)
+        print(setpoint_phen)
         is_interpolation = (phen_min <= setpoint_phen) and (
             setpoint_phen <= phen_max)
         if not is_interpolation:
             logging.error(mono.infotxt+': determined phen setpoint is extrapolation of crystal curve data set, this is an error.')
-            logging.error(str(solroot))
             return False
 
         # determine dE_photon/dpitch

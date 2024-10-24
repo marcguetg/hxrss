@@ -192,7 +192,7 @@ def send_model(sp):
     """
     Sends crystal model data to DOOCS.
     """
-    if len(sp)==4: #old polynomial model
+    if len(sp)==5: #old polynomial model
         pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A4", sp[0])
         pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A3", sp[1])
         pydoocs.write("XFEL.UTIL/DYNPROP/MONO.2307.SA2/A2", sp[2])
