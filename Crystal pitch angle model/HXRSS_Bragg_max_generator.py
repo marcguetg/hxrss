@@ -72,13 +72,17 @@ def HXRSS_Bragg_max_generator(thplist, h_max, k_max, l_max, dthp, dthy, roll_ang
 
     def kirot(thp, thy, thr, n0, pitchax, rollax, yawax):
         #note: it seems like in Alberto's tool the roll and yaw are not transformed by subsequent rotations. For comparison, Ileave this out too.
-        r1, rollax2, yawax2 = rotm1(thp, pitchax, rollax, yawax)
-        rollax2 = rollax
-        yawax2 = yawax
-        r2, rollax3 = rotm2(thy, rollax2, yawax2)
-        rollax3 = rollax
-        r3 = rotm3(thr, rollax3)
-        return r3.dot(r2.dot(r1.dot(n0)))
+        # r1, rollax2, yawax2 = rotm1(thp, pitchax, rollax, yawax)
+        # rollax2 = rollax
+        # yawax2 = yawax
+        # r2, rollax3 = rotm2(thy, rollax2, yawax2)
+        # rollax3 = rollax
+        # r3 = rotm3(thr, rollax3)
+
+        r = rotm1(thp,pitchax,rollax,yawax)[0]@rotm3(thr,rollax)@rotm2(thy,rollax,yawax)[0]
+
+
+        return r.dot(n0)
 
 
     def d_H(h,k,l,a):
