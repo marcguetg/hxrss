@@ -107,8 +107,14 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
         line_pick = SimpleNamespace()
         line_pick.valid = False
 
+    maxE = roi.maxE
+    minE = roi.minE
+    phen = roi.phen
     # maximum h,k,l to scan (generator loops over -hmax .. hmax, etc.)
-    hmax,kmax,lmax = 5,5,5
+    if roi.phen<12000:
+        hmax,kmax,lmax = 5,5,5
+    else:
+        hmax,kmax,lmax = 6,6,7
     #hmax,kmax,lmax = 3,3,3
 
     # scan over these pitch angles
@@ -129,10 +135,9 @@ def crystal_plot_core(fig, canvas, ax, standalone=False, line_pick=None, line_pi
     alpha = corrparams.alpha  # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
     #roll_list = corrparams.roll_list
     
-    maxE = roi.maxE
-    minE = roi.minE
+    
     roll_list = roi.roll
-    phen = roi.phen
+    
 
     res = HXRSS_Bragg_max_generator(thplist, hmax, kmax, lmax, dthp, dthy, roll_list, dthr, alpha, maxE, minE, return_obj=True, analyze_curves=do_indicate_features)
     phen_list = res.phen_list
