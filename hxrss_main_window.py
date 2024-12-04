@@ -280,7 +280,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.line_2, 6, 0, 1, 10)
         self.LogBox = QTextEditLogger(self.tab)
         #self.LogBox.setEnabled(False)
-        self.LogBox.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
         #logging.getLogger().addHandler(self.LogBox)
         # You can control the logging level
         #logging.getLogger().setLevel(logging.DEBUG)

@@ -9,10 +9,10 @@ def hxrss_io_crystal_parameters_default():
     print('*** hxrss_io_crystal_parameters_default: loading default correction parameters for monochromator2 ***')
     d = SimpleNamespace()
     # imperfections of the system (from Channel_list.md document, as of 14.10.2021)
-    d.dthp = 1.15319177#1.145 #-0.392      # pitch angle
-    d.dthy = -0.3049173#1.1099#1.17        # roll angle (American convention)
-    d.dthr = -0.70169413#-1.0173#-0.1675      # yaw angle (American convention)
-    d.alpha = 0.02688593#1.07576E-2 #0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
+    d.dthp = 1.15497246#1.145 #-0.392      # pitch angle
+    d.dthy = 0.61820617#1.1099#1.17        # roll angle (American convention)
+    d.dthr = -0.82300946#-1.0173#-0.1675      # yaw angle (American convention)
+    d.alpha = 0.01643269#1.07576E-2 #0.00238    # alpha parameter: for different pitch angles, different rolls are needed to bring the lines together
     d.roll_list = [1.58]
     return d
 
